@@ -1,0 +1,19 @@
+{
+  "name": "billbuzz",
+  "version": "1.0.0",
+  "description": "financial app to consolidate and monitor accounts",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Skeeterbob/BillBuzz.git"
+  },
+  "author": "Bryan Hodgins",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Skeeterbob/BillBuzz/issues"
+  },
+  "homepage": "https://github.com/Skeeterbob/BillBuzz#readme"
+}
