@@ -1,3 +1,17 @@
+//JSON object that can be used to validate the types of objects in particular
+var types = {
+    'get': function(prop) {
+       return Object.prototype.toString.call(prop);
+    },
+    'null': '[object Null]',
+    'object': '[object Object]',
+    'array': '[object Array]',
+    'string': '[object String]',
+    'boolean': '[object Boolean]',
+    'number': '[object Number]',
+    'date': '[object Date]',
+ }
+
 //class to store and manipulate user data
 class User {
     #firstName;
@@ -7,7 +21,6 @@ class User {
     #availCredit;
     #email;
     #phoneNumber;
-    #transactionList = [];
     #accountList = [];
 
     //function to add an account to the account list
@@ -47,8 +60,47 @@ class User {
         return this.#phoneNumber
     }
 
+    getAccountList () {
+        return this.#accountList;
+    }
+
+}
+
+class Account {
+    #id;
+    #name;
+    #balance;
+    #transactionList;
+
+    getId () {
+        return this.#id;
+    }
+
+    getName () {
+        return this.#name;
+    }
+
+    setName (name) {
+        this.#name = name;
+    }
+
+    getBalance() {
+        return this.#balance;
+    }
+
     getTransactionList () {
         return this.#transactionList;
     }
+}
 
+class TransactionList {
+    #data = [];
+    #length;
+    #beginDate;
+    #endDate;
+
+    addTransactions (transactions) {
+        //logic to add transactions to the end of the list. needs to take into account the endDate.
+        //frontend should use httpHandler, and backend should use DBHandler
+    }
 }
