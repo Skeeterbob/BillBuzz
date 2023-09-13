@@ -25,7 +25,8 @@ class User {
 
     //function to add an account to the account list
     /*addAccount(account) { 
-        need to make sure that it is of class account and add it to the accountList
+        need to make sure that it is of class account and add it to the 
+        accountList
     }*/
 
     //function to remove an account from accountList
@@ -93,6 +94,8 @@ class Account {
     }
 }
 
+//class to store a list of transaction with some extra information relevant to
+//to the list. The data array is to be composed of Transaction objects
 class TransactionList {
     #data = [];
     #length;
@@ -100,7 +103,35 @@ class TransactionList {
     #endDate;
 
     addTransactions (transactions) {
-        //logic to add transactions to the end of the list. needs to take into account the endDate.
-        //frontend should use httpHandler, and backend should use DBHandler
+        //logic to add transactions to the end of the list. needs to take into 
+        //account the endDate. frontend should use httpHandler, and backend 
+        //should use DBHandler
+    }
+}
+
+class Transaction {
+    #amount;
+    #date;
+    #subscription;
+    #vendor;
+
+    getAmount () {
+        return this.#amount;
+    }
+
+    getDate () {
+        return this.#date;
+    }
+
+    getSubscription () {
+        return this.#subscription;
+    }
+
+    setSubscription (boolVal) {
+        this.#subscription = boolVal;
+    }
+
+    getVendor () {
+        return this.#vendor;
     }
 }
