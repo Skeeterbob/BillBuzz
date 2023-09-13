@@ -1,4 +1,4 @@
-//class to store user data to be read from
+//class to store and manipulate user data
 class User {
     #firstName;
     #lastName;
