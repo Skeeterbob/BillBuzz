@@ -5,7 +5,8 @@
   "description": "financial app to consolidate and monitor accounts",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",

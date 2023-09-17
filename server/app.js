@@ -1,18 +1,35 @@
 import dotenv from 'dotenv';
+import { TwilioHandler } from './twilioHandler.js';
+import express from 'express';
+import { MongoClient, ServerApiVersion } from 'mongodb';
 dotenv.config('../.env');
-import {TwilioHandler} from './twilioHandler.js';
 const twilioHandler = new TwilioHandler();
-const PORT = 4000;
+const PORT = 3000;
 const app = express();
-const express = require('express');
-const mongoose = require("mongoose")
+const client = new MongoClient(process.env.MONGO_CONNECTION, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    }
+});
+
+async function run() {
+    try {
+        // Connect the client to the server	(optional starting in v4.7)
+        await client.connect();
+        // Send a ping to confirm a successful connection
+        await client.db("admin").command({ ping: 1 });
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+        // Ensures that the client will close when you finish/error
+        await client.close();
+    }
+}
+run().catch(console.dir);
 //Connect to mongoDB
-mongoose.connect('mongodb+srv://eg0547:6GeKD4a76qhbSzb@wsucluster0.3pqwigj.mongodb.net/?retrywrites=true&w=majority');
 
 app.listen(PORT, function(err) {
    if(err) console.log(`Server NOT connected!`)
     console.log(`Server started on port ${PORT}`);
   });
-
-
-
