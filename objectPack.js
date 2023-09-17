@@ -22,6 +22,7 @@ class User {
     #email;
     #phoneNumber;
     #accountList = [];
+    #password;
 
     //function to add an account to the account list
     /*addAccount(account) { 
