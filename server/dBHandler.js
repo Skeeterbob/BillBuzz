@@ -20,7 +20,7 @@ const client = new MongoClient(process.env.MONGO_CONNECTION, {
     }
 });
 
-class DatabaseHandler {
+class DBHandler {
     //Our ClientEncryption instance and dataKey
     #encryption
     #dataKey
@@ -113,4 +113,4 @@ class DatabaseHandler {
     }
 }
 
-export {DatabaseHandler};
+export {DBHandler};
