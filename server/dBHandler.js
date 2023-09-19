@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import {User} from './user';
 import {ClientEncryption, MongoClient, ServerApiVersion} from 'mongodb';
 
 dotenv.config('../.env');
@@ -45,7 +46,7 @@ class DatabaseHandler {
     }
 
     //Insert a new user into the database
-    async insertUserToDB({email, password, firstName, lastName, birthday, phoneNumber, bankBalance, availableCredit}) {
+    async insertUser(user) {
         try {
             //Create our encryption options as a variable as it's commonly re-used
             const encryptionOptions = {
@@ -57,18 +58,20 @@ class DatabaseHandler {
             const db = client.db(DATABASE_NAME);
             const usersCollection = db.collection(USERS_COLLECTION);
 
-            //Insert one document into the DB with the user's properties
-            //Here we encrypt all the data before inserting into the DB
-            return await usersCollection.insertOne({
-                email: await this.#encryption.encrypt(email, encryptionOptions),
-                password: await this.#encryption.encrypt(password, encryptionOptions),
-                firstName: await this.#encryption.encrypt(firstName, encryptionOptions),
-                lastName: await this.#encryption.encrypt(lastName, encryptionOptions),
-                birthday: await this.#encryption.encrypt(birthday, encryptionOptions),
-                phoneNumber: await this.#encryption.encrypt(phoneNumber, encryptionOptions),
-                bankBalance: await this.#encryption.encrypt(bankBalance, encryptionOptions),
-                availableCredit: await this.#encryption.encrypt(availableCredit, encryptionOptions)
+            //Create a new User object with all properties encrypted
+            const encryptedUser = new User({
+                email: await this.#encryption.encrypt(user.email, encryptionOptions),
+                password: await this.#encryption.encrypt(user.password, encryptionOptions),
+                firstName: await this.#encryption.encrypt(user.firstName, encryptionOptions),
+                lastName: await this.#encryption.encrypt(user.lastName, encryptionOptions),
+                birthday: await this.#encryption.encrypt(user.birthday, encryptionOptions),
+                phoneNumber: await this.#encryption.encrypt(user.phoneNumber, encryptionOptions),
+                bankBalance: await this.#encryption.encrypt(user.bankBalance, encryptionOptions),
+                availableCredit: await this.#encryption.encrypt(user.availableCredit, encryptionOptions)
             });
+
+            //Insert one document into the DB with the user's properties
+            return await usersCollection.insertOne(encryptedUser);
         }catch (error) {
             //Throw and log any error we get when trying to insert a new user
             console.error("Error inserting user to database:", error);
@@ -77,22 +80,22 @@ class DatabaseHandler {
     }
 
     //Get a user from the database by their email
-    async getUserFromDB(email) {
+    async getUser(user) {
         try {
             //Get the users collection from our database
             const db = client.db(DATABASE_NAME);
             const usersCollection = db.collection(USERS_COLLECTION);
 
             //Encrypt the email so that we can search for it in the database
-            const encryptedEmail = await this.#encryption.encrypt(email, {
+            const encryptedEmail = await this.#encryption.encrypt(user.email, {
                 algorithm: ENCRYPTION_ALGORITHM,
                 keyId: this.#dataKey
             });
             //Retrieve the user from the database, all the data would be encrypted
-            const encryptedUser = usersCollection.findOne({email: encryptedEmail});
+            const encryptedUser = await usersCollection.findOne({email: encryptedEmail});
 
             //Return the user's properties decrypted so that we can actually read them
-            return {
+            return new User({
                 email: this.#encryption.decrypt(encryptedUser.email),
                 password: this.#encryption.decrypt(encryptedUser.password),
                 firstName: this.#encryption.decrypt(encryptedUser.firstName),
@@ -101,7 +104,7 @@ class DatabaseHandler {
                 phoneNumber: this.#encryption.decrypt(encryptedUser.phoneNumber),
                 bankBalance: this.#encryption.decrypt(encryptedUser.bankBalance),
                 availableCredit: this.#encryption.decrypt(encryptedUser.availableCredit)
-            };
+            });
         } catch (error) {
             //Throw and log any error we get when trying to get a user from the database
             console.error("Error getting user from database:", error);
@@ -109,3 +112,5 @@ class DatabaseHandler {
         }
     }
 }
+
+export {DatabaseHandler};
