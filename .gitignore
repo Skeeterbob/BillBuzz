@@ -34,3 +34,4 @@ google-services.json
 
 server/node_modules/
 billbuzz/node_modules/
+server/.env

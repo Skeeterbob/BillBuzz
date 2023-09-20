@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import {User} from './user';
+import {User} from '../objectPack';
 import {ClientEncryption, MongoClient, ServerApiVersion} from 'mongodb';
 
 dotenv.config('../.env');
