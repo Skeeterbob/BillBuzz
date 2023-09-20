@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.68% </span>
+                <span class="strong">21.05% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>14/19</span>
+                <span class='fraction'>4/19</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">66.66% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>6/9</span>
+                <span class='fraction'>0/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.68% </span>
+                <span class="strong">21.05% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>14/19</span>
+                <span class='fraction'>4/19</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line low'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -116,19 +116,13 @@
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
 <a name='L53'></a><a href='#L53'>53</a>
-<a name='L54'></a><a href='#L54'>54</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -138,14 +132,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -170,35 +176,38 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import dotenv from 'dotenv';
+import Twilio from 'twilio';
+&nbsp;
+//load environment variables from .env
 dotenv.config('../.env');
+&nbsp;
 const accountSid = process.env.TWILIO_ACCT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
-import Twilio from 'twilio';
 const client = Twilio(accountSid, authToken);
 &nbsp;
 &nbsp;
 &nbsp;
 class TwilioHandler {
     #serviceSid;
-    init () {
-        return new Promise((resolve, reject) =&gt; {
-            client.verify.v2.services
+<span class="fstat-no" title="function not covered" >    in</span>it () {
+<span class="cstat-no" title="statement not covered" >        return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            client.verify.v2.services</span>
             .create({friendlyName: 'BillBuzz service'})
-            .then(service =&gt; {this.#serviceSid = service.sid; 
-                console.log(this.#serviceSid);
-                resolve();
+            .then(<span class="fstat-no" title="function not covered" >se</span>rvice =&gt; {<span class="cstat-no" title="statement not covered" >this.#serviceSid = service.sid; </span>
+<span class="cstat-no" title="statement not covered" >                console.log(this.#serviceSid);</span>
+<span class="cstat-no" title="statement not covered" >                resolve();</span>
             });
         })
     }
-    sendSMS (phNum) {
-        return new Promise((resolve, reject) =&gt; {
-            console.log(this.#serviceSid, 'inSMS')
-            client.verify.v2.services(this.#serviceSid)
+<span class="fstat-no" title="function not covered" >    se</span>ndSMS (phNum) {
+<span class="cstat-no" title="statement not covered" >        return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >            console.log(this.#serviceSid, 'inSMS')</span>
+<span class="cstat-no" title="statement not covered" >            client.verify.v2.services(this.#serviceSid)</span>
                 .verifications
                 .create({to: phNum, channel: 'sms'})
-                .then(async verification =&gt; {
-                    console.log(verification.status);
-                    resolve(verification);
+                .then(<span class="fstat-no" title="function not covered" >as</span>ync verification =&gt; {
+<span class="cstat-no" title="statement not covered" >                    console.log(verification.status);</span>
+<span class="cstat-no" title="statement not covered" >                    resolve(verification);</span>
                 });     
         })             
     }
@@ -229,7 +238,7 @@ export {TwilioHandler};</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-09-20T13:48:38.615Z
+                at 2023-09-20T20:10:44.566Z
             </div>
         <script src="prettify.js"></script>
         <script>

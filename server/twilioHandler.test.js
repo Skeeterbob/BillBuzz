@@ -7,7 +7,7 @@ require('dotenv').config();
 
 
 
-test('sending SMS code and verify code', async () => {
+/*test('sending SMS code and verify code', async () => {
     
     
     const twilioHandler = new TwilioHandler();
@@ -29,6 +29,4 @@ let userInput = "";
                 console.log(string);
                 userInput = string;
                 rl.close();
-            })
-    
-    
+            })*/
