@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.05% </span>
+                <span class="strong">73.68% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/19</span>
+                <span class='fraction'>14/19</span>
             </div>
         
             
@@ -37,16 +37,16 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/9</span>
+                <span class='fraction'>6/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.05% </span>
+                <span class="strong">73.68% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/19</span>
+                <span class='fraction'>14/19</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -134,24 +134,24 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,25 +189,25 @@ const client = Twilio(accountSid, authToken);
 &nbsp;
 class TwilioHandler {
     #serviceSid;
-<span class="fstat-no" title="function not covered" >    in</span>it () {
-<span class="cstat-no" title="statement not covered" >        return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >            client.verify.v2.services</span>
+    init () {
+        return new Promise((resolve, reject) =&gt; {
+            client.verify.v2.services
             .create({friendlyName: 'BillBuzz service'})
-            .then(<span class="fstat-no" title="function not covered" >se</span>rvice =&gt; {<span class="cstat-no" title="statement not covered" >this.#serviceSid = service.sid; </span>
-<span class="cstat-no" title="statement not covered" >                console.log(this.#serviceSid);</span>
-<span class="cstat-no" title="statement not covered" >                resolve();</span>
+            .then(service =&gt; {this.#serviceSid = service.sid; 
+                console.log(this.#serviceSid);
+                resolve();
             });
         })
     }
-<span class="fstat-no" title="function not covered" >    se</span>ndSMS (phNum) {
-<span class="cstat-no" title="statement not covered" >        return new Promise(<span class="fstat-no" title="function not covered" >(r</span>esolve, reject) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >            console.log(this.#serviceSid, 'inSMS')</span>
-<span class="cstat-no" title="statement not covered" >            client.verify.v2.services(this.#serviceSid)</span>
+    sendSMS (phNum) {
+        return new Promise((resolve, reject) =&gt; {
+            console.log(this.#serviceSid, 'inSMS')
+            client.verify.v2.services(this.#serviceSid)
                 .verifications
                 .create({to: phNum, channel: 'sms'})
-                .then(<span class="fstat-no" title="function not covered" >as</span>ync verification =&gt; {
-<span class="cstat-no" title="statement not covered" >                    console.log(verification.status);</span>
-<span class="cstat-no" title="statement not covered" >                    resolve(verification);</span>
+                .then(async verification =&gt; {
+                    console.log(verification.status);
+                    resolve(verification);
                 });     
         })             
     }
@@ -238,7 +238,7 @@ export {TwilioHandler};</pre></td></tr></table></pre>
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-09-20T20:10:44.566Z
+                at 2023-09-20T20:30:41.573Z
             </div>
         <script src="prettify.js"></script>
         <script>

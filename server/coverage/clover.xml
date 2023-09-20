@@ -1,13 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1695241682744" clover="3.2.0">
-  <project timestamp="1695241682744" name="All files">
-    <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2" elements="6" coveredelements="6" complexity="0" loc="4" ncloc="4" packages="1" files="1" classes="1"/>
+<coverage generated="1695241841586" clover="3.2.0">
+  <project timestamp="1695241841586" name="All files">
+    <metrics statements="23" coveredstatements="18" conditionals="2" coveredconditionals="0" methods="11" coveredmethods="8" elements="36" coveredelements="26" complexity="0" loc="23" ncloc="23" packages="1" files="2" classes="2"/>
     <file name="authHandler.js" path="/root/BillBuzz/server/authHandler.js">
       <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
       <line num="5" count="1" type="stmt"/>
       <line num="9" count="1" type="stmt"/>
       <line num="12" count="1" type="stmt"/>
       <line num="16" count="1" type="stmt"/>
+    </file>
+    <file name="twilioHandler.js" path="/root/BillBuzz/server/twilioHandler.js">
+      <metrics statements="19" coveredstatements="14" conditionals="2" coveredconditionals="0" methods="9" coveredmethods="6"/>
+      <line num="5" count="1" type="stmt"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="8" count="1" type="stmt"/>
+      <line num="9" count="1" type="stmt"/>
+      <line num="16" count="1" type="stmt"/>
+      <line num="17" count="1" type="stmt"/>
+      <line num="19" count="1" type="stmt"/>
+      <line num="20" count="1" type="stmt"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="26" count="1" type="stmt"/>
+      <line num="27" count="1" type="stmt"/>
+      <line num="28" count="1" type="stmt"/>
+      <line num="32" count="1" type="stmt"/>
+      <line num="33" count="1" type="stmt"/>
+      <line num="40" count="0" type="stmt"/>
+      <line num="41" count="0" type="stmt"/>
+      <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+      <line num="46" count="0" type="stmt"/>
+      <line num="49" count="0" type="stmt"/>
     </file>
   </project>
 </coverage>
