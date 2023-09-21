@@ -33,5 +33,5 @@ google-services.json
 *.hprof
 
 server/node_modules/
-billbuzz/node_modules/
+billBuzzApp/node_modules/
 server/.env
