@@ -7,10 +7,7 @@
 
 import React from 'react';
 import { ImageBackground, StyleSheet, Text, View, SafeAreaView } from 'react-native';
-import Signinscreen from './src/Screens/SignInScreen/Signinscreen';
-import SignUpScreen from './src/SignUpScreen/SignUpScreen';
-//import image from './assets/images/uibillbuzz.png'
-import ConfirmSignUP from './src/Screens/SignInScreen/confirmSignUp/confirmSignUP';
+
 import Navigation from './src/Navigation/index';
 
 
