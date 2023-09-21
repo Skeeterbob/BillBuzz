@@ -4,6 +4,9 @@ import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView } from '
 import CustomInput from '../../../Components/CustomInput';
 import CustomButton from '../../../CustomButton/CustomButton';
 
+
+
+
 const ConfirmSignUP = () => {
   const [code, setCode] = useState('');
     const confrimPressed =() =>{
@@ -11,6 +14,8 @@ const ConfirmSignUP = () => {
     }
     const backToSignIn =() =>{
         console.warn('backToSignIn');
+
+        
     }
     const resendCodePressed =() =>{
         console.warn('resendCodePressed');

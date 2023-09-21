@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Signinscreen from '../Screens/SignInScreen/Signinscreen';
@@ -11,12 +11,29 @@ const Stack = createNativeStackNavigator();
 
 const Navigation = () => {
 return(
-   <NavigationContainer>
+   <NavigationContainer style={styles.root}>
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name = "SignIn" component={Signinscreen}/>
+      <Stack.Screen name = "SignUp" component={SignUpScreen}/>
+      <Stack.Screen name = "Confirm" component={ConfirmSignUP}/>
+      
     </Stack.Navigator>
    </NavigationContainer>
        
 );
 };
+const styles = StyleSheet.create({
+   root:{
+  flex: 1,
+  backgroundColor: "#FAE526",
+  
+   },
+   image: {
+   
+    
+    height: '100%',
+    width: '100%',
+  },
+  
+  });
 export default Navigation;
