@@ -1,5 +1,5 @@
 //JSON object that can be used to validate the types of objects in particular
-var types = {
+const types = {
     'get': function(prop) {
        return Object.prototype.toString.call(prop);
     },
@@ -14,15 +14,27 @@ var types = {
 
 //class to store and manipulate user data
 class User {
+    #email;
+    #password;
     #firstName;
     #lastName;
     #birthday;
-    #bankBalance;
-    #availCredit;
-    #email;
     #phoneNumber;
+    #bankBalance;
+    #availableCredit;
     #accountList = [];
-    #password;
+
+    constructor({email, password, firstName, lastName, birthday, phoneNumber, bankBalance, availableCredit, accountList}) {
+        this.#email = email;
+        this.#password = password;
+        this.#firstName = firstName;
+        this.#lastName = lastName;
+        this.#birthday = birthday;
+        this.#phoneNumber = phoneNumber;
+        this.#bankBalance = bankBalance;
+        this.#availableCredit = availableCredit;
+        this.#accountList = accountList;
+    }
 
     //function to add an account to the account list
     /*addAccount(account) { 
@@ -37,21 +49,21 @@ class User {
     getFirstName () {
         return this.#firstName;
     }
-    
+
     getLastName () {
         return this.#lastName;
     }
-    
+
     getBirthday () {
         return this.#birthday;
     }
-    
-    getBankBal () {
+
+    getBankBalance () {
         return this.#bankBalance;
     }
-    
+
     getAvailableCredit () {
-        return this.#availCredit;
+        return this.#availableCredit;
     }
 
     getEmail () {
@@ -66,6 +78,9 @@ class User {
         return this.#accountList;
     }
 
+    getPassword() {
+        return this.#password;
+    }
 }
 
 class Account {
@@ -73,6 +88,13 @@ class Account {
     #name;
     #balance;
     #transactionList;
+
+    constructor({id, name, balance, transactionList}) {
+        this.#id = id;
+        this.#name = name;
+        this.#balance = balance;
+        this.#transactionList = transactionList;
+    }
 
     getId () {
         return this.#id;
@@ -90,7 +112,7 @@ class Account {
         return this.#balance;
     }
 
-    getTransactionList () {
+    getTransactionList() {
         return this.#transactionList;
     }
 }
@@ -103,10 +125,33 @@ class TransactionList {
     #beginDate;
     #endDate;
 
+    constructor({data, length, beginDate, endDate}) {
+        this.#data = data;
+        this.#length = length;
+        this.#beginDate = beginDate;
+        this.#endDate = endDate;
+    }
+
     addTransactions (transactions) {
         //logic to add transactions to the end of the list. needs to take into 
         //account the endDate. frontend should use httpHandler, and backend 
         //should use DBHandler
+    }
+
+    getTransactions() {
+        return this.#data;
+    }
+
+    getLength() {
+        return this.#length;
+    }
+
+    getBeginDate() {
+        return this.#beginDate;
+    }
+
+    getEndDate() {
+        return this.#endDate;
     }
 }
 
@@ -115,6 +160,13 @@ class Transaction {
     #date;
     #subscription;
     #vendor;
+
+    constructor({amount, date, subscription, vendor}) {
+        this.#amount = amount;
+        this.#date = date;
+        this.#subscription = subscription;
+        this.#vendor = vendor;
+    }
 
     getAmount () {
         return this.#amount;
@@ -136,3 +188,10 @@ class Transaction {
         return this.#vendor;
     }
 }
+
+export {
+    User,
+    Account,
+    TransactionList,
+    Transaction
+};
