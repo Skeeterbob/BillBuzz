@@ -25,13 +25,16 @@ class User {
     #accountList = [];
     #variableList = ['email', 'password', 'firstName', 'lastName', 'birthDay',
         'phoneNumber', 'bankBalance', 'availableCredit', 'accountList'];
+    #data
 
     //needs to pass in a JSON object with all keys for email, password, 
     //firstName, lastName, birthDay, phoneNumber, bankBalance, availableCredit,
     //and account list
     constructor(data) {
         keyList = data.keys();
-        try {     
+        try {
+            //iterate over keys and make sure that they exist in incoming data.
+            //throw an error if not   
             this.#variableList.forEach((element) => {
                 if (!keyList.includes(element)){
                     console.log('User Constructor failed, ', element,
@@ -39,6 +42,8 @@ class User {
                     throw(err);
                 }
             })
+
+            //assign all the variables to the incoming data
             this.#email = data["email"];
             this.#password = data["password"];
             this.#firstName = data["firstName"];
@@ -65,6 +70,8 @@ class User {
     /*removeAccount(id) {
         remove the Account
     }*/
+    //iterate over the accountList array and convert to Account objects
+    //return new array with objects
     #objectifyAccounts (list) {
         let newList = [];
         list.forEach((element) => {
@@ -119,7 +126,9 @@ class Account {
 
     constructor(data) {
         keyList = data.keys();
-        try {     
+        try {
+            //iterate over keys and make sure that they exist in incoming data.
+            //throw an error if not       
             this.#variableList.forEach((element) => {
                 if (!keyList.includes(element)){
                     console.log('Account Constructor failed, ', element,
@@ -261,7 +270,7 @@ class Transaction {
     getDate () {
         return this.#date;
     }
-
+    
     isSubscription () {
         return this.#subscriptionBool;
     }
