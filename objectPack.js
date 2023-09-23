@@ -23,8 +23,17 @@ class User {
     #bankBalance;
     #availableCredit;
     #accountList = [];
+    #variableList = ['email', 'password', 'firstName', 'lastName', 'birthDay',
+        'phoneNumber', 'bankBalance', 'availableCredit', 'accountList'];
 
-    constructor({email, password, firstName, lastName, birthday, phoneNumber, bankBalance, availableCredit, accountList}) {
+    //needs to pass in a JSON object with all keys for email, password, 
+    //firstName, lastName, birthDay, phoneNumber, bankBalance, availableCredit,
+    //and account list
+    constructor(data) {
+        keyList = data.keys();        
+        this.#variableList.forEach((element) => {
+            
+        })
         this.#email = email;
         this.#password = password;
         this.#firstName = firstName;
@@ -46,6 +55,26 @@ class User {
     /*removeAccount(id) {
         remove the Account
     }*/
+    #objectifyAccounts (list) {
+        let newList = [];
+        list.forEach((element) => {
+            newList.push(new Account(element));
+        });
+        return newList;
+    }
+
+    #objectifyTransactionList (list) {
+        return new TransactionList(list);
+    }
+
+    #objectifyTransactions (list) {
+        let newList = [];
+        list.forEach((element) => {
+            newList.push(new Transaction(element));
+        });
+        return newList;
+    }
+
     getFirstName () {
         return this.#firstName;
     }
