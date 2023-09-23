@@ -24,14 +24,18 @@ class User {
     #bankBalance;
     #availableCredit;
     #accountList = [];
-    #variableList = ['email', 'password', 'firstName', 'lastName', 'birthDay',
+    #variableList = ['email', 'password', 'firstName', 'lastName', 'birthday',
         'phoneNumber', 'bankBalance', 'availableCredit', 'accountList'];
 
     //needs to pass in a JSON object with all keys for email, password, 
     //firstName, lastName, birthDay, phoneNumber, bankBalance, availableCredit,
     //and account list
     constructor(data) {
-        keyList = data.keys();
+        if (Array.isArray(data)){
+            data = data[0];
+        }
+        let keyList = Object.keys(data);
+        console.log(keyList);
         try {
             //iterate over keys and make sure that they exist in incoming data.
             //throw an error if not   
@@ -74,7 +78,7 @@ class User {
         let newDict = {};
         this.#variableList.forEach((element) => {
             let varString = 'this.#' + element;
-            if (eval(varString).isArray()) {
+            if (Array.isArray(eval(varString))) {
                 let newList = [];
                 //iterate over array calling toJSONString on each
                 eval(varString).forEach((object) => {
@@ -86,11 +90,13 @@ class User {
                 newDict[element] = eval(varString).toString();
             }
         });
+        return newDict;
     };
 
     //iterate over the accountList array and convert to Account objects
     //return new array of Account objects
     #objectifyAccounts (list) {
+        console.log(list)
         let newList = [];
         list.forEach((element) => {
             newList.push(new Account(element));
@@ -143,7 +149,11 @@ class Account {
     #variableList = ['id', 'name', 'balance', 'transactionList'];
 
     constructor(data) {
-        keyList = data.keys();
+        if (Array.isArray(data)){
+            data = data[0];
+        }
+        let keyList = Object.keys(data);
+        console.log(keyList);
         try {
             //iterate over keys and make sure that they exist in incoming data.
             //throw an error if not       
@@ -168,7 +178,7 @@ class Account {
         let newDict = {};
         this.#variableList.forEach((element) => {
             let varString = 'this.#' + element;
-            if (eval(varString).isArray()) {
+            if (Array.isArray(eval(varString))) {
                 let newList = [];
                 //iterate over array calling toJSONString on each
                 eval(varString).forEach((object) => {
@@ -180,6 +190,7 @@ class Account {
                 newDict[element] = eval(varString).toString();
             }
         });
+        return newDict;
     };
 
     getId () {
@@ -213,7 +224,11 @@ class TransactionList {
     #variableList = ['transactionList', 'length', 'beginDate', 'endDate'];
 
     constructor(data) {
-        keyList = data.keys();
+        if (Array.isArray(data)){
+            data = data[0];
+        }
+        let keyList = Object.keys(data);
+        console.log(keyList);
         try {     
             this.#variableList.forEach((element) => {
                 if (!keyList.includes(element)){
@@ -237,7 +252,7 @@ class TransactionList {
         let newDict = {};
         this.#variableList.forEach((element) => {
             let varString = 'this.#' + element;
-            if (eval(varString).isArray()) {
+            if (Array.isArray(eval(varString))) {
                 let newList = [];
                 //iterate over array calling toJSONString on each
                 eval(varString).forEach((object) => {
@@ -249,6 +264,7 @@ class TransactionList {
                 newDict[element] = eval(varString).toString();
             }
         });
+        return newDict;
     };
 
     //function to iterate over array json objects and turn them into
@@ -295,7 +311,11 @@ class Transaction {
         'vendor']
 
     constructor(data) {
-        keyList = data.keys();
+        if (Array.isArray(data)){
+            data = data[0];
+        }
+        let keyList = Object.keys(data);
+        console.log(keyList);
         try {     
             this.#variableList.forEach((element) => {
                 if (!keyList.includes(element)){
@@ -321,7 +341,7 @@ class Transaction {
         let newDict = {};
         this.#variableList.forEach((element) => {
             let varString = 'this.#' + element;
-            if (eval(varString).isArray()) {
+            if (Array.isArray(eval(varString))) {
                 let newList = [];
                 //iterate over array calling toJSONString on each
                 eval(varString).forEach((object) => {
@@ -333,6 +353,7 @@ class Transaction {
                 newDict[element] = eval(varString).toString();
             }
         });
+        return newDict;
     };
 
     getAmount () {
