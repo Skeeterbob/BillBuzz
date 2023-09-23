@@ -30,19 +30,29 @@ class User {
     //firstName, lastName, birthDay, phoneNumber, bankBalance, availableCredit,
     //and account list
     constructor(data) {
-        keyList = data.keys();        
-        this.#variableList.forEach((element) => {
-            
-        })
-        this.#email = email;
-        this.#password = password;
-        this.#firstName = firstName;
-        this.#lastName = lastName;
-        this.#birthday = birthday;
-        this.#phoneNumber = phoneNumber;
-        this.#bankBalance = bankBalance;
-        this.#availableCredit = availableCredit;
-        this.#accountList = accountList;
+        keyList = data.keys();
+        try {     
+            this.#variableList.forEach((element) => {
+                if (!keyList.includes(element)){
+                    console.log('User Constructor failed, ', element,
+                        ' was not provided');
+                    throw(err);
+                }
+            })
+            this.#email = data["email"];
+            this.#password = data["password"];
+            this.#firstName = data["firstName"];
+            this.#lastName = data["lastName"];
+            this.#birthday = new Date(data["birthday"]);
+            this.#phoneNumber = data["phoneNumber"];
+            this.#bankBalance = data["bankBalance"];
+            this.#availableCredit = data["availableCredit"];
+            this.#accountList = data["accountList"];
+            this.#accountList = this.#objectifyAccounts(this.#accountList);
+        }
+        catch (err){
+            console.log(err);
+        }
     }
 
     //function to add an account to the account list
@@ -59,18 +69,6 @@ class User {
         let newList = [];
         list.forEach((element) => {
             newList.push(new Account(element));
-        });
-        return newList;
-    }
-
-    #objectifyTransactionList (list) {
-        return new TransactionList(list);
-    }
-
-    #objectifyTransactions (list) {
-        let newList = [];
-        list.forEach((element) => {
-            newList.push(new Transaction(element));
         });
         return newList;
     }
@@ -117,12 +115,26 @@ class Account {
     #name;
     #balance;
     #transactionList;
+    #variableList = ['id', 'name', 'balance', 'transactionList'];
 
-    constructor({id, name, balance, transactionList}) {
-        this.#id = id;
-        this.#name = name;
-        this.#balance = balance;
-        this.#transactionList = transactionList;
+    constructor(data) {
+        keyList = data.keys();
+        try {     
+            this.#variableList.forEach((element) => {
+                if (!keyList.includes(element)){
+                    console.log('Account Constructor failed, ', element,
+                        ' was not provided');
+                    throw(err);
+                }
+            })
+            this.#id = data["id"];
+            this.#name = data["name"];
+            this.#balance = data["balance"];
+            this.#transactionList = new TransactionList(data["transactionList"]);
+        }
+        catch (err){
+            console.log(err);
+        }
     }
 
     getId () {
@@ -149,18 +161,44 @@ class Account {
 //class to store a list of transaction with some extra information relevant to
 //to the list. The data array is to be composed of Transaction objects
 class TransactionList {
-    #data = [];
+    #transactionList = [];
     #length;
     #beginDate;
     #endDate;
+    #variableList = ['transactionList', 'length', 'beginDate', 'endDate'];
 
-    constructor({data, length, beginDate, endDate}) {
-        this.#data = data;
-        this.#length = length;
-        this.#beginDate = beginDate;
-        this.#endDate = endDate;
+    constructor(data) {
+        keyList = data.keys();
+        try {     
+            this.#variableList.forEach((element) => {
+                if (!keyList.includes(element)){
+                    console.log('TransactionList Constructor failed, ', element,
+                        ' was not provided');
+                    throw(err);
+                }
+            })
+            this.#transactionList = this.#objectifyTransactions(
+                    data["transactionList"]);
+            this.#length = data["length"];
+            this.#beginDate = new Date(data["beginDate"]);
+            this.#endDate = new Date(data['endDate']);
+        }
+        catch (err){
+            console.log(err);
+        }
     }
 
+    //function to iterate over array json objects and turn them into
+    //transaction objects returning an array of transaction objects
+    #objectifyTransactions (list) {
+        let newList = [];
+        list.forEach((element) => {
+            newList.push(new Transaction(element));
+        });
+        return newList;
+    }
+
+    //should only be called from the front end??
     addTransactions (transactions) {
         //logic to add transactions to the end of the list. needs to take into 
         //account the endDate. frontend should use httpHandler, and backend 
@@ -168,7 +206,7 @@ class TransactionList {
     }
 
     getTransactions() {
-        return this.#data;
+        return this.#transactionList;
     }
 
     getLength() {
@@ -185,16 +223,35 @@ class TransactionList {
 }
 
 class Transaction {
-    #amount;
-    #date;
-    #subscription;
-    #vendor;
+    #amount; //number
+    #date; //should be a date object
+    #subscriptionBool = false; //boolean to indicate if it is or isn't a subscription
+    #subscriptionName = null; 
+    #vendor; 
+    #variableList = ['amount', 'date', 'subscriptionBool', 'subscriptionName',
+        'vendor']
 
-    constructor({amount, date, subscription, vendor}) {
-        this.#amount = amount;
-        this.#date = date;
-        this.#subscription = subscription;
-        this.#vendor = vendor;
+    constructor(data) {
+        keyList = data.keys();
+        try {     
+            this.#variableList.forEach((element) => {
+                if (!keyList.includes(element)){
+                    console.log('Transaction Constructor failed, ', element,
+                        ' was not provided');
+                    throw(err);
+                }
+            })
+            this.#amount = data["amount"];
+            this.#date = new Date(data["date"]);
+            if(data['subscriptionBool']){
+                this.#subscriptionBool = data['subscriptionBool'];
+                this.#subscriptionName = data["subscriptionName"];
+            }            
+            this.#vendor = data['vendor'];
+        }
+        catch (err){
+            console.log(err);
+        }
     }
 
     getAmount () {
@@ -205,12 +262,20 @@ class Transaction {
         return this.#date;
     }
 
-    getSubscription () {
-        return this.#subscription;
+    isSubscription () {
+        return this.#subscriptionBool;
     }
 
-    setSubscription (boolVal) {
-        this.#subscription = boolVal;
+    setSubscriptionBool (boolVal) {
+        this.#subscriptionBool = boolVal;
+    }
+
+    getSubscriptionName () {
+        return this.#subscriptionName;
+    }
+
+    setSubscriptionName(name){
+        this.#subscriptionName = name;
     }
 
     getVendor () {
@@ -218,9 +283,4 @@ class Transaction {
     }
 }
 
-export {
-    User,
-    Account,
-    TransactionList,
-    Transaction
-};
+export { User }
