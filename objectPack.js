@@ -1,5 +1,6 @@
 //JSON object that can be used to validate the types of objects in particular
-const types = {
+//may not be necessary. commented out for the time being
+/*const types = {
     'get': function(prop) {
        return Object.prototype.toString.call(prop);
     },
@@ -10,7 +11,7 @@ const types = {
     'boolean': '[object Boolean]',
     'number': '[object Number]',
     'date': '[object Date]',
- }
+ }*/
 
 //class to store and manipulate user data
 class User {
@@ -25,7 +26,6 @@ class User {
     #accountList = [];
     #variableList = ['email', 'password', 'firstName', 'lastName', 'birthDay',
         'phoneNumber', 'bankBalance', 'availableCredit', 'accountList'];
-    #data
 
     //needs to pass in a JSON object with all keys for email, password, 
     //firstName, lastName, birthDay, phoneNumber, bankBalance, availableCredit,
@@ -52,8 +52,7 @@ class User {
             this.#phoneNumber = data["phoneNumber"];
             this.#bankBalance = data["bankBalance"];
             this.#availableCredit = data["availableCredit"];
-            this.#accountList = data["accountList"];
-            this.#accountList = this.#objectifyAccounts(this.#accountList);
+            this.#accountList = this.#objectifyAccounts(data["accountList"]);
         }
         catch (err){
             console.log(err);
@@ -70,8 +69,27 @@ class User {
     /*removeAccount(id) {
         remove the Account
     }*/
+
+    toJSONString () {
+        let newDict = {};
+        this.#variableList.forEach((element) => {
+            let varString = 'this.#' + element;
+            if (eval(varString).isArray()) {
+                let newList = [];
+                //iterate over array calling toJSONString on each
+                eval(varString).forEach((object) => {
+                    newList.push(object.toJSONString());
+                });
+                newDict[element] = newList;
+            }
+            else {
+                newDict[element] = eval(varString).toString();
+            }
+        });
+    };
+
     //iterate over the accountList array and convert to Account objects
-    //return new array with objects
+    //return new array of Account objects
     #objectifyAccounts (list) {
         let newList = [];
         list.forEach((element) => {
@@ -146,6 +164,24 @@ class Account {
         }
     }
 
+    toJSONString () {
+        let newDict = {};
+        this.#variableList.forEach((element) => {
+            let varString = 'this.#' + element;
+            if (eval(varString).isArray()) {
+                let newList = [];
+                //iterate over array calling toJSONString on each
+                eval(varString).forEach((object) => {
+                    newList.push(object.toJSONString());
+                });
+                newDict[element] = newList;
+            }
+            else {
+                newDict[element] = eval(varString).toString();
+            }
+        });
+    };
+
     getId () {
         return this.#id;
     }
@@ -196,6 +232,24 @@ class TransactionList {
             console.log(err);
         }
     }
+
+    toJSONString () {
+        let newDict = {};
+        this.#variableList.forEach((element) => {
+            let varString = 'this.#' + element;
+            if (eval(varString).isArray()) {
+                let newList = [];
+                //iterate over array calling toJSONString on each
+                eval(varString).forEach((object) => {
+                    newList.push(object.toJSONString());
+                });
+                newDict[element] = newList;
+            }
+            else {
+                newDict[element] = eval(varString).toString();
+            }
+        });
+    };
 
     //function to iterate over array json objects and turn them into
     //transaction objects returning an array of transaction objects
@@ -262,6 +316,24 @@ class Transaction {
             console.log(err);
         }
     }
+
+    toJSONString () {
+        let newDict = {};
+        this.#variableList.forEach((element) => {
+            let varString = 'this.#' + element;
+            if (eval(varString).isArray()) {
+                let newList = [];
+                //iterate over array calling toJSONString on each
+                eval(varString).forEach((object) => {
+                    newList.push(object.toJSONString());
+                });
+                newDict[element] = newList;
+            }
+            else {
+                newDict[element] = eval(varString).toString();
+            }
+        });
+    };
 
     getAmount () {
         return this.#amount;
