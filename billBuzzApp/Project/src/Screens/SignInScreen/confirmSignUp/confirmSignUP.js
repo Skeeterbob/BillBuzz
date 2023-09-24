@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
     root:{
         alignItems: 'center',
        padding:30,
+       backgroundColor: "#FAE526",
 
     },
     logo: {

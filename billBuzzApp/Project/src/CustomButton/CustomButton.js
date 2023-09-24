@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
    container_THIRD:{
     borderColor: 'white',
     borderWidth: 2,
+    
    },
    container_Fourth:{
   

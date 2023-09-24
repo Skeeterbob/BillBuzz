@@ -6,6 +6,7 @@ import Signinscreen from '../Screens/SignInScreen/Signinscreen';
 import SignUpScreen from '../SignUpScreen/SignUpScreen';
 //import image from './assets/images/uibillbuzz.png'
 import ConfirmSignUP from '../Screens/SignInScreen/confirmSignUp/confirmSignUP';
+import accountPage from '../Screens/userAccount/accountPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,7 @@ return(
       <Stack.Screen name = "SignIn" component={Signinscreen}/>
       <Stack.Screen name = "SignUp" component={SignUpScreen}/>
       <Stack.Screen name = "Confirm" component={ConfirmSignUP}/>
+      <Stack.Screen name = "Account" component={accountPage}/>
       
     </Stack.Navigator>
    </NavigationContainer>
