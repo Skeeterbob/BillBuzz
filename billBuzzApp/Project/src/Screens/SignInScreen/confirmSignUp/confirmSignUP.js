@@ -12,6 +12,7 @@ const ConfirmSignUP = () => {
   const navigation = useNavigation();
     const confrimPressed =() =>{
         console.warn('confrimPressed');
+        
         navigation.navigate('Account');
     }
     const backToSignIn =() =>{
