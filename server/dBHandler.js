@@ -14,6 +14,8 @@ class DBHandler {
     #mongoConnectionURL
     #encryption;
     #client;
+    #db;
+    #usersCollection
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
@@ -33,6 +35,8 @@ class DBHandler {
         await this.#client.connect();
         this.#encryption = new Encryption(this.#client);
         await this.#encryption.init();
+        this.#db = this.#client.db(DATABASE_NAME);
+        this.#usersCollection = this.#db.collection(USERS_COLLECTION);
     }
 
     //Insert a new user into the database
@@ -75,6 +79,15 @@ class DBHandler {
             console.error("Error getting user from database:", error);
             throw error;
         }
+    }
+
+    async verifyUser (email, password) {
+        const projection = {"phoneNumber":1};
+        const encryptedEmail = await this.#encryption.encryptString(email);
+        const encryptedPassword = await this.#encryption.encryptString(password);
+        result = await this.#usersCollection,findOne({"email":encryptedEmail, 
+            "password":encryptedPassword}, projection);
+        
     }
 }
 
@@ -231,6 +244,17 @@ class Encryption {
             availableCredit: this.decryptString(user.getAvailableCredit().toString()),
             accountList: accountList
         });
+    }
+
+    // Encrypt a JSON object by interating over its keys and reconstructing with 
+    // all values encrypted and keys intact.
+    async encryptJSON (data) {
+        let keyList = Object.keys(data);
+        let retJSON = {}
+        keyList.forEach((element) => {
+            retJSON[element] = this.encryptString(data[element]);
+        })
+        return retJSON;
     }
 
     //Encrypt a single string

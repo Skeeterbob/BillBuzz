@@ -7,6 +7,7 @@ const twilioHandler = new TwilioHandler();
 const dBHandler = new DBHandler();
 
 twilioHandler.init();
+dBHandler.init();
 
 //Get request for login through Twilio
 loginRouter.post('/', async(req, res)=>
@@ -22,6 +23,16 @@ loginRouter.post('/', async(req, res)=>
     res.status(401).json({error:'Login Error'});
  }
 });
+
+loginRouter.post('/verify', async (req,res) => {
+   try{
+
+   }
+   catch(err){
+      console.err(error);
+      res.status(401).json({error:'User Verify Error'});
+   }
+})
 
 
 
