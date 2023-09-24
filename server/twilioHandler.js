@@ -9,7 +9,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = Twilio(accountSid, authToken);
 
 
-
+// Need to call and await init after instantiating object.
 class TwilioHandler {
     #serviceSid;
     init () {
