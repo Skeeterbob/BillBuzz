@@ -26,15 +26,12 @@ loginRouter.post('/', async(req, res)=>
 
 loginRouter.post('/verify', async (req,res) => {
    try{
-
+      dBHandler.verifyUser(req.body.email, req.body.password);
    }
    catch(err){
       console.err(error);
       res.status(401).json({error:'User Verify Error'});
    }
 })
-
-
-
 
 export {loginRouter};
