@@ -1,4 +1,4 @@
-const {TwilioHandler} = require('./twilioHandler.js');
+const {TwilioHandler} = require('.twilioHandler.js');
 const readline = require('readline')
 
 //load environment variables from .env
