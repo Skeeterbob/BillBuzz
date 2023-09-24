@@ -3,18 +3,20 @@ import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView } from '
 
 import CustomInput from '../../../Components/CustomInput';
 import CustomButton from '../../../CustomButton/CustomButton';
-
+import {useNavigation} from '@react-navigation/native';
 
 
 
 const ConfirmSignUP = () => {
   const [code, setCode] = useState('');
+  const navigation = useNavigation();
     const confrimPressed =() =>{
         console.warn('confrimPressed');
     }
     const backToSignIn =() =>{
         console.warn('backToSignIn');
-
+        
+        navigation.navigate('SignIn');
         
     }
     const resendCodePressed =() =>{

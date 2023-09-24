@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView } from '
 
 import CustomInput from '../Components/CustomInput';
 import CustomButton from '../CustomButton/CustomButton';
+import {useNavigation} from '@react-navigation/native';
 
 const SignUpScreen = () => {
     const {height} = useWindowDimensions();
@@ -10,11 +11,14 @@ const SignUpScreen = () => {
     const [Email, SetEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordRepeat, setPasswordRepeat] = useState('');
+    const navigation = useNavigation();
     const onRegesteredPressed =() =>{
         console.warn('onRegesteredPressed');
     }
     const onSignUpPressed =() =>{
-        console.warn('Sign up');
+        console.warn('SignUp');
+        navigation.navigate('SignIn');
+
     }
 return(
     
@@ -27,7 +31,7 @@ return(
         <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
         <CustomInput placeholder="Repeat Password" value={passwordRepeat} setValue={setPasswordRepeat} secureTextEntry={true} />
         <CustomButton text="Register" onPress={onRegesteredPressed}/>
-        <CustomButton text="Have and account? Sign in" onPress={onSignUpPressed} type="container_SECONDARY"/>
+        <CustomButton text="Have and account already? Sign in" onPress={onSignUpPressed} type="container_THIRD"/>
         
     </View>
     
