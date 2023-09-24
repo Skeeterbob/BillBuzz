@@ -5,6 +5,10 @@ const port = process.env.PORT || 3000;
 const app = express();
 appInit(app);
 
+app.get('/',(req, res)=>{
+  res.send("You have connected")
+}
+);
 
 app.listen(port, function(err) {
    if(err) {
