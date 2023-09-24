@@ -87,7 +87,9 @@ class DBHandler {
         const encryptedPassword = await this.#encryption.encryptString(password);
         result = await this.#usersCollection,findOne({"email":encryptedEmail, 
             "password":encryptedPassword}, projection);
-        
+        result.then((data) => {
+            console.log(data);
+        })
     }
 }
 
