@@ -35,7 +35,6 @@ class User {
             data = data[0];
         }
         let keyList = Object.keys(data);
-        console.log(keyList);
         try {
             //iterate over keys and make sure that they exist in incoming data.
             //throw an error if not   
@@ -87,16 +86,24 @@ class User {
                 newDict[element] = newList;
             }
             else {
-                newDict[element] = eval(varString).toString();
+                if (Object.prototype.toString.call(eval(varString)) === "[object Date]"){
+                    newDict[element] = eval(varString).toISOString();
+                }
+                else if (Object.prototype.toString.call(eval(varString)) === 
+                    "[object Number]") {
+                    newDict[element] = eval(varString);
+                }
+                else {
+                    newDict[element] = eval(varString).toString();
+                }
             }
         });
-        return newDict;
+        return '[' + JSON.stringify(newDict) + ']';
     };
 
     //iterate over the accountList array and convert to Account objects
     //return new array of Account objects
     #objectifyAccounts (list) {
-        console.log(list)
         let newList = [];
         list.forEach((element) => {
             newList.push(new Account(element));
@@ -153,7 +160,6 @@ class Account {
             data = data[0];
         }
         let keyList = Object.keys(data);
-        console.log(keyList);
         try {
             //iterate over keys and make sure that they exist in incoming data.
             //throw an error if not       
@@ -179,18 +185,33 @@ class Account {
         this.#variableList.forEach((element) => {
             let varString = 'this.#' + element;
             if (Array.isArray(eval(varString))) {
+                console.log('in array iterator');
                 let newList = [];
                 //iterate over array calling toJSONString on each
                 eval(varString).forEach((object) => {
                     newList.push(object.toJSONString());
                 });
                 newDict[element] = newList;
+                console.log(newDict);
             }
             else {
-                newDict[element] = eval(varString).toString();
+                if (Object.prototype.toString.call(eval(varString)) === "[object Date]"){
+                    newDict[element] = eval(varString).toISOString();
+                }
+                else if (Object.prototype.toString.call(eval(varString)) === 
+                    "[object Number]") {
+                    newDict[element] = eval(varString);
+                }
+                else if (Object.prototype.toString.call(eval(varString)) === 
+                    "[object Object]"){
+                    newDict[element] = eval(varString).toJSONString();
+                }
+                else {
+                    newDict[element] = eval(varString).toString();
+                }
             }
         });
-        return newDict;
+        return newDict
     };
 
     getId () {
@@ -228,7 +249,6 @@ class TransactionList {
             data = data[0];
         }
         let keyList = Object.keys(data);
-        console.log(keyList);
         try {     
             this.#variableList.forEach((element) => {
                 if (!keyList.includes(element)){
@@ -261,7 +281,16 @@ class TransactionList {
                 newDict[element] = newList;
             }
             else {
-                newDict[element] = eval(varString).toString();
+                if (Object.prototype.toString.call(eval(varString)) === "[object Date]"){
+                    newDict[element] = eval(varString).toISOString();
+                }
+                else if (Object.prototype.toString.call(eval(varString)) === 
+                    "[object Number]") {
+                    newDict[element] = eval(varString);
+                }
+                else {
+                    newDict[element] = eval(varString).toString();
+                }
             }
         });
         return newDict;
@@ -315,7 +344,6 @@ class Transaction {
             data = data[0];
         }
         let keyList = Object.keys(data);
-        console.log(keyList);
         try {     
             this.#variableList.forEach((element) => {
                 if (!keyList.includes(element)){
@@ -342,15 +370,34 @@ class Transaction {
         this.#variableList.forEach((element) => {
             let varString = 'this.#' + element;
             if (Array.isArray(eval(varString))) {
+                console.log('in array iterator');
                 let newList = [];
                 //iterate over array calling toJSONString on each
                 eval(varString).forEach((object) => {
+                    console.log('from transation toJSONString ',object);
                     newList.push(object.toJSONString());
                 });
                 newDict[element] = newList;
             }
-            else {
-                newDict[element] = eval(varString).toString();
+            else {                
+                if (Object.prototype.toString.call(eval(varString)) === "[object Date]"){
+                    newDict[element] = eval(varString).toISOString();
+                }
+                else if (Object.prototype.toString.call(eval(varString)) === 
+                    "[object Number]") {
+                    newDict[element] = eval(varString);
+                }
+                else if (Object.prototype.toString.call(eval(varString)) ===
+                    "[object Null]") {
+                    newDict[element] = "";
+                }
+                else if (Object.prototype.toString.call(eval(varString)) ===
+                    "[object Boolean]"){
+                    newDict[element] = eval(varString);
+                }
+                else {
+                    newDict[element] = eval(varString).toString();
+                }
             }
         });
         return newDict;
