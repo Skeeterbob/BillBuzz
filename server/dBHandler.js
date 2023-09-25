@@ -10,11 +10,14 @@ const KEY_VAULT_COLLECTION = process.env.KEY_VAULT_COLLECTION;
 const MONGO_MASTER_KEY = process.env.MONGO_MASTER_KEY;
 const ENCRYPTION_ALGORITHM = process.env.ENCRYPTION_ALGORITHM;
 const KEY_VAULT_NAMESPACE = `${KEY_VAULT_DATABASE}.${KEY_VAULT_COLLECTION}`;
+const ENCRYPTION_LOCAL_KEY = process.env.ENCRYPTION_LOCAL_KEY;
 
 class DBHandler {
     #mongoConnectionURL
     #encryption;
     #client;
+    #db;
+    #usersCollection;
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
@@ -34,30 +37,25 @@ class DBHandler {
         await this.#client.connect();
         this.#encryption = new Encryption(this.#client);
         await this.#encryption.init();
+        this.#db = this.#client.db(DATABASE_NAME);
+        this.#usersCollection = this.#db.collection(USERS_COLLECTION);
     }
 
     //Insert a new user into the database
     async insertUser(user) {
         try {
-            //Get the users collection from our database
-            const db = this.#client.db(DATABASE_NAME);
-            const usersCollection = db.collection(USERS_COLLECTION);
-
             //Encrypt the email so that we can search for it in the database
+            console.log(user.getEmail());
             const encryptedEmail = await this.#encryption.encryptString(user.getEmail());
 
             //Check if a user with the given email already exists
-            const existingUser = await usersCollection.findOne({ email: encryptedEmail });
-
-            if (existingUser) {
-                return null;
-            }
-
+            const existingUser = await this.#usersCollection.findOne({ "email": encryptedEmail });
+            console.log('in insertUser',existingUser);
             //Create a new User object with all properties encrypted
             const encryptedUser = await this.#encryption.encryptUser(user);
 
             //Insert one document into the DB with the user's properties
-            return await usersCollection.insertOne(encryptedUser);
+            return await this.#usersCollection.insertOne(encryptedUser);
         }catch (error) {
             //Throw and log any error we get when trying to insert a new user
             console.error("Error inserting user to database:", error);
@@ -68,18 +66,14 @@ class DBHandler {
     //Get a user from the database by their email
     async getUser(user) {
         try {
-            //Get the users collection from our database
-            const db = this.#client.db(DATABASE_NAME);
-            const usersCollection = db.collection(USERS_COLLECTION);
-
             //Encrypt the email so that we can search for it in the database
             const encryptedEmail = await this.#encryption.encryptString(user.getEmail());
 
             //Retrieve the user from the database, all the data would be encrypted
-            const encryptedUser = await usersCollection.findOne({email: encryptedEmail});
+            const encryptedUser = await this.#usersCollection.findOne({email: encryptedEmail});
 
             if (!encryptedUser) {
-                return null;
+                return false;
             }
 
             //Return the user's properties decrypted so that we can actually read them
@@ -93,9 +87,13 @@ class DBHandler {
 
     //Verify if a user's profile already exists in the database by email
     //If the user exists we return true, false if no user is found
-    async verifyUser(user) {
-        const dbUser = await this.getUser(user);
-        return dbUser ? true : false;
+    async verifyUser (email, password) {
+        const projection = {"phoneNumber":1};
+        const encryptedEmail = await this.#encryption.encryptString(email);
+        const encryptedPassword = await this.#encryption.encryptString(password);
+        const result = await this.#usersCollection.findOne({"email":encryptedEmail, 
+            "password":encryptedPassword}, projection);
+        console.log(result);
     }
 }
 
@@ -125,7 +123,8 @@ class Encryption {
     async init() {
         //Create a dataKey for our encryption/decryption based on our master key
         this.#dataKey = await this.#encryption.createDataKey("local");
-
+        console.log('HERE IS THE DATA KEY', this.#dataKey);
+        console.log('.env local key', ENCRYPTION_LOCAL_KEY);
         //Create our encryption options as a variable as it's commonly re-used
         this.#encryptionOptions = {
             algorithm: ENCRYPTION_ALGORITHM,

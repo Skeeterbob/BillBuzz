@@ -1,6 +1,7 @@
 import express from 'express';
 //import {loginRouter} from './routers/loginRouter.js';
 import { DBHandler } from '../../dBHandler.js';
+import { User } from '../../objectPack.js';
 const registerRouter = express.Router();
 const dBHandler = new DBHandler();
 dBHandler.init()
@@ -17,9 +18,23 @@ registerRouter.post('/', async(req, res)=>
     res.status(200).json({message: 'Registered Successfully'});
  }
  catch(error){
-    console.err(error);
+    console.log(error);
     res.status(200).json({error:'Registration Error'});
  }
 });
+
+registerRouter.post('/createUser', async(req, res) => {
+   try {
+      let user = new User(req.body);
+      console.log(user);
+      const result = await dBHandler.insertUser(user);
+      console.log(result);
+      res.status(200).json(result);
+   }
+   catch (err) {
+      console.log(err);
+      res.status(400).json({error:"/register/createUser endpoint error"})
+   }
+})
 
 export {registerRouter};
