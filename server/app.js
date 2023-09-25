@@ -1,8 +1,11 @@
 import express from 'express';
 import {appInit} from './routes/routes.js';
+import {initHandlers} from "./handlers.js";
 
 const port = process.env.PORT || 3000;
 const app = express();
+
+await initHandlers();
 appInit(app);
 
 app.get('/',(req, res)=>{
