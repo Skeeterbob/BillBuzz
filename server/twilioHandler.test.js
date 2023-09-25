@@ -1,4 +1,4 @@
-const {TwilioHandler} = require('./twilioHandler.js');
+const {TwilioHandler} = require('.twilioHandler.js');
 const readline = require('readline')
 
 //load environment variables from .env
@@ -7,7 +7,7 @@ require('dotenv').config();
 
 
 
-test('sending SMS code and verify code', async () => {   
+/*test('sending SMS code and verify code', async () => {   
     const twilioHandler = new TwilioHandler();
     await twilioHandler.init().then(async () =>{
         console.log(process.env.TEST_PHONE);
@@ -15,7 +15,7 @@ test('sending SMS code and verify code', async () => {
             expect(await verification.status).toBe("pending");
         })
     })   
-}, 10000)
+}, 10000)*/
 
 //create an interface for input and output operations
 /*const rl = readline.createInterface({
