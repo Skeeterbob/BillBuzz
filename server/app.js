@@ -5,7 +5,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 appInit(app);
 
-app.get('/',(req, res)=>{
+app.post('/',(req, res)=>{
   res.send("You have connected")
 }
 );
