@@ -2,7 +2,8 @@ import express from 'express';
 //import {loginRouter} from './routers/loginRouter.js';
 import { DBHandler } from '../../dBHandler.js';
 const registerRouter = express.Router();
-
+const dBHandler = new DBHandler();
+dBHandler.init()
 registerRouter.post('/', async(req, res)=>
 {
  try{
@@ -10,7 +11,7 @@ registerRouter.post('/', async(req, res)=>
     //Request users' information
     const {email, password} = req.body;
 
-    const  = new User({email, password});
+    //const  = new User({email, password});
     await newUser.save();
 
     res.status(200).json({message: 'Registered Successfully'});

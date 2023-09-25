@@ -1,6 +1,6 @@
 import {DBHandler} from './dBHandler.js';
 import {MongoMemoryServer} from 'mongodb-memory-server';
-import {User} from "../objectPack.js";
+import {User} from "./objectPack.js";
 
 let mongod;
 let dbHandler;

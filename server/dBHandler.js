@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 import {MongoClient, ServerApiVersion, ClientEncryption} from 'mongodb';
-import {User} from "../objectPack.js";
+import {User} from "./objectPack.js";
 
 dotenv.config('../.env');
 const DATABASE_NAME = process.env.DATABASE_NAME;
