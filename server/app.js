@@ -6,7 +6,7 @@ const app = express();
 appInit(app);
 
 app.get('/',(req, res)=>{
-  res.send("You have connected")
+  res.sendFile(path.join(__dirname, 'index.html'));
 }
 );
 

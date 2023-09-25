@@ -27,7 +27,7 @@ loginRouter.post('/verify', async (req,res) => {
    }
 });
 
-loginRouter.post('/verify/sms', async(req, res)=>{
+loginRouter.get('/verify/sms', async(req, res)=>{
     try{
         const result = await twilioHandler.validateSMSCode(req.body.phNum, req.body.code);
 
