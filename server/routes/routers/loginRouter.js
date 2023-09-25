@@ -9,13 +9,11 @@ const dBHandler = new DBHandler();
 twilioHandler.init();
 
 //Get request for login through Twilio
-loginRouter.post('/', async(req, res)=>
+loginRouter.post('/login', async(req, res)=>
 {
  try{
  
-    //Request users' phone number
-    const phNum = req.body.phNum;
-    const sendSMS = sendSMS();
+   
  }
  catch(err){
     console.err(error);

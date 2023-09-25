@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet} from 'react-native'
 import {useNavigation} from '@react-navigation/native';
 import CustomButton from '../../CustomButton/CustomButton';
 
-const accountPage = () => {
+const AccountPage = () => {
 const navigation = useNavigation();
 const confrimPressed =() =>{
     console.warn('confrimPressed');
@@ -19,4 +19,4 @@ return(
 );
 };
 
-export default accountPage;
+export default AccountPage;
