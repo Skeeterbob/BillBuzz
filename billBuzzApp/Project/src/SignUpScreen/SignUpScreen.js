@@ -43,6 +43,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
        padding:30,
        backgroundColor: "#FAE526",
+       width: '100%',
+        height: '100%',
 
     },
     logo: {

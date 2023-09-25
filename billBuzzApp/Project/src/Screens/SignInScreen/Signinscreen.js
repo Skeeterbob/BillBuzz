@@ -15,7 +15,22 @@ const Signinscreen = () => {
         console.warn('Sign in');
 
         navigation.navigate('Confirm');
+
+        fetch("http://localhost:3000", options = {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
     }
+})
+        
+        // fetch('http://localhost:3000/login')
+        // .then(res => res.json())
+        // .then(data => console.log(data))
+        // .catch(error => console.error('Error:', error));
+      
+    }
+  
     const onSignUpPressed =() =>{
         console.warn('Sign up');
 
@@ -39,6 +54,8 @@ return(
 
 const styles = StyleSheet.create({
     root:{
+        width: '100%',
+        height: '100%',
         alignItems: 'center',
        padding:30,
        backgroundColor: "#FAE526",
