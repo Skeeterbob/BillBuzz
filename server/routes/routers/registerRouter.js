@@ -18,7 +18,7 @@ registerRouter.post('/', async(req, res)=>
  }
  catch(error){
     console.err(error);
-    res.status(200).json({error:'Registration Error'});
+    res.status(400).json({error:'Registration Error'});
  }
 });
 

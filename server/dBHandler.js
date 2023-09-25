@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 import {MongoClient, ServerApiVersion} from 'mongodb';
 
+
 dotenv.config('../.env');
 const DATABASE_NAME = process.env.DATABASE_NAME;
 const USERS_COLLECTION = process.env.USERS_COLLECTION;
