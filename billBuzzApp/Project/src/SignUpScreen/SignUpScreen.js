@@ -11,6 +11,7 @@ const SignUpScreen = () => {
     const [Email, SetEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordRepeat, setPasswordRepeat] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const navigation = useNavigation();
     const onRegesteredPressed =() =>{
         console.warn('onRegesteredPressed');
@@ -27,11 +28,12 @@ return(
         
         
         <CustomInput placeholder="User Name" value={Username} setValue={setUsername}/>
+        <CustomInput placeholder="Phone Number" value={phoneNumber} setValue={setPhoneNumber}/>
         <CustomInput placeholder="Email Address" value={Email} setValue={SetEmail}/>
         <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
         <CustomInput placeholder="Repeat Password" value={passwordRepeat} setValue={setPasswordRepeat} secureTextEntry={true} />
         <CustomButton text="Register" onPress={onRegesteredPressed}/>
-        <CustomButton text="Have and account already? Sign in" onPress={onSignUpPressed} type="container_THIRD"/>
+        <CustomButton text="Have and account already? Sign in" onPress={onSignUpPressed} type="container_Fourth"/>
         
     </View>
     
