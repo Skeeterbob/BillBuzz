@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
    },
    Text_PRIMARY: {
     
-   }
-
+   },
+   
 });
 
 export default CustomButton

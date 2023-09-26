@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView } from 'react-native'
+import { View, Text, Image, StyleSheet, useWindowDimensions, TextInput } from 'react-native'
 import logo from '../../../assets/images/logo.png';
 import CustomInput from '../../Components/CustomInput';
 import CustomButton from '../../CustomButton';
@@ -41,6 +41,7 @@ return(
     <View style={styles.root}> 
        
         <Image source={logo} style = {[styles.logo, {height:height * .3}]} resizeMode='contain' />
+      
         
         <CustomInput placeholder="Email Address" value={Username} setValue={setUsername}/>
         <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
