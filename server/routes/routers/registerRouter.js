@@ -5,7 +5,7 @@ import { User } from '../../objectPack.js';
 const registerRouter = express.Router();
 const dBHandler = new DBHandler();
 dBHandler.init()
-registerRouter.post('/', async(req, res)=>
+/*registerRouter.post('/', async(req, res)=>
 {
  try{
  
@@ -21,7 +21,7 @@ registerRouter.post('/', async(req, res)=>
     console.log(error);
     res.status(200).json({error:'Registration Error'});
  }
-});
+});*/
 
 registerRouter.post('/createUser', async(req, res) => {
    try {
