@@ -8,7 +8,7 @@ const app = express();
 await initHandlers();
 appInit(app);
 
-app.get('/',(req, res)=>{
+app.post('/',(req, res)=>{
   res.send("You have connected")
 }
 );

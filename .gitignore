@@ -36,3 +36,4 @@ server/node_modules/
 billbuzz/node_modules/
 server/.env
 server/coverage
+billBuzzApp/node_modules/

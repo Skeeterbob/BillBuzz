@@ -9,8 +9,10 @@ import { TwilioHandler } from '../twilioHandler.js';
 const app = express();
 const port = process.env.PORT || 3000; 
 
+
+//buggy 
 function appInit (app) {
-    app.use(express.json());
+    //app.use(express.json());
 
     app.use('/', indexRouter);
     app.use('/login', loginRouter);
