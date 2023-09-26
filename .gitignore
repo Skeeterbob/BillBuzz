@@ -33,5 +33,7 @@ google-services.json
 *.hprof
 
 server/node_modules/
-billBuzzApp/node_modules/
+billbuzz/node_modules/
 server/.env
+server/coverage
+billBuzzApp/node_modules/

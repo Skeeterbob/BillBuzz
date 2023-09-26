@@ -1,5 +1,5 @@
 
-const {User} = require('../objectPack.js');
+const {User} = require('./objectPack.js');
 
 const testTransactionString = '{"amount":1.11,"date":"' + new Date().toISOString() +
     '","subscriptionBool":false,"subscriptionName":"","vendor":"testVendor"}';
