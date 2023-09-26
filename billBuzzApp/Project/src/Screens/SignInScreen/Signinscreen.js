@@ -1,9 +1,10 @@
 import React, {useState} from 'react'
-import { View, Text, Image, StyleSheet, useWindowDimensions, TextInput, Modal, Button } from 'react-native'
+import { View, Text, Image, StyleSheet, useWindowDimensions} from 'react-native'
 import logo from '../../../assets/images/logo.png';
 import CustomInput from '../../Components/CustomInput';
 import CustomButton from '../../CustomButton';
 import {useNavigation} from '@react-navigation/native';
+
 
 
 
@@ -61,7 +62,7 @@ const Signinscreen = () => {
   
     async function verfyUser() {
       try {
-        const response = await fetch("https://www.youtube.com/watch?v=Z-iFyTlNawk&ab_channel=TobiasFate"); // Replace with the URL of the website you want to fetch data from
+        const response = await fetch("http://localhost:3001/login/verify"); // Replace with the URL of the website you want to fetch data from
         if (!response.ok) {
           throw new Error(`Network response was not ok, status: ${response.status}`);
         }
@@ -78,16 +79,15 @@ const Signinscreen = () => {
         throw error; // You can handle or rethrow the error as needed
       }
      
-    //   const response = await fetch("https://www.youtube.com/watch?v=Z-iFyTlNawk&ab_channel=TobiasFate", options = {
+    //   const response = await fetch("http://localhost:3000", options = {
     //     method: 'POST',
     //     headers: {
     //     'Content-Type': 'application/json',
     //     Accept:'application/json',
     //     },
     //     body:{
-          
-    // "username":email,
-    // "password":password
+    //     "username":email,
+    //     "password":password,
     //     }
        
     // });
