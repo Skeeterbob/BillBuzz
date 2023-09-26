@@ -1,11 +1,13 @@
 import express from 'express';
 import {appInit} from './routes/routes.js';
-import {initHandlers} from "./handlers.js";
-
+import pkg from 'body-parser'
+//import {initHandlers} from "./handlers.js";
+const bodyParser = pkg;
 const port = process.env.PORT || 3000;
 const app = express();
-
-await initHandlers();
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+app.use(bodyParser.json({limit: '50mb'}));
+//await initHandlers();
 appInit(app);
 
 app.post('/',(req, res)=>{
