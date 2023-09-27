@@ -10,6 +10,7 @@ import {useNavigation} from '@react-navigation/native';
 const ConfirmSignUP = () => {
   const [code, setCode] = useState('');
   const navigation = useNavigation();
+  
 
 
     const confrimPressed =() =>{
@@ -21,6 +22,27 @@ const ConfirmSignUP = () => {
           Alert.alert("Error", "Code Invalid")
         }
         
+       
+    async function verifyUser(codeSubmit) {
+     
+     
+      const response = await fetch("http://10.0.2.2:3000/login/verify/sms", options = {
+        method: "POST",
+        headers: {
+        "Content-Type": 'application/json',
+        "Access-Control-Allow-Origin":'http://10.0.2.2:3000/login/verify',
+        Accept:"application/json",
+        },
+        body:JSON.stringify({
+          
+            "codeSubmit": codeSubmit,
+            
+            
+        })
+    }
+    
+    );};
+
         
     }
     const backToSignIn =() =>{
@@ -32,6 +54,7 @@ const ConfirmSignUP = () => {
     const resendCodePressed =() =>{
         console.warn('resendCodePressed');
     }
+    
 
 
     const handleCodeChange = (text) => {
