@@ -15,37 +15,26 @@ const Signinscreen = () => {
     
     const [password, setPassword] = useState('');
    
-  const [passwordError, setPasswordError] = useState('');
+    const [seePassword, setSeePassword] = useState(true);
     const [codeInputVisible, setCodeInputVisible] = useState(false);
     const [showPasswordInput, setShowPasswordInput] = useState(false);
+    const [checkValidEmail, SetCheckValidEmail] = useState(false)
     const [code, setCode] = useState('');
     const [email, setEmail] = useState('');
     const navigation = useNavigation();
+    const handleCheckEmail = text =>{
+      let re = /\S+@\S+\.\S+/;
+      let regex = /^[\+]?[(]?\d{3}[)]?[-\s\.]?\d{3}[-\s\.]?\d{4,6}$/;
+      $/im;
 
-    // const handleShowPasswordInput = () => {
-    //     setShowPasswordInput(true);
-    //   };
-    
-    //   const handleLogin = () => {
-    //     // Perform login logic here
-    
-    //     // If login is successful, show the code input prompt
-    //     if (true /* Replace with your login logic */) {
-    //       setCodeInputVisible(true);
-    //     }
-    //   };
-    
-    //   const handleCodeSubmit = () => {
-    //     // Validate and process the entered code
-    //     if (code.length !== 6) {
-    //       // Display an error message for an invalid code
-    //       // You can set an error state variable similar to passwordError
-    //     } else {
-    //       // Process the code (e.g., validate it against the server)
-    //       // If the code is valid, you can close the code input prompt
-    //       setCodeInputVisible(false);
-    //     }
-    //   };
+      setEmail(text)
+      if(re.test(text)|| regex.test(test)){
+        SetCheckValidEmail(false);
+      }else{
+        SetCheckValidEmail(true);
+      }
+    }
+   
     
    async function onSignInPressed () {
 
@@ -67,23 +56,7 @@ const Signinscreen = () => {
     }
   
     async function verifyUser(email, password) {
-      // try {
-      //   const response = await fetch("http://10.0.2.2:3000/login/verify"); // Replace with the URL of the website you want to fetch data from
-      //   if (!response.ok) {
-      //     throw new Error(`Network response was not ok, status: ${response.status}`);
-      //   }
-        
-      //   // You can process the response here
-      //   const data = await response.text(); // Use response.text() for non-JSON data
-        
-      //   // Log or use the fetched data
-      //   console.log(data);
-        
-      //   return data;
-      // } catch (error) {
-      //   console.error('Fetch failed:', error);
-      //   throw error; // You can handle or rethrow the error as needed
-      // }
+     
      
       const response = await fetch("http://10.0.2.2:3000/login/verify", options = {
         method: "POST",
@@ -100,7 +73,7 @@ const Signinscreen = () => {
         })
     }
     
-    );
+    );};
     return response.json();
       }
     
@@ -120,15 +93,17 @@ return(
        
         <Image source={logo} style = {[styles.logo, {height:height * .3}]} resizeMode='contain' />
        
-        <CustomInput placeholder="Email Address" value={email} setValue={setEmail}/>
-        <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={false} />
+        <CustomInput placeholder="Email Address" value={email} setValue={setEmail} onChangeText={(text)=>handleCheckEmail(text)}/>
+        
+        {checkValidEmail ? <Text> Wrong Format</Text> : <Text></Text>}
+        <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
         <CustomButton text="Sign In" onPress={onSignInPressed}/>
         <CustomButton text="Don't have an account? Create one" onPress={onSignUpPressed} type="container_SECONDARY"/>
         
     </View>
     
 );
-};
+
 
 const styles = StyleSheet.create({
     root:{
