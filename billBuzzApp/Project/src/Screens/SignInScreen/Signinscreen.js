@@ -87,14 +87,15 @@ const Signinscreen = () => {
         method: "POST",
         headers: {
         "Content-Type": 'application/json',
+        "Access-Control-Allow-Origin":'http://10.0.2.2:3000/login/verify',
         Accept:"application/json",
         },
-        body:{
+        body:JSON.stringify({
           
             "email": email,
             "password": password
             
-        }
+        })
     }
     
     );
@@ -146,6 +147,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
+      },
+      hexagon: {
+        width: 100,
+        height: 100,
+        backgroundColor: 'transparent',
+        borderWidth: 1,
+        borderColor: 'white', // Adjust the border color as needed
+        margin: 5, // Adjust the margin for spacing between hexagons
+        transform: [{ rotate: '30deg' }],
       },
 });
 export default Signinscreen
