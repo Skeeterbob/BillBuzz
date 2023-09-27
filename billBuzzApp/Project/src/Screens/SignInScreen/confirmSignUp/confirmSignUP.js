@@ -35,6 +35,7 @@ const ConfirmSignUP = () => {
         }
         
        
+
     async function verifyUser(codeSubmit, ) {
      
      
@@ -52,17 +53,20 @@ const ConfirmSignUP = () => {
             
         })
     }
-    
-    );};
 
+      
+
+    
         
-    }
+    
     const backToSignIn =() =>{
         console.warn('backToSignIn');
         
         navigation.navigate('SignIn');
         
     }
+   
+   
     const resendCodePressed =() =>{
         console.warn('resendCodePressed');
     }
@@ -101,7 +105,9 @@ return(
     </View>
     
 );
+
 };
+
 
 const styles = StyleSheet.create({
     root:{

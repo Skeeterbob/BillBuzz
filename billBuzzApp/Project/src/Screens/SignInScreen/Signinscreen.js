@@ -62,7 +62,7 @@ const Signinscreen = () => {
         method: "POST",
         headers: {
         "Content-Type": 'application/json',
-        "Access-Control-Allow-Origin":'http://10.0.2.2:3000/login/verify',
+        "Access-Control-Allow-Origin":'http://10.0.2.2:3000',
         Accept:"application/json",
         },
         body:JSON.stringify({
@@ -71,11 +71,12 @@ const Signinscreen = () => {
             "password": password
             
         })
+      
+      })
+      return response.json();
     }
-    
-    );};
-    return response.json();
-      }
+  
+  
     
     
     const onSignUpPressed =() =>{
@@ -86,6 +87,8 @@ const Signinscreen = () => {
 
         
     }
+
+
 return(
     
     <View style={styles.root}> 
@@ -103,8 +106,7 @@ return(
     </View>
     
 );
-
-
+}
 const styles = StyleSheet.create({
     root:{
         width: '100%',
@@ -135,4 +137,4 @@ const styles = StyleSheet.create({
         transform: [{ rotate: '30deg' }],
       },
 });
-export default Signinscreen
+export default Signinscreen;
