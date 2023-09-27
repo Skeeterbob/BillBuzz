@@ -4,8 +4,16 @@ import { View, Text, Image, StyleSheet, Button, TextInput, Alert} from 'react-na
 import CustomInput from '../../../Components/CustomInput';
 import CustomButton from '../../../CustomButton/CustomButton';
 import {useNavigation} from '@react-navigation/native';
+import RNSharedPreferences from 'react-native-android-shared-preferences';
 
+var sharedPreferences = RNSharedPreferences.getSharedPreferences("billBuzzInfo");
 
+//We can cut this and take it to wherever we need to get the token from.
+/*var sharedPreferences = RNSharedPreferences.getSharedPreferences("billBuzzInfo");
+sharedPreferences.getString("name", (result) => {
+     // Should return Karthik here ...
+     console.log("Get result :: " + result);
+})*/
 
 const ConfirmSignUP = () => {
   const [code, setCode] = useState('');
@@ -16,6 +24,10 @@ const ConfirmSignUP = () => {
     const confrimPressed =() =>{
         console.warn('confrimPressed');
         if(code==123456){
+          //let authToken = result['token'];
+          sharedPreferences.putString("jwtAuthToken", authToken, (result) => {
+            console.log("sharedPreferencese PUT result: " + result);
+          })
           navigation.navigate('Account');
         }
         else{
@@ -23,7 +35,27 @@ const ConfirmSignUP = () => {
         }
         
        
-      }
+
+    async function verifyUser(codeSubmit, ) {
+     
+     
+      const response = await fetch("http://10.0.2.2:3000/login/verify/sms", options = {
+        method: "POST",
+        headers: {
+        "Content-Type": 'application/json',
+        "Access-Control-Allow-Origin":'http://10.0.2.2:3000',
+        Accept:"application/json",
+        },
+        body:JSON.stringify({
+          
+            "code": codeSubmit,
+            
+            
+        })
+    }
+
+      
+
     
         
     
