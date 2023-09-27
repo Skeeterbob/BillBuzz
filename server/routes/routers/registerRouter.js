@@ -1,12 +1,17 @@
 import express from 'express';
+import { AuthHandler } from '../../authHandler.js';
 import { DBHandler } from '../../dBHandler.js';
 const registerRouter = express.Router();
+const authHandler = new AuthHandler();
 const dbHandler = new DBHandler();
 dbHandler.init();
+authHandler.init();
+
+
 
 registerRouter.post('/', async(req, res)=>
 {
- try{
+ /*try{
  
     //Request users' information
     const {email, password} = req.body;
@@ -19,18 +24,35 @@ registerRouter.post('/', async(req, res)=>
  catch(error){
     console.err(error);
     res.status(400).json({error:'Registration Error'});
- }
+ }*/
 });
+
+
 
 registerRouter.post('/createUser', async (req, res) => {
    try {
-      result = await dbHandler.insertUser(req.body.user);
-      result.then((data) => {
-         console.log(data);
-      })
+      let user = new user(req.body);
+      console.log(user);
+      const result = await DBHandler.insertUser(user);
+      console.log(result);
+      res.status(200).json(result);
    }
    catch (err) {
-      res.status(400).json({error:'createUser Error'})
+      console.log(err);
+      res.status(400).json({error:"/register/createUser endpoint error"})
+   }
+})
+
+registerRouter.post('/getUser', authHandler.validateToken, async(req, res) => {
+   try {
+      console.log(req.body)
+      const result = await DBHandler.getUser(req.body.email);
+      console.log(result.toJSONString());
+      res.status(200).json(result);
+   }
+   catch (err) {
+      console.log(err);
+      res.status(400).json({error:"/register/createUser endpoint error"})
    }
 })
 

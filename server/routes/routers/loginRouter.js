@@ -1,6 +1,7 @@
 import express from 'express';
 import { TwilioHandler } from '../../twilioHandler.js';
 import { DBHandler } from '../../dBHandler.js';
+import { AuthHandler } from '../../authHandler.js';
 //import { registerRouter } from './registerRouter.js';
 const loginRouter = express.Router();
 const twilioHandler = new TwilioHandler();
@@ -9,35 +10,44 @@ const dBHandler = new DBHandler();
 twilioHandler.init();
 dBHandler.init();
 
-//Get request for login through Twilio
-loginRouter.post('/verify', async (req,res) => {
-   try{
-      const result = await dBHandler.verifyUser(req.body.email, req.body.password);
-      if(result){
-        res.status(200).json({message:'User Verified!'});
-
-      }
-      else{
-        res.status(400).json({error:'Verification Failed! '})
-      }
-   }
-   catch(error){
-      console.err(error);
-      res.status(500).json({error:'Error'});
-   }
+loginRouter.post('/login', async (req, res) => {
 });
 
-loginRouter.get('/verify/sms', async(req, res)=>{
+loginRouter.post('/login/verify', async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    if (!email || !password) {
+        return res.status(400).send('Email and Password fields are required');
+    }
+
+    const result = await dBHandler.verifyUser(email, password);
+    
+    if (result) {
+        return res.status(200).send(JSON.stringify(result));
+    }else {
+        return res.status(401).send('Incorrect Email/Password provided!');
+    }
+});
+
+loginRouter.post('/login/verify/sms', async(req,res)=>{
     try{
-        const result = await twilioHandler.validateSMSCode(req.body.phNum, req.body.code);
+        const phNum = req.body.phNum;
+        const code = req.body.code;
+        const token = req.body.token;
+        const id = req.body.id;
 
+        const ctoken = AuthHandler.createToken(token, id);
+        if(!ctoken){
+            return res.status(400).json({error:'TOKEN INVALID!'});
+        }
+
+        const result = await twilioHandler.validateSMSCode(phNum, code);
         if(result){
-            res.status(200).json({message:'Code Verified!'});
-
+            res.status(200).send(JSON.stringify(result));
         }
         else{
             res.status(400).json({error:'Verification Error!'});
-
         }
     }
         catch(error){
