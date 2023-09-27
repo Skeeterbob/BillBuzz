@@ -17,9 +17,11 @@ loginRouter.post('/', async (req, res) => {
 loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
+    console.log(req)
 
     if (!email || !password) {
-        return res.status(400).send('Email and Password fields are required');
+        return res.status(400).send({"error":'Email and Password fields are required'});
+        
     }
 
     const result = await dBHandler.verifyUser(email, password);
