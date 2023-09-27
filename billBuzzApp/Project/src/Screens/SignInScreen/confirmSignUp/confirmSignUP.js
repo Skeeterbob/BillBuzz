@@ -23,34 +23,18 @@ const ConfirmSignUP = () => {
         }
         
        
-    async function verifyUser(codeSubmit) {
-     
-     
-      const response = await fetch("http://10.0.2.2:3000/login/verify/sms", options = {
-        method: "POST",
-        headers: {
-        "Content-Type": 'application/json',
-        "Access-Control-Allow-Origin":'http://10.0.2.2:3000/login/verify',
-        Accept:"application/json",
-        },
-        body:JSON.stringify({
-          
-            "codeSubmit": codeSubmit,
-            
-            
-        })
-    }
+      }
     
-    );};
-
         
-    }
+    
     const backToSignIn =() =>{
         console.warn('backToSignIn');
         
         navigation.navigate('SignIn');
         
     }
+   
+   
     const resendCodePressed =() =>{
         console.warn('resendCodePressed');
     }
@@ -89,7 +73,9 @@ return(
     </View>
     
 );
+
 };
+
 
 const styles = StyleSheet.create({
     root:{
