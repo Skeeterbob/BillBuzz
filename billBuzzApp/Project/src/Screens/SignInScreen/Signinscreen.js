@@ -48,14 +48,16 @@ const Signinscreen = () => {
     //   };
     
    async function onSignInPressed () {
+
+    navigation.navigate('Confirm');
     
-        const result = await verifyUser(email, password)
+        // const result = await verifyUser(email, password)
 
         
-        console.log(result)
-         // if(verfyUser.validate == true){
+        //  if(result.validate == true){
           
         //   console.warn('Sign in');
+         
         // }
         // else{
         //   console.warn('Sign in failed');
@@ -119,7 +121,7 @@ return(
         <Image source={logo} style = {[styles.logo, {height:height * .3}]} resizeMode='contain' />
        
         <CustomInput placeholder="Email Address" value={email} setValue={setEmail}/>
-        <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
+        <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={false} />
         <CustomButton text="Sign In" onPress={onSignInPressed}/>
         <CustomButton text="Don't have an account? Create one" onPress={onSignUpPressed} type="container_SECONDARY"/>
         
