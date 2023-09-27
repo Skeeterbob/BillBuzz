@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { View, Text, Image, StyleSheet, Button, TextInput } from 'react-native'
+import { View, Text, Image, StyleSheet, Button, TextInput, Alert} from 'react-native'
 
 import CustomInput from '../../../Components/CustomInput';
 import CustomButton from '../../../CustomButton/CustomButton';
@@ -10,10 +10,18 @@ import {useNavigation} from '@react-navigation/native';
 const ConfirmSignUP = () => {
   const [code, setCode] = useState('');
   const navigation = useNavigation();
+
+
     const confrimPressed =() =>{
         console.warn('confrimPressed');
+        if(code==123456){
+          navigation.navigate('Account');
+        }
+        else{
+          Alert.alert("Error", "Code Invalid")
+        }
         
-        navigation.navigate('Account');
+        
     }
     const backToSignIn =() =>{
         console.warn('backToSignIn');
@@ -24,11 +32,14 @@ const ConfirmSignUP = () => {
     const resendCodePressed =() =>{
         console.warn('resendCodePressed');
     }
+
+
     const handleCodeChange = (text) => {
         // Ensure the input consists of only numeric characters and has a length of 6
         if (/^\d{0,6}$/.test(text)) {
           setCode(text);
         }
+       
       };
 return(
     
@@ -42,6 +53,7 @@ return(
         maxLength={6}
         value={code}
         onChangeText={handleCodeChange}
+        
       />
       
     </View>
