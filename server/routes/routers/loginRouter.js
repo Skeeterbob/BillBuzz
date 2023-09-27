@@ -42,7 +42,7 @@ loginRouter.post('/login/verify/sms', async(req,res)=>{
             return res.status(400).json({error:'TOKEN INVALID!'});
         }
 
-        const result = await twilioHandler.validateSMSCode(phNum, code);
+        const result = await twilioHandler.validateSMSCode('+1'+ phNum, code);
         if(result){
             res.status(200).send(JSON.stringify(result));
         }
