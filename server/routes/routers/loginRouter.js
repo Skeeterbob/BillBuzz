@@ -34,11 +34,13 @@ loginRouter.post('/login/verify/sms', async(req,res)=>{
     try{
         const phNum = req.body.phNum;
         const code = req.body.code;
-        const token = req.body.token;
         const id = req.body.id;
 
-        const ctoken = AuthHandler.createToken(token, id);
-        if(!ctoken){
+        const ctoken = AuthHandler.createToken(id);
+        if(ctoken){
+            res.status(200).send(JSON.stringify(ctoken));
+        }
+        else{
             return res.status(400).json({error:'TOKEN INVALID!'});
         }
 
