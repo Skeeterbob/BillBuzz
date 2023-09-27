@@ -46,71 +46,61 @@ const Signinscreen = () => {
     //       setCodeInputVisible(false);
     //     }
     //   };
-
-    const onSignInPressed =() =>{
     
-      const uppercaseRegex = /[A-Z]/;
-      const specialCharacterRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/;
+   async function onSignInPressed () {
+    
+        const result = await verifyUser(email, password)
 
-       
-       const userAuthenticated = true; 
-
-    if (userAuthenticated) {
-     
-      if (password.length > 8) {
         
-        Alert.alert('Error', 'Password Must be 8 Charcters');
-      } else {
-        setCodeInputVisible(true);
-        navigation.navigate('Confirm');
-        }
-      } else {
-      setPasswordError('Invalid email or password');
-      }
-
-        // if(verfyUser.validate == true){
+        console.log(result)
+         // if(verfyUser.validate == true){
           
         //   console.warn('Sign in');
         // }
         // else{
         //   console.warn('Sign in failed');
         // }
+
+       
     }
   
-    // async function verfyUser() {
-    //   try {
-    //     const response = await fetch("http://localhost:3001/login/verify"); // Replace with the URL of the website you want to fetch data from
-    //     if (!response.ok) {
-    //       throw new Error(`Network response was not ok, status: ${response.status}`);
-    //     }
+    async function verifyUser(email, password) {
+      // try {
+      //   const response = await fetch("http://10.0.2.2:3000/login/verify"); // Replace with the URL of the website you want to fetch data from
+      //   if (!response.ok) {
+      //     throw new Error(`Network response was not ok, status: ${response.status}`);
+      //   }
         
-    //     // You can process the response here
-    //     const data = await response.text(); // Use response.text() for non-JSON data
+      //   // You can process the response here
+      //   const data = await response.text(); // Use response.text() for non-JSON data
         
-    //     // Log or use the fetched data
-    //     console.log(data);
+      //   // Log or use the fetched data
+      //   console.log(data);
         
-    //     return data;
-    //   } catch (error) {
-    //     console.error('Fetch failed:', error);
-    //     throw error; // You can handle or rethrow the error as needed
-    //   }
+      //   return data;
+      // } catch (error) {
+      //   console.error('Fetch failed:', error);
+      //   throw error; // You can handle or rethrow the error as needed
+      // }
      
-    //   const response = await fetch("http://localhost:3000", options = {
-    //     method: 'POST',
-    //     headers: {
-    //     'Content-Type': 'application/json',
-    //     Accept:'application/json',
-    //     },
-    //     body:{
-    //     "username":email,
-    //     "password":password,
-    //     }
-       
-    // });
-    //     return response.json();
-    //   }
-   
+      const response = await fetch("http://10.0.2.2:3000/login/verify", options = {
+        method: "POST",
+        headers: {
+        "Content-Type": 'application/json',
+        Accept:"application/json",
+        },
+        body:{
+          
+            "email": email,
+            "password": password
+            
+        }
+    }
+    
+    );
+    return response.json();
+      }
+    
     
     const onSignUpPressed =() =>{
       console.warn('Sign up');
