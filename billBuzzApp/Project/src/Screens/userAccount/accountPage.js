@@ -1,6 +1,6 @@
-import React from 'react'
+
 import React, {useState} from 'react'
-import { View, Text, Pressable, StyleSheet, Image, useState} from 'react-native'
+import { View, Text, Pressable, StyleSheet, Image, TextInput} from 'react-native'
 import {useNavigation} from '@react-navigation/native';
 import CustomButton from '../../CustomButton/CustomButton';
 
