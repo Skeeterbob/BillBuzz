@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "react-native-android-shared-preferences": "^1.0.6"
+  }
+}
