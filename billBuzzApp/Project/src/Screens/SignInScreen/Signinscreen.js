@@ -1,9 +1,10 @@
 import React, {useState} from 'react'
-import { View, Text, Image, StyleSheet, useWindowDimensions} from 'react-native'
+import { View, Text, Image, StyleSheet, useWindowDimensions, Alert} from 'react-native'
 import logo from '../../../assets/images/logo.png';
 import CustomInput from '../../Components/CustomInput';
 import CustomButton from '../../CustomButton';
 import {useNavigation} from '@react-navigation/native';
+
 
 
 
@@ -47,12 +48,28 @@ const Signinscreen = () => {
     //   };
 
     const onSignInPressed =() =>{
-       const result = verfyUser();
+    
+      const uppercaseRegex = /[A-Z]/;
+      const specialCharacterRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/;
 
-        console.log(result);
+       
+       const userAuthenticated = true; 
+
+    if (userAuthenticated) {
+     
+      if (password.length > 8) {
+        
+        Alert.alert('Error', 'Password Must be 8 Charcters');
+      } else {
+        setCodeInputVisible(true);
+        navigation.navigate('Confirm');
+        }
+      } else {
+      setPasswordError('Invalid email or password');
+      }
 
         // if(verfyUser.validate == true){
-        //   navigation.navigate('Confirm');
+          
         //   console.warn('Sign in');
         // }
         // else{
@@ -60,24 +77,24 @@ const Signinscreen = () => {
         // }
     }
   
-    async function verfyUser() {
-      try {
-        const response = await fetch("http://localhost:3001/login/verify"); // Replace with the URL of the website you want to fetch data from
-        if (!response.ok) {
-          throw new Error(`Network response was not ok, status: ${response.status}`);
-        }
+    // async function verfyUser() {
+    //   try {
+    //     const response = await fetch("http://localhost:3001/login/verify"); // Replace with the URL of the website you want to fetch data from
+    //     if (!response.ok) {
+    //       throw new Error(`Network response was not ok, status: ${response.status}`);
+    //     }
         
-        // You can process the response here
-        const data = await response.text(); // Use response.text() for non-JSON data
+    //     // You can process the response here
+    //     const data = await response.text(); // Use response.text() for non-JSON data
         
-        // Log or use the fetched data
-        console.log(data);
+    //     // Log or use the fetched data
+    //     console.log(data);
         
-        return data;
-      } catch (error) {
-        console.error('Fetch failed:', error);
-        throw error; // You can handle or rethrow the error as needed
-      }
+    //     return data;
+    //   } catch (error) {
+    //     console.error('Fetch failed:', error);
+    //     throw error; // You can handle or rethrow the error as needed
+    //   }
      
     //   const response = await fetch("http://localhost:3000", options = {
     //     method: 'POST',
@@ -92,15 +109,16 @@ const Signinscreen = () => {
        
     // });
     //     return response.json();
-      }
-
-      
-
-
+    //   }
+   
+    
     const onSignUpPressed =() =>{
-        console.warn('Sign up');
+      console.warn('Sign up');
+      navigation.navigate('SignUp');
+      
+        
 
-        navigation.navigate('SignUp');
+        
     }
 return(
     

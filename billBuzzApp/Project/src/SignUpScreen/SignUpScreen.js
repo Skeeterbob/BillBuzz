@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView } from 'react-native'
+import { View, Text, Image, StyleSheet, useWindowDimensions, ScrollView, Alert } from 'react-native'
 
 import CustomInput from '../Components/CustomInput';
 import CustomButton from '../CustomButton/CustomButton';
@@ -14,7 +14,34 @@ const SignUpScreen = () => {
     const [phoneNumber, setPhoneNumber] = useState('');
     const navigation = useNavigation();
     const onRegesteredPressed =() =>{
-        console.warn('onRegesteredPressed');
+        const userAuthenticated = true; 
+        const uppercaseRegex = /[A-Z]/;
+        const specialCharacterRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (userAuthenticated) {
+            if (!uppercaseRegex.test(password)) {
+                
+                Alert.alert('Error', 'Password must contain at least one uppercase letter');
+                return;
+              }
+             if (!specialCharacterRegex.test(password)) {
+               
+                Alert.alert('Error', 'Password must contain at least one special character');
+                return;
+              }
+            if (password.length > 8 ) {
+            
+                    Alert.alert('Error', 'Password Must be 8 Charcters');
+            }         else if(password != passwordRepeat) {
+                    Alert.alert('Error', 'Passwords Must Match');
+
+            }
+            else{
+                navigation.navigate('SignIn');
+            }
+        }
+      
     }
     const onSignUpPressed =() =>{
         console.warn('SignUp');
