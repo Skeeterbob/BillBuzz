@@ -17,23 +17,23 @@ const SignUpScreen = () => {
         const userAuthenticated = true; 
         const uppercaseRegex = /[A-Z]/;
         const specialCharacterRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
         if (userAuthenticated) {
-            if (!uppercaseRegex.test(password)) {
+            if (!uppercaseRegex.test(password) && !uppercaseRegex.test(passwordRepeat) ) {
                 
                 Alert.alert('Error', 'Password must contain at least one uppercase letter');
-                return;
-              }
-             if (!specialCharacterRegex.test(password)) {
+                
+            }
+            if (!specialCharacterRegex.test(password) && !specialCharacterRegex.test(passwordRepeat) ) {
                
                 Alert.alert('Error', 'Password must contain at least one special character');
-                return;
-              }
-            if (password.length > 8 ) {
+                
+            }
+            if (password.length = 8) {
             
                     Alert.alert('Error', 'Password Must be 8 Charcters');
-            }         else if(password != passwordRepeat) {
+            }         
+            if(password != passwordRepeat) {
                     Alert.alert('Error', 'Passwords Must Match');
 
             }
@@ -57,8 +57,8 @@ return(
         <CustomInput placeholder="User Name" value={Username} setValue={setUsername}/>
         <CustomInput placeholder="Phone Number" value={phoneNumber} setValue={setPhoneNumber}/>
         <CustomInput placeholder="Email Address" value={Email} setValue={SetEmail}/>
-        <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
-        <CustomInput placeholder="Repeat Password" value={passwordRepeat} setValue={setPasswordRepeat} secureTextEntry={true} />
+        <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={false} />
+        <CustomInput placeholder="Repeat Password" value={passwordRepeat} setValue={setPasswordRepeat} secureTextEntry={false} />
         <CustomButton text="Register" onPress={onRegesteredPressed}/>
         <CustomButton text="Have and account already? Sign in" onPress={onSignUpPressed} type="container_Fourth"/>
         
