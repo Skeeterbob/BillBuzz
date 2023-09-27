@@ -1,5 +1,6 @@
 import React from 'react'
-import { View, Text, Pressable, StyleSheet, Image} from 'react-native'
+import React, {useState} from 'react'
+import { View, Text, Pressable, StyleSheet, Image, useState} from 'react-native'
 import {useNavigation} from '@react-navigation/native';
 import CustomButton from '../../CustomButton/CustomButton';
 
@@ -10,25 +11,60 @@ const confrimPressed =() =>{
 
     navigation.navigate('SignIn');
 }
-return(
-  <View style={styles.container}>
-  <View style={styles.header}>
-    <Image
-      source={{ uri: 'https://example.com/your-profile-picture.jpg' }}
-      style={styles.profilePicture}
-    />
-    <Text style={styles.profileUsername}>John Doe</Text>
-    <Text style={styles.profileBio}>Web Developer</Text>
-  </View>
+const [username, setUsername] = useState('John Doe');
+const [bio, setBio] = useState('Web Developer');
+const [email, setEmail] = useState('john@example.com');
+const [location, setLocation] = useState('New York');
+const [interests, setInterests] = useState('React Native, JavaScript');
 
-  <View style={styles.info}>
-    <Text style={styles.infoItem}>Email: john@example.com</Text>
-    <Text style={styles.infoItem}>Location: New York</Text>
-    <Text style={styles.infoItem}>Interests: React Native, JavaScript</Text>
-  </View>
-  <CustomButton text="Edit profile" onPress={confrimPressed}/>
+const handleEditProfile = () => {
+  // Handle the logic for updating the user's profile here
+  // You can send the updated data to a server or update it locally
+  console.log('Profile updated!');
+};
 
-</View>
+return (
+  <View>
+    <View>
+      <Image
+        source={{ uri: 'https://example.com/your-profile-picture.jpg' }}
+        style={styles.profilePicture}
+      />
+      <TextInput
+        style={styles.profileUsername}
+        value={username}
+        onChangeText={(text) => setUsername(text)}
+      />
+      <TextInput
+        style={styles.profileBio}
+        value={bio}
+        onChangeText={(text) => setBio(text)}
+      />
+    </View>
+
+    <View>
+      <Text>Email:</Text>
+      <TextInput
+        style={styles.infoItem}
+        value={email}
+        onChangeText={(text) => setEmail(text)}
+      />
+      <Text>Location:</Text>
+      <TextInput
+        style={styles.infoItem}
+        value={location}
+        onChangeText={(text) => setLocation(text)}
+      />
+      <Text>Interests:</Text>
+      <TextInput
+        style={styles.infoItem}
+        value={interests}
+        onChangeText={(text) => setInterests(text)}
+      />
+    </View>
+
+    <CustomButton text="Edit profile" onPress={handleEditProfile} />
+  </View>
 );
 };
 
