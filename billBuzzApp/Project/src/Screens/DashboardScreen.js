@@ -2,7 +2,6 @@ import React from "react";
 import {View, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions} from "react-native";
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import Svg, {Defs, Path, Stop, LinearGradient, G} from "react-native-svg";
-import navigation from "../Navigation";
 
 const MOCK_TRANSACTIONS = [
     {
@@ -11,9 +10,19 @@ const MOCK_TRANSACTIONS = [
         amount: '17.99'
     },
     {
+        name: 'Statbucks',
+        date: '09/01/2023',
+        amount: '16.99'
+    },
+    {
         name: 'Costco',
         date: '09/02/2023',
         amount: '148.23'
+    },
+    {
+        name: 'Statbucks',
+        date: '09/03/2023',
+        amount: '5.13'
     },
     {
         name: 'Walmart',
@@ -21,10 +30,20 @@ const MOCK_TRANSACTIONS = [
         amount: '284.20'
     },
     {
-        name: 'Discord',
+        name: 'Statbucks',
         date: '09/04/2023',
+        amount: '8.59'
+    },
+    {
+        name: 'Discord',
+        date: '09/05/2023',
         amount: '9.99'
-    }
+    },
+    {
+        name: 'Statbucks',
+        date: '09/06/2023',
+        amount: '24.83'
+    },
 ]
 
 const MOCK_CARDS_DATA = [

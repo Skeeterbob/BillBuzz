@@ -22,7 +22,7 @@ class ConfirmCodeScreen extends React.Component {
 
     componentDidMount() {
       
-        fetch('http://10.0.2.2:3000/login/verify', {
+        fetch('http://localhost:3000/login/verify', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ class ConfirmCodeScreen extends React.Component {
     verifyCode = () => {
         const {code} = this.state;
 
-        fetch('http://10.0.2.2:3000/login/login/verify/sms', {
+        fetch('http://localhost:3000/login/login/verify/sms', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

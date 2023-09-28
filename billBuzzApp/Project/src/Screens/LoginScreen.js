@@ -29,7 +29,7 @@ class LoginScreen extends React.Component {
         console.log(email + ", " + password);
         this.setState({loading: true});
 
-        fetch('http://10.0.2.2:3000/register/getUser', {
+        fetch('http://localhost:3000/register/getUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
