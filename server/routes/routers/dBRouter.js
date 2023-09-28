@@ -1,5 +1,4 @@
 import express from 'express';
-import { DBHandler } from '../../dBHandler.js';
 const dBRouter = express.Router();
 
 

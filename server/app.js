@@ -1,12 +1,17 @@
 import express from 'express';
 import {appInit} from './routes/routes.js';
-
+import pkg from 'body-parser'
+//import {initHandlers} from "./handlers.js";
+const bodyParser = pkg;
 const port = process.env.PORT || 3000;
 const app = express();
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
+app.use(bodyParser.json({limit: '50mb'}));
+//await initHandlers();
 appInit(app);
 
-app.get('/',(req, res)=>{
-  res.sendFile(path.join(__dirname, 'index.html'));
+app.post('/',(req, res)=>{
+  res.send("You have connected")
 }
 );
 

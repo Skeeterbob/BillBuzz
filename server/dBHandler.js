@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-import {MongoClient, ServerApiVersion} from 'mongodb';
-
+import {MongoClient, ServerApiVersion, ClientEncryption} from 'mongodb';
+import {User} from "./objectPack.js";
 
 dotenv.config('../.env');
 const DATABASE_NAME = process.env.DATABASE_NAME;
@@ -11,12 +11,11 @@ const MONGO_MASTER_KEY = process.env.MONGO_MASTER_KEY;
 const ENCRYPTION_ALGORITHM = process.env.ENCRYPTION_ALGORITHM;
 const KEY_VAULT_NAMESPACE = `${KEY_VAULT_DATABASE}.${KEY_VAULT_COLLECTION}`;
 
+
 class DBHandler {
     #mongoConnectionURL
     #encryption;
     #client;
-    #db;
-    #usersCollection
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
@@ -36,22 +35,22 @@ class DBHandler {
         await this.#client.connect();
         this.#encryption = new Encryption(this.#client);
         await this.#encryption.init();
-        this.#db = this.#client.db(DATABASE_NAME);
-        this.#usersCollection = this.#db.collection(USERS_COLLECTION);
     }
 
-    //Insert a new user into the database
+    //Insert a new encrypted user into the database
     async insertUser(user) {
         try {
-            //Get the users collection from our database
-            const db = this.#client.db(DATABASE_NAME);
-            const usersCollection = db.collection(USERS_COLLECTION);
-
-            //Create a new User object with all properties encrypted
-            const encryptedUser = await this.#encryption.encryptUser(user);
-
-            //Insert one document into the DB with the user's properties
-            return await usersCollection.insertOne(encryptedUser);
+            let id = await this.#getKeyId(user.getEmail());
+            if(id != null){
+                console.log('user already exists');
+                return false;
+            }
+            else{
+                id = await this.#insertKeyId(user.getEmail());
+                console.log(id);
+                const encryptedUser = await this.#encryption.encryptUser(user,id);
+                return await this.#usersCollection.insertOne(encryptedUser);
+            }            
         }catch (error) {
             //Throw and log any error we get when trying to insert a new user
             console.error("Error inserting user to database:", error);
@@ -60,37 +59,27 @@ class DBHandler {
     }
 
     //Get a user from the database by their email
-    async getUser(user) {
+    async getUser(email) {
         try {
-            //Get the users collection from our database
-            const db = this.#client.db(DATABASE_NAME);
-            const usersCollection = db.collection(USERS_COLLECTION);
-            const result = await usersCollection.find();
-
-            //Encrypt the email so that we can search for it in the database
-            const encryptedEmail = await this.#encryption.encryptString(user.getEmail());
-
-            //Retrieve the user from the database, all the data would be encrypted
-            const encryptedUser = await usersCollection.findOne({email: encryptedEmail});
-
-            //Return the user's properties decrypted so that we can actually read them
-            return this.#encryption.decryptUser(encryptedUser);
+            let id = this.#getKeyId(email);
+            id = id['key'];
+            console.log(id);
+            if (id != null) {
+                //Encrypt the email so that we can search for it in the database
+                const encryptedEmail = await this.#encryption.encryptString(email,id);
+                //Retrieve the user from the database, all the data would be encrypted
+                const encryptedUser = await this.#usersCollection.findOne({email: encryptedEmail});
+                //Return the user's properties decrypted so that we can actually read them
+                return await this.#encryption.decryptUser(encryptedUser);
+            }
+            else {
+                console.log('user does not exist');
+            }            
         } catch (error) {
             //Throw and log any error we get when trying to get a user from the database
             console.error("Error getting user from database:", error);
             throw error;
         }
-    }
-
-    async verifyUser (email, password) {
-        const projection = {"phoneNumber":1};
-        const encryptedEmail = await this.#encryption.encryptString(email);
-        const encryptedPassword = await this.#encryption.encryptString(password);
-        result = await this.#usersCollection.findOne({"email":encryptedEmail, 
-            "password":encryptedPassword}, projection);
-        result.then((data) => {
-            console.log(data);
-        })
     }
 }
 
@@ -98,7 +87,6 @@ class DBHandler {
 class Encryption {
     //Our ClientEncryption instance and dataKey
     #encryption;
-    #dataKey;
     #encryptionOptions;
 
     //Take in a mongo client parameter as it's required to create a ClientEncryption instance
@@ -117,19 +105,13 @@ class Encryption {
         this.#encryption = new ClientEncryption(mongoClient, options);
     }
 
-    async init() {
+    async createNewKey() {
         //Create a dataKey for our encryption/decryption based on our master key
-        this.#dataKey = await this.#encryption.createDataKey("local");
-
-        //Create our encryption options as a variable as it's commonly re-used
-        this.#encryptionOptions = {
-            algorithm: ENCRYPTION_ALGORITHM,
-            keyId: this.#dataKey
-        };
+        return await this.#encryption.createDataKey("local");
     }
 
     //Encrypt a given user
-    async encryptUser(user) {
+    async encryptUser(user, id) {
         if (!user) {
             console.error("Invalid user provided to encrypt: " + user);
             return null;
@@ -143,53 +125,54 @@ class Encryption {
             //Each account with have a list of transactions, we'll be encrypting those too
             for (const transaction of account.getTransactionList().getTransactions()) {
                 //Create a new encrypted Transaction
-                const encryptedTransaction = new Transaction({
-                    amount: await this.encryptString(transaction.getAmount().toString()),
-                    date: await this.encryptString(transaction.getDate()),
-                    subscription: await this.encryptString(transaction.getSubscription()),
-                    vendor: await this.encryptString(transaction.getVendor())
-                });
+                const encryptedTransaction = {
+                    amount: await this.encryptString(transaction.getAmount().toString(),id),
+                    date: await this.encryptString(transaction.getDate(),id),
+                    subscriptionName: await this.encryptString(transaction.getSubscriptionName(),id),
+                    subscriptionBool: await this.encryptString(transaction.isSubscription().toString(),id),
+                    vendor: await this.encryptString(transaction.getVendor(),id)
+                };
 
                 //Add the encrypted transaction to the list
                 encryptedTransactions.push(encryptedTransaction);
             }
 
             //Create a new encrypted TransactionList
-            const encryptedTransactionList = new TransactionList({
-                data: encryptedTransactions,
-                length: await this.encryptString(account.getTransactionList().getLength().toString()),
-                beginDate: await this.encryptString(account.getTransactionList().getBeginDate()),
-                endDate: await this.encryptString(account.getTransactionList().getEndDate())
-            });
+            const encryptedTransactionList = {
+                transactionList: encryptedTransactions,
+                length: await this.encryptString(account.getTransactionList().getLength().toString(),id),
+                beginDate: await this.encryptString(account.getTransactionList().getBeginDate(),id),
+                endDate: await this.encryptString(account.getTransactionList().getEndDate(),id)
+            };
 
             //Create a new Account with all properties encrypted
-            const encryptedAccount = new Account({
-                id: await this.encryptString(account.getId()),
-                name: await this.encryptString(account.getName()),
-                balance: await this.encryptString(account.getBalance().toString()),
+            const encryptedAccount = {
+                id: await this.encryptString(account.getId(),id),
+                name: await this.encryptString(account.getName(),id),
+                balance: await this.encryptString(account.getBalance().toString(),id),
                 transactionList: encryptedTransactionList
-            });
+            };
 
             //Add the encrypted account to the accountList
             accountList.push(encryptedAccount);
         }
 
         //Create and return a new user with all properties encrypted
-        return new User({
-            email: await this.encryptString(user.getEmail()),
-            password: await this.encryptString(user.getPassword()),
-            firstName: await this.encryptString(user.getFirstName()),
-            lastName: await this.encryptString(user.getLastName()),
-            birthday: await this.encryptString(user.getBirthday()),
-            phoneNumber: await this.encryptString(user.getPhoneNumber()),
-            bankBalance: await this.encryptString(user.getBankBalance().toString()),
-            availableCredit: await this.encryptString(user.getAvailableCredit().toString()),
+        return {
+            email: await this.encryptString(user.getEmail(),id),
+            password: await this.encryptString(user.getPassword(),id),
+            firstName: await this.encryptString(user.getFirstName(),id),
+            lastName: await this.encryptString(user.getLastName(),id),
+            birthday: await this.encryptString(user.getBirthday(),id),
+            phoneNumber: await this.encryptString(user.getPhoneNumber(),id),
+            bankBalance: await this.encryptString(user.getBankBalance().toString(),id),
+            availableCredit: await this.encryptString(user.getAvailableCredit().toString(),id),
             accountList: accountList
-        });
+        };
     }
 
     //Decrypt a given user
-    async decryptUser(user) {
+    async decryptUser(user,id) {
         if (!user) {
             console.error("Invalid user provided to decrypt: " + user);
             return null;
@@ -198,38 +181,39 @@ class Encryption {
         const accountList = [];
 
         //We start by iterating over every account in the accountList
-        for (const account of user.getAccountList()) {
+        for (const account of user['accountList']) {
             const transactions = [];
 
             //Each account with have a list of transactions, we need to decrypt those too
-            for (const encryptedTransaction of account.getTransactionList().getTransactions()) {
+            for (const encryptedTransaction of account['transactionList']['transactionList']) {
                 //Create a new decrypted Transaction
-                const transaction = new Transaction({
-                    amount: this.decryptString(encryptedTransaction.getAmount().toString()),
-                    date: this.decryptString(encryptedTransaction.getDate()),
-                    subscription: this.decryptString(encryptedTransaction.getSubscription()),
-                    vendor: this.decryptString(encryptedTransaction.getVendor())
-                });
+                const transaction = {
+                    amount: await this.decryptString(encryptedTransaction['amount'],id),
+                    date: await this.decryptString(encryptedTransaction['date'],id),
+                    subscriptionName: await this.decryptString(encryptedTransaction['subscriptionName'],id),
+                    subscriptionBool: await this.decryptString(encryptedTransaction['subscriptionBool'],id),
+                    vendor: await this.decryptString(encryptedTransaction['vendor'],id)
+                };
 
                 //Add the decrypted transaction to the list
                 transactions.push(transaction);
             }
 
             //Create a new decrypted TransactionList
-            const transactionList = new TransactionList({
-                data: transactions,
-                length: this.decryptString(account.getTransactionList().getLength().toString()),
-                beginDate: this.decryptString(account.getTransactionList().getBeginDate()),
-                endDate: this.decryptString(account.getTransactionList().getEndDate())
-            });
+            const transactionList = {
+                transactionList: transactions,
+                length: await this.decryptString(account['transactionList']['length'],id),
+                beginDate: await this.decryptString(account['transactionList']['beginDate'],id),
+                endDate: await this.decryptString(account['transactionList']['endDate'],id)
+            };
 
             //Create a new Account with all properties decrypted
-            const decryptedAccount = new Account({
-                id: this.decryptString(account.getId()),
-                name: this.decryptString(account.getName()),
-                balance: this.decryptString(account.getBalance().toString()),
+            const decryptedAccount = {
+                id: await this.decryptString(account['id'],id),
+                name: await this.decryptString(account['name'],id),
+                balance: await this.decryptString(account['balance'],id),
                 transactionList: transactionList
-            });
+            };
 
             //Add the decrypted account to the accountList
             accountList.push(decryptedAccount);
@@ -237,14 +221,14 @@ class Encryption {
 
         //Create and return a new user with all properties decrypted
         return new User({
-            email: this.decryptString(user.getEmail()),
-            password: this.decryptString(user.getPassword()),
-            firstName: this.decryptString(user.getFirstName()),
-            lastName: this.decryptString(user.getLastName()),
-            birthday: this.decryptString(user.getBirthday()),
-            phoneNumber: this.decryptString(user.getPhoneNumber()),
-            bankBalance: this.decryptString(user.getBankBalance().toString()),
-            availableCredit: this.decryptString(user.getAvailableCredit().toString()),
+            email: await this.decryptString(user['email'],id),
+            password: await this.decryptString(user['password'],id),
+            firstName: await this.decryptString(user['firstName'],id),
+            lastName: await this.decryptString(user['lastName'],id),
+            birthday: await this.decryptString(user['birthday'],id),
+            phoneNumber: await this.decryptString(user['phoneNumber'],id),
+            bankBalance: await this.decryptString(user['bankBalance'],id),
+            availableCredit: await this.decryptString(user['availableCredit'],id),
             accountList: accountList
         });
     }
@@ -261,13 +245,35 @@ class Encryption {
     }
 
     //Encrypt a single string
-    async encryptString(targetString) {
-        return await this.#encryption.encrypt(targetString, this.#encryptionOptions);
+    async encryptString(targetString, id) {
+        let encryptionOptions = {
+            algorithm: ENCRYPTION_ALGORITHM,
+            keyId: id
+        };
+        return await this.#encryption.encrypt(targetString, encryptionOptions);
     }
 
     //Decrypt a single string
-    decryptString(targetString) {
-        return this.#encryption.decrypt(targetString);
+    async decryptString(targetString, id) {
+        let encryptionOptions = {
+            algorithm: ENCRYPTION_ALGORITHM,
+            keyId: id,
+            keyVaultNamespace: KEY_VAULT_NAMESPACE,
+            kmsProviders: {
+                local: {
+                    key: MONGO_MASTER_KEY
+                }
+            }            
+        };
+        let secureClient = new MongoClient(process.env.MONGO_CONNECTION,{
+            serverApi: {
+                version: ServerApiVersion.v1,
+                strict: true,
+                deprecationErrors: true
+            }
+        });
+        let clientEncryption = new ClientEncryption(secureClient, encryptionOptions)
+        return await clientEncryption.decrypt(targetString);
     }
 }
 
