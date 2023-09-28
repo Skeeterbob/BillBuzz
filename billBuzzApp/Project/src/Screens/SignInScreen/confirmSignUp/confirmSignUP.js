@@ -4,9 +4,9 @@ import { View, Text, Image, StyleSheet, Button, TextInput, Alert} from 'react-na
 import CustomInput from '../../../Components/CustomInput';
 import CustomButton from '../../../CustomButton/CustomButton';
 import {useNavigation} from '@react-navigation/native';
-import RNSharedPreferences from 'react-native-android-shared-preferences';
+//import RNSharedPreferences from 'react-native-android-shared-preferences';
 
-var sharedPreferences = RNSharedPreferences.getSharedPreferences("billBuzzInfo");
+//var sharedPreferences = RNSharedPreferences.getSharedPreferences("billBuzzInfo");
 
 //We can cut this and take it to wherever we need to get the token from.
 /*var sharedPreferences = RNSharedPreferences.getSharedPreferences("billBuzzInfo");
@@ -16,12 +16,14 @@ sharedPreferences.getString("name", (result) => {
 })*/
 
 const ConfirmSignUP = () => {
-  const [code, setCode] = useState('');
+  const [getCode, setGetCode] = useState('');
   const navigation = useNavigation();
   
 
 
     const confrimPressed =() =>{
+        const result = verifyUser();
+
         console.warn('confrimPressed');
         if(code==123456){
           //let authToken = result['token'];
@@ -36,7 +38,7 @@ const ConfirmSignUP = () => {
         
        
 
-    async function verifyUser(codeSubmit, ) {
+    async function verifyUser(code, phNum) {
      
      
       const response = await fetch("http://10.0.2.2:3000/login/verify/sms", options = {
@@ -48,10 +50,12 @@ const ConfirmSignUP = () => {
         },
         body:JSON.stringify({
           
-            "code": codeSubmit,
+            "code": code,
+            "phNum": phNum
             
             
         })
+      })
     }
 
       
@@ -76,7 +80,7 @@ const ConfirmSignUP = () => {
     const handleCodeChange = (text) => {
         // Ensure the input consists of only numeric characters and has a length of 6
         if (/^\d{0,6}$/.test(text)) {
-          setCode(text);
+          setCode(setGetCode);
         }
        
       };
@@ -90,7 +94,7 @@ return(
         placeholder="Enter 6-digit code"
         keyboardType="numeric"
         maxLength={6}
-        value={code}
+        value={getCode}
         onChangeText={handleCodeChange}
         
       />
@@ -108,7 +112,7 @@ return(
 
 };
 
-
+};
 const styles = StyleSheet.create({
     root:{
         alignItems: 'center',
