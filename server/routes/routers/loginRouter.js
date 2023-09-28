@@ -39,11 +39,11 @@ loginRouter.post('/login/verify/sms', async(req,res)=>{
     try{
         const phNum = req.body.phNum;
         const code = req.body.code;
-        const id = req.body.id;
+       // const id = req.body.id;
 
         if(await twilioHandler.validateSMSCode('+1'+ phNum, code)){
-            let token = authHandler.createToken(id);
-            let result = {"validate":true,"token":token};
+            //let token = authHandler.createToken(id);
+            let result = {"validate":true};
             res.status(200).json(result);
         }
         else{

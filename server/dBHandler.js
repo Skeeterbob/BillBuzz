@@ -103,7 +103,7 @@ class DBHandler {
             retVal["phoneNumber"] = await this.#encryption.decryptString(phNum,id);
             retVal["validate"] = true;
             retVal['id'] = result['_id']
-            console.log(projection);
+          
             console.log(result);
             return retVal;
         }

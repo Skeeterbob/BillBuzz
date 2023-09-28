@@ -21,19 +21,19 @@ const ConfirmSignUP = () => {
   
 
 
-    const confrimPressed =() =>{
-        const result = verifyUser();
-
+    async function confrimPressed () {
+        const result = await verifyUser();
+        console.log(result.validate);
         console.warn('confrimPressed');
-        if(code==123456){
+        if(result.validate){
           //let authToken = result['token'];
-          sharedPreferences.putString("jwtAuthToken", authToken, (result) => {
-            console.log("sharedPreferencese PUT result: " + result);
-          })
+          // sharedPreferences.putString("jwtAuthToken", authToken, (result) => {
+          //   console.log("sharedPreferencese PUT result: " + result);
+          // })
           navigation.navigate('Account');
         }
         else{
-          Alert.alert("Error", "Code Invalid")
+          Alert.alert("Error", "Code Invalid");
         }
       }
         
@@ -46,18 +46,18 @@ const ConfirmSignUP = () => {
         method: "POST",
         headers: {
         "Content-Type": 'application/json',
-        "Access-Control-Allow-Origin":'http://10.0.2.2:3000',
-        Accept:"application/json",
+        "Access-Control-Allow-Origin":'http://10.0.2.2:3000/login/verify/sms',
+        "Accept":"application/json"
         },
-        body:JSON.stringify({
-          
+        body:{
             "code": code,
-            "phNum": phNum
-            
-            
-        })
+            "phNum": phNum             
+        }
+        
       })
-    }
+      console.log(response);
+      return response
+      }
 
       
 
@@ -81,7 +81,7 @@ const ConfirmSignUP = () => {
     const handleCodeChange = (text) => {
         // Ensure the input consists of only numeric characters and has a length of 6
         if (/^\d{0,6}$/.test(text)) {
-          setCode(setGetCode);
+          setGetCode(setGetCode);
         }
        
       };
