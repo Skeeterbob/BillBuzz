@@ -63,6 +63,33 @@ class DBHandler {
         }
     }
 
+    //Update user information
+    async updateUser(user){
+        try{
+            //Get key from email in user class
+            const id = await this.#getKeyId(user.getEmail());
+            
+            if (id == null){
+                console.log('User does not exist');
+                return false;
+            }
+            else{
+            //Encrypt new user data
+            const encryptedUser = await this.#encryption.encryptUser(user, id);
+
+            const result = await this.#usersCollection.updateUser(
+                {email: encryptedEmail},
+                {$set: encryptedUser}
+            );
+          return result;
+        }
+    }
+        catch (error){
+            console.error("Error updating user in database:", error);
+            throw error;
+        }
+    }
+
     //Get a user from the database by their email
     async getUser(email) {
         try {
