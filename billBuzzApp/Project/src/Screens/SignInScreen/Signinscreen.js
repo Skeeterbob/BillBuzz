@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-import { View, Text, Image, StyleSheet, useWindowDimensions} from 'react-native'
+import { View, Text, Image, StyleSheet, useWindowDimensions, TextInput, Modal, Button } from 'react-native'
 import logo from '../../../assets/images/logo.png';
 import CustomInput from '../../Components/CustomInput';
 import CustomButton from '../../CustomButton';
@@ -8,10 +8,9 @@ import {useNavigation} from '@react-navigation/native';
 
 
 
-
 const Signinscreen = () => {
     const {height} = useWindowDimensions();
-    
+    const [Username, setUsername] = useState('');
     const [password, setPassword] = useState('');
    
   const [passwordError, setPasswordError] = useState('');
@@ -21,82 +20,54 @@ const Signinscreen = () => {
     const [email, setEmail] = useState('');
     const navigation = useNavigation();
 
-    // const handleShowPasswordInput = () => {
-    //     setShowPasswordInput(true);
-    //   };
+    const handleShowPasswordInput = () => {
+        setShowPasswordInput(true);
+      };
     
-    //   const handleLogin = () => {
-    //     // Perform login logic here
+      const handleLogin = () => {
+        // Perform login logic here
     
-    //     // If login is successful, show the code input prompt
-    //     if (true /* Replace with your login logic */) {
-    //       setCodeInputVisible(true);
-    //     }
-    //   };
+        // If login is successful, show the code input prompt
+        if (true /* Replace with your login logic */) {
+          setCodeInputVisible(true);
+        }
+      };
     
-    //   const handleCodeSubmit = () => {
-    //     // Validate and process the entered code
-    //     if (code.length !== 6) {
-    //       // Display an error message for an invalid code
-    //       // You can set an error state variable similar to passwordError
-    //     } else {
-    //       // Process the code (e.g., validate it against the server)
-    //       // If the code is valid, you can close the code input prompt
-    //       setCodeInputVisible(false);
-    //     }
-    //   };
+      const handleCodeSubmit = () => {
+        // Validate and process the entered code
+        if (code.length !== 6) {
+          // Display an error message for an invalid code
+          // You can set an error state variable similar to passwordError
+        } else {
+          // Process the code (e.g., validate it against the server)
+          // If the code is valid, you can close the code input prompt
+          setCodeInputVisible(false);
+        }
+      };
 
     const onSignInPressed =() =>{
-       const result = verfyUser();
+        console.warn('Sign in');
 
-        console.log(result);
+        navigation.navigate('Confirm');
 
-        // if(verfyUser.validate == true){
-        //   navigation.navigate('Confirm');
-        //   console.warn('Sign in');
-        // }
-        // else{
-        //   console.warn('Sign in failed');
-        // }
+        fetch("http://localhost:3000", options = {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+            }
+        })
+        
+        // fetch('http://localhost:3000/login')
+        // .then(res => res.json())
+        // .then(data => console.log(data))
+        // .catch(error => console.error('Error:', error));
+      
     }
   
     async function verfyUser() {
-      try {
-        const response = await fetch("http://localhost:3001/login/verify"); // Replace with the URL of the website you want to fetch data from
-        if (!response.ok) {
-          throw new Error(`Network response was not ok, status: ${response.status}`);
-        }
         
-        // You can process the response here
-        const data = await response.text(); // Use response.text() for non-JSON data
-        
-        // Log or use the fetched data
-        console.log(data);
-        
-        return data;
-      } catch (error) {
-        console.error('Fetch failed:', error);
-        throw error; // You can handle or rethrow the error as needed
       }
-     
-    //   const response = await fetch("http://localhost:3000", options = {
-    //     method: 'POST',
-    //     headers: {
-    //     'Content-Type': 'application/json',
-    //     Accept:'application/json',
-    //     },
-    //     body:{
-    //     "username":email,
-    //     "password":password,
-    //     }
-       
-    // });
-    //     return response.json();
-      }
-
-      
-
-
     const onSignUpPressed =() =>{
         console.warn('Sign up');
 
@@ -108,8 +79,25 @@ return(
     
        
         <Image source={logo} style = {[styles.logo, {height:height * .3}]} resizeMode='contain' />
-       
-        <CustomInput placeholder="Email Address" value={email} setValue={setEmail}/>
+        <Modal
+        visible={codeInputVisible}
+        transparent={true}
+        animationType="slide"
+      >
+        <View style={styles.modalContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter 6-digit code"
+            keyboardType="numeric"
+            maxLength={6}
+            value={code}
+            onChangeText={setCode}
+          />
+          <Button title="Submit Code" onPress={handleCodeSubmit} />
+        </View>
+      </Modal>
+        
+        <CustomInput placeholder="Email Address" value={Username} setValue={setUsername}/>
         <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
         <CustomButton text="Sign In" onPress={onSignInPressed}/>
         <CustomButton text="Don't have an account? Create one" onPress={onSignUpPressed} type="container_SECONDARY"/>
