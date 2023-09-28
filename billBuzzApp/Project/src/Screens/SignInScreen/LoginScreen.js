@@ -11,7 +11,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import Logo from '../../assets/images/bee_logo.png';
+import Logo from '../../../assets/images/bee_logo.png';
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 

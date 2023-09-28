@@ -3,13 +3,13 @@ import {StatusBar} from 'react-native';
 
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
-import Signinscreen from "./src/Screens/SignInScreen/Signinscreen";
+//import Signinscreen from "./src/Screens/SignInScreen/Signinscreen";
 // import SignUpScreen from "./src/SignUpScreen";
 // import ConfirmSignUP from "./src/Screens/SignInScreen/confirmSignUp";
-import NavComponent from "./src/Components/NavComponent";
-import CardDetailScreen from "./src/Screens/CardDetailScreen";
-import LoginScreen from "./src/Screens/LoginScreen";
-import RegisterScreen from "./src/Screens/RegisterScreen";
+import NavComponent from './src/Components/NavComponent';
+import CardDetailScreen from './src/Screens/CardDetailScreen';
+import LoginScreen from "./src/Screens/SignInScreen/LoginScreen";
+import RegisterScreen from "./src/SignUpScreen/RegisterScreen";
 import ConfirmCodeScreen from "./src/Screens/ConfirmCodeScreen";
 
 //The main app stack navigator used to hold all the other navigators
