@@ -1,38 +1,27 @@
 import React from "react";
-import {View, StyleSheet, Text, ScrollView, ImageBackground} from "react-native";
+import {
+    View,
+    StyleSheet,
+    Text,
+    ScrollView,
+    ImageBackground,
+    SafeAreaView,
+    Platform,
+    StatusBar,
+    TouchableOpacity
+} from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import CreditCardImage from '../../assets/images/credit_card.png';
-
-const MOCK_CARD_DATA = {
-    cardName: 'American Express',
-    balance: 1000.84,
-    amountDue: 100,
-    dueDate: '09/24/2023',
-    transactions: [
-        {
-            name: 'Netflix',
-            date: '09/01/2023',
-            amount: '17.99'
-        },
-        {
-            name: 'Costco',
-            date: '09/02/2023',
-            amount: '148.23'
-        },
-        {
-            name: 'Walmart',
-            date: '09/03/2023',
-            amount: '284.20'
-        },
-        {
-            name: 'Discord',
-            date: '09/04/2023',
-            amount: '9.99'
-        }
-    ]
-};
+import Icon from "react-native-vector-icons/Ionicons";
 
 class CardDetailScreen extends React.Component {
+
+    cardData = null;
+
+    constructor(props) {
+        super(props);
+        this.cardData = this.props.route.params.cardData;
+    }
 
     render() {
 
@@ -44,26 +33,35 @@ class CardDetailScreen extends React.Component {
                 end={{ x: 1, y: 1 }}
                 style={styles.body}
             >
-                <ScrollView contentContainerStyle={styles.scrollViewContent}>
-                    <ImageBackground source={CreditCardImage} style={styles.creditCard} resizeMode={"stretch"}>
-                        <Text style={styles.creditCardTitle}>{MOCK_CARD_DATA.cardName}</Text>
-                    </ImageBackground>
-
-                    <View style={styles.transactions}>
-                        <View style={styles.transactionsHeader}>
-                            <Text style={styles.transactionsTitle}>Transactions</Text>
-                        </View>
-
-                        {MOCK_CARD_DATA.transactions.map(transaction => (
-                            <TransactionCardComponent
-                                key={`${transaction.name}-${transaction.date}-${transaction.amount}`}
-                                name={transaction.name}
-                                date={transaction.date}
-                                amount={transaction.amount}
-                            />
-                        ))}
+                <SafeAreaView style={{flex: 1, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0}}>
+                    <View style={styles.pageHeader}>
+                        <TouchableOpacity style={styles.backButton} onPress={() => this.props.navigation.goBack(null)}>
+                            <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                        </TouchableOpacity>
+                        <Text style={styles.backText}>Back</Text>
                     </View>
-                </ScrollView>
+
+                    <ScrollView contentContainerStyle={styles.scrollViewContent}>
+                        <ImageBackground source={CreditCardImage} style={styles.creditCard} resizeMode={"stretch"}>
+                            <Text style={styles.creditCardTitle}>{this.cardData.name}</Text>
+                        </ImageBackground>
+
+                        <View style={styles.transactions}>
+                            <View style={styles.transactionsHeader}>
+                                <Text style={styles.transactionsTitle}>Transactions</Text>
+                            </View>
+
+                            {this.cardData.transactions.map(transaction => (
+                                <TransactionCardComponent
+                                    key={`${transaction.name}-${transaction.date}-${transaction.amount}`}
+                                    name={transaction.name}
+                                    date={transaction.date}
+                                    amount={transaction.amount}
+                                />
+                            ))}
+                        </View>
+                    </ScrollView>
+                </SafeAreaView>
             </LinearGradient>
         );
     }
@@ -167,6 +165,29 @@ const styles = StyleSheet.create({
         shadowOpacity: 0,
         shadowRadius: 10,
         elevation: 4,
+    },
+    pageHeader: {
+        width: '100%',
+        height: 'auto',
+        paddingLeft: 8,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#F4CE82',
+        borderRadius: 25
+    },
+    backText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold'
     }
 });
 
