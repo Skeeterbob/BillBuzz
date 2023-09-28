@@ -42,7 +42,7 @@ class User {
                 if (!keyList.includes(element)){
                     console.log('User Constructor failed, ', element,
                         ' was not provided');
-                    throw(err);
+                    //throw(err);
                 }
             })
 
@@ -98,7 +98,7 @@ class User {
                 }
             }
         });
-        return '[' + JSON.stringify(newDict) + ']';
+        return JSON.stringify(newDict);
     };
 
     //iterate over the accountList array and convert to Account objects

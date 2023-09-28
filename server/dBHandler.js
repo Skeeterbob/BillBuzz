@@ -66,7 +66,7 @@ class DBHandler {
     //Get a user from the database by their email
     async getUser(email) {
         try {
-            let id = this.#getKeyId(email);
+            let id = await this.#getKeyId(email);
             id = id['key'];
             console.log(id);
             if (id != null) {

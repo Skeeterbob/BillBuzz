@@ -25,8 +25,7 @@ dBHandler.init()
 
 registerRouter.post('/createUser', async(req, res) => {
    try {
-      let user = new User(req.body);
-      console.log(user);
+      let user = new User({...req.body});
       const result = await dBHandler.insertUser(user);
       console.log(result);
       res.status(200).json(result);
@@ -39,10 +38,8 @@ registerRouter.post('/createUser', async(req, res) => {
 
 registerRouter.post('/getUser', async(req, res) => {
    try {
-      console.log(req.body)
       const result = await dBHandler.getUser(req.body.email);
-      console.log(result.toJSONString());
-      res.status(200).json(result);
+      res.status(200).json(JSON.parse(result.toJSONString()));
    }
    catch (err) {
       console.log(err);

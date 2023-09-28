@@ -2,41 +2,74 @@ import React from "react";
 import {View, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions} from "react-native";
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import Svg, {Defs, Path, Stop, LinearGradient, G} from "react-native-svg";
+import navigation from "../Navigation";
+
+const MOCK_TRANSACTIONS = [
+    {
+        name: 'Netflix',
+        date: '09/01/2023',
+        amount: '17.99'
+    },
+    {
+        name: 'Costco',
+        date: '09/02/2023',
+        amount: '148.23'
+    },
+    {
+        name: 'Walmart',
+        date: '09/03/2023',
+        amount: '284.20'
+    },
+    {
+        name: 'Discord',
+        date: '09/04/2023',
+        amount: '9.99'
+    }
+]
 
 const MOCK_CARDS_DATA = [
     {
         name: "American Express",
         balance: 1000.84,
         amountDue: 100,
-        dueDate: '09/24/2023'
+        dueDate: '09/24/2023',
+        transactions: MOCK_TRANSACTIONS
     },
     {
         name: "Chase Sapphire Reserve",
         balance: 2540,
         amountDue: 324.27,
-        dueDate: '09/12/2023'
+        dueDate: '09/12/2023',
+        transactions: MOCK_TRANSACTIONS
     },
     {
         name: "Discover IT Student",
         balance: 3480.28,
         amountDue: 124.86,
-        dueDate: '09/15/2023'
+        dueDate: '09/15/2023',
+        transactions: MOCK_TRANSACTIONS
     },
     {
         name: "TJ Max Rewards",
         balance: 524.12,
         amountDue: 24.78,
-        dueDate: '09/20/2023'
+        dueDate: '09/20/2023',
+        transactions: MOCK_TRANSACTIONS
     }
-]
+];
 
 class DashboardScreen extends React.Component {
 
+    navigation = null;
+
+    constructor(props) {
+        super(props);
+        this.navigation = props.navigation;
+    }
+
     calcHexagonSize = () => {
         const dimensions = Dimensions.get('screen');
-        let size = Math.min(300, (dimensions.width - 32));
-
-        return size
+        return Math.min(300, (dimensions.width - 32));
     };
 
     calcBalance = () => {
@@ -56,8 +89,8 @@ class DashboardScreen extends React.Component {
             <RNLinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
                 locations={[0, 0.2, 0.4, 0.8, 1]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
                 style={{backgroundColor: '#0B0D10'}}
             >
                 <ScrollView style={styles.body}>
@@ -76,6 +109,8 @@ class DashboardScreen extends React.Component {
                                 balance={card.balance}
                                 amountDue={card.amountDue}
                                 dueDate={card.dueDate}
+                                transactions={card.transactions}
+                                navigation={this.navigation}
                             />
                         ))}
                     </View>
@@ -85,13 +120,26 @@ class DashboardScreen extends React.Component {
     };
 }
 
-const CreditCardComponent = ({name, balance, amountDue, dueDate}) => (
-    <TouchableOpacity style={styles.creditCard} onPress={() => console.log("Pressed card: " + name)}>
+const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, navigation}) => (
+    <TouchableOpacity style={styles.creditCard} onPress={() => {
+        navigation.navigate({
+            name: 'CardDetails',
+            params: {
+                cardData: {
+                    name,
+                    balance,
+                    amountDue,
+                    dueDate,
+                    transactions
+                }
+            }
+        })
+    }}>
         <RNLinearGradient
             style={styles.creditCardGradient}
             colors={['#F4CE82', '#eca239']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
         >
             <View style={styles.creditCardTop}>
                 <Text style={styles.creditCardNameText}>{name}</Text>
@@ -100,8 +148,8 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate}) => (
             <RNLinearGradient
                 style={styles.divider}
                 colors={['#FFFFFF', '#eca239']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
             />
 
             <View style={styles.creditCardBottom}>
@@ -143,14 +191,14 @@ const HexagonComponent = (props) => {
                     gradientTransform="matrix(1 0 0 -1 0 1750.58)"
                     gradientUnits="userSpaceOnUse"
                 >
-                    <Stop offset={0} stopColor="#faf9e2" />
-                    <Stop offset={0.11} stopColor="#f4e5bb" />
-                    <Stop offset={0.25} stopColor="#edce8f" />
-                    <Stop offset={0.4} stopColor="#e6ba6b" />
-                    <Stop offset={0.55} stopColor="#e1ad50" />
-                    <Stop offset={0.7} stopColor="#dca139" />
-                    <Stop offset={0.85} stopColor="#da9c2e" />
-                    <Stop offset={1} stopColor="#da992b" />
+                    <Stop offset={0} stopColor="#faf9e2"/>
+                    <Stop offset={0.11} stopColor="#f4e5bb"/>
+                    <Stop offset={0.25} stopColor="#edce8f"/>
+                    <Stop offset={0.4} stopColor="#e6ba6b"/>
+                    <Stop offset={0.55} stopColor="#e1ad50"/>
+                    <Stop offset={0.7} stopColor="#dca139"/>
+                    <Stop offset={0.85} stopColor="#da9c2e"/>
+                    <Stop offset={1} stopColor="#da992b"/>
                 </LinearGradient>
             </Defs>
             <G opacity={0.15}>
