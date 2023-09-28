@@ -11,7 +11,7 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
-import Logo from '../../../assets/images/bee_logo.png';
+import Logo from '../../assets/images/bee_logo.png';
 import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 
@@ -29,7 +29,7 @@ class LoginScreen extends React.Component {
         console.log(email + ", " + password);
         this.setState({loading: true});
 
-        fetch('http://localhost:3000/register/getUser', {
+        fetch('http://10.0.2.2:3000/register/getUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

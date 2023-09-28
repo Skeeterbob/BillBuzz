@@ -41,7 +41,7 @@ class RegisterScreen extends React.Component {
         this.setState({loading: true});
         if (this.validateInputs()) {
             //TODO: Register user on server here
-            fetch('http://10.0.2.2:8081/register/createUser', {
+            fetch('http://10.0.2.2:3000/register/createUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

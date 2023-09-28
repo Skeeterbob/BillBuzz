@@ -8,8 +8,8 @@ import {NavigationContainer} from "@react-navigation/native";
 // import ConfirmSignUP from "./src/Screens/SignInScreen/confirmSignUp";
 import NavComponent from './src/Components/NavComponent';
 import CardDetailScreen from './src/Screens/CardDetailScreen';
-import LoginScreen from "./src/Screens/SignInScreen/LoginScreen";
-import RegisterScreen from "./src/SignUpScreen/RegisterScreen";
+import LoginScreen from "./src/Screens/LoginScreen";
+import RegisterScreen from "./src/Screens/RegisterScreen";
 import ConfirmCodeScreen from "./src/Screens/ConfirmCodeScreen";
 
 //The main app stack navigator used to hold all the other navigators
