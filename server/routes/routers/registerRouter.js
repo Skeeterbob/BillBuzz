@@ -50,4 +50,18 @@ registerRouter.post('/getUser', async(req, res) => {
    }
 })
 
+registerRouter.post('/updateUser', async(req, res) => {
+   try {
+      let user = new User(req.body);
+      console.log(user);
+      const result = await dBHandler.updateUser(user);
+      console.log(result);
+      res.status(200).json(result);
+   }
+   catch (err) {
+      console.log(err);
+      res.status(400).json({error:"/register/createUser endpoint error"})
+   }
+})
+
 export {registerRouter};

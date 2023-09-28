@@ -90,7 +90,6 @@ class DBHandler {
     //Verify if a user's profile already exists in the database by email
     //If the user exists we return true, false if no user is found
     async verifyUser (email, password) {
-        const projection = {phoneNumber: 1};
         let retVal = {};
         console.log(email);
         let id = await this.#getKeyId(email);
@@ -99,11 +98,11 @@ class DBHandler {
         if (id != null) {
             const encryptedEmail = await this.#encryption.encryptString(email,id);
             const encryptedPassword = await this.#encryption.encryptString(password,id);
-            const result = await this.#usersCollection.findOne({"email":encryptedEmail},
-                projection);
+            const result = await this.#usersCollection.findOne({"email":encryptedEmail});
             let phNum = result['phoneNumber'];
             retVal["phoneNumber"] = await this.#encryption.decryptString(phNum,id);
             retVal["validate"] = true;
+            retVal['id'] = result['_id']
             console.log(projection);
             console.log(result);
             return retVal;

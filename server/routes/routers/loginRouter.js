@@ -2,10 +2,12 @@ import express from 'express';
 //import {dBHandler, twilioHandler} from "../../handlers.js";
 import {DBHandler} from '../../dBHandler.js'
 import {TwilioHandler} from '../../twilioHandler.js';
+import {AuthHandler} from '../../authHandler.js';
 
 const loginRouter = express.Router();
 const dBHandler =  new DBHandler();
 const twilioHandler = new TwilioHandler();
+const authHandler = new AuthHandler();
 
 dBHandler.init()
 twilioHandler.init()
@@ -17,7 +19,6 @@ loginRouter.post('/', async (req, res) => {
 loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
-    //console.log(req)
 
     if (!email || !password) {
         return res.status(400).send({"error":'Email and Password fields are required'});
@@ -38,20 +39,15 @@ loginRouter.post('/login/verify/sms', async(req,res)=>{
     try{
         const phNum = req.body.phNum;
         const code = req.body.code;
-        const token = req.body.token;
         const id = req.body.id;
 
-        const ctoken = AuthHandler.createToken();
-        if(!ctoken){
-            return res.status(400).json({error:'TOKEN INVALID!'});
-        }
-
-        const result = await twilioHandler.validateSMSCode('+1'+ phNum, code);
-        if(result){
-            res.status(200).send(JSON.stringify(result));
+        if(await twilioHandler.validateSMSCode('+1'+ phNum, code)){
+            let token = authHandler.createToken(id);
+            let result = {"validate":true,"token":token};
+            res.status(200).json(result);
         }
         else{
-            res.status(400).json({error:'Verification Error!'});
+            res.status(400).json({"validate":false,"error":'Verification Error!'});
         }
     }
     catch(error){
