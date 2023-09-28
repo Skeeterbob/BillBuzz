@@ -5,7 +5,9 @@ import CustomInput from '../Components/CustomInput';
 import CustomButton from '../CustomButton/CustomButton';
 import {useNavigation} from '@react-navigation/native';
 
+
 const SignUpScreen = () => {
+  
     const {height} = useWindowDimensions();
     const [Username, setUsername] = useState('');
     const [Email, SetEmail] = useState('');
@@ -44,10 +46,41 @@ const SignUpScreen = () => {
       
     }
     const onSignUpPressed =() =>{
+        const user = 
+            {"email": email,
+            "password":password,
+            "firstName":firstName,
+            "lastName": lastName,
+            "birthday": birthday = new Date(),
+            "phoneNumber": phoneNumber,
+            "bankBalance": bankBalance = 0,
+            "availableCredit":availableCredit = 0,
+            "accountList": accountList = []
+        }; 
         console.warn('SignUp');
         navigation.navigate('SignIn');
 
     }
+
+    async function verifyUser(user) {
+     
+     
+        const response = await fetch("http://10.0.2.2:3000/register/createuser", options = {
+          method: "POST",
+          headers: {
+          "Content-Type": 'application/json',
+          "Access-Control-Allow-Origin":'http://10.0.2.2:3000',
+          Accept:"application/json",
+          },
+          body:  JSON.stringify({
+          
+          user
+            
+        })
+        
+        })
+        return response.json();
+      }
 return(
     
     <View style={styles.root}> 

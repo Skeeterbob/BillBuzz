@@ -15,42 +15,25 @@ const Signinscreen = () => {
     
     const [password, setPassword] = useState('');
    
-    const [seePassword, setSeePassword] = useState(true);
-    const [codeInputVisible, setCodeInputVisible] = useState(false);
-    const [showPasswordInput, setShowPasswordInput] = useState(false);
-    const [checkValidEmail, SetCheckValidEmail] = useState(false)
-    const [code, setCode] = useState('');
-    const [email, setEmail] = useState('');
-    const navigation = useNavigation();
-    const handleCheckEmail = text =>{
-      let re = /\S+@\S+\.\S+/;
-      let regex = /^[\+]?[(]?\d{3}[)]?[-\s\.]?\d{3}[-\s\.]?\d{4,6}$/;
-      $/im;
-
-      setEmail(text)
-      if(re.test(text)|| regex.test(test)){
-        SetCheckValidEmail(false);
-      }else{
-        SetCheckValidEmail(true);
-      }
-    }
    
     
-   async function onSignInPressed () {
-
-    navigation.navigate('Confirm');
+    const [email, setEmail] = useState('');
+    const navigation = useNavigation();
+   
     
-        // const result = await verifyUser(email, password)
+   async function onSignInPressed () {  
+        const result = await verifyUser(email, password)
 
         
-        //  if(result.validate == true){
+         if(result.validate == true){
           
-        //   console.warn('Sign in');
+          console.warn('Sign in');
+          navigation.navigate('Confirm');
          
-        // }
-        // else{
-        //   console.warn('Sign in failed');
-        // }
+        }
+        else{
+          Alert.alert('Error','Invalid Email or Password')
+        }
 
        
     }
@@ -96,12 +79,12 @@ return(
        
         <Image source={logo} style = {[styles.logo, {height:height * .3}]} resizeMode='contain' />
        
-        <CustomInput placeholder="Email Address" value={email} setValue={setEmail} onChangeText={(text)=>handleCheckEmail(text)}/>
+        <CustomInput placeholder="Email Address" value={email} setValue={setEmail}/>
         
-        {checkValidEmail ? <Text> Wrong Format</Text> : <Text></Text>}
+        
         <CustomInput placeholder="Password" value={password} setValue={setPassword} secureTextEntry={true} />
         <CustomButton text="Sign In" onPress={onSignInPressed}/>
-        <CustomButton text="Don't have an account? Create one" onPress={onSignUpPressed} type="container_SECONDARY"/>
+        <CustomButton text  = "Don't have an account? Create one" onPress={onSignUpPressed} type="container_SECONDARY"/>
         
     </View>
     
@@ -127,14 +110,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
       },
-      hexagon: {
-        width: 100,
-        height: 100,
-        backgroundColor: 'transparent',
-        borderWidth: 1,
-        borderColor: 'white', // Adjust the border color as needed
-        margin: 5, // Adjust the margin for spacing between hexagons
-        transform: [{ rotate: '30deg' }],
-      },
+    text:{
+      fontWeight: 'bold',
+
+    }
 });
 export default Signinscreen;

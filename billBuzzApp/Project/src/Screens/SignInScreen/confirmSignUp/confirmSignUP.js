@@ -35,6 +35,7 @@ const ConfirmSignUP = () => {
         else{
           Alert.alert("Error", "Code Invalid")
         }
+      }
         
        
 
@@ -108,11 +109,8 @@ return(
         
     </View>
     
-);
-
-};
-
-};
+)
+}
 const styles = StyleSheet.create({
     root:{
         alignItems: 'center',
