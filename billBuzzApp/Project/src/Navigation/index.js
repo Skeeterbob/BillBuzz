@@ -2,8 +2,8 @@ import React from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Signinscreen from '../Screens/SignInScreen/Signinscreen';
-import SignUpScreen from '../SignUpScreen/SignUpScreen';
+import Signinscreen from '../Screens/SignInScreen/LoginScreen';
+import SignUpScreen from '../SignUpScreen/RegisterScreen';
 //import image from './assets/images/uibillbuzz.png'
 import ConfirmSignUP from '../Screens/SignInScreen/confirmSignUp/confirmSignUP';
 import AccountPage from '../Screens/userAccount/accountPage';
