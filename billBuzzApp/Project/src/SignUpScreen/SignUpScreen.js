@@ -20,6 +20,12 @@ const SignUpScreen = () => {
         const uppercaseRegex = /[A-Z]/;
         const specialCharacterRegex = /[!@#$%^&*()_+{}\[\]:;<>,.?~\\-]/
 
+
+        const isEmptyObject = (obj) => {
+            return Object.keys(obj).length === 0;
+          };
+
+
         if (userAuthenticated) {
             if (!uppercaseRegex.test(password) && !uppercaseRegex.test(passwordRepeat) ) {
                 
@@ -38,6 +44,9 @@ const SignUpScreen = () => {
             if(password != passwordRepeat) {
                     Alert.alert('Error', 'Passwords Must Match');
 
+            }
+            if (isEmptyObject(password)){
+                Alert.alert('Error', 'No password found');
             }
             else{
                 navigation.navigate('SignIn');
