@@ -38,10 +38,12 @@ class RegisterScreen extends React.Component {
 
     registerUser = () => {
         const {email, firstName, lastName, birthday, phoneNumber, password} = this.state;
+        
+        
         this.setState({loading: true});
         if (this.validateInputs()) {
             //TODO: Register user on server here
-            fetch('http://localhost:3000/register/createUser', {
+            validate = fetch('http://localhost:8081/register/createUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ class RegisterScreen extends React.Component {
                     accountList: []
                 })
             })
-                .then(data => data.json())
+                .then(data => data.text())
                 .then(data => {
                     if (data['acknowledged'] === true) {
                         this.props.navigation.navigate({
@@ -72,7 +74,8 @@ class RegisterScreen extends React.Component {
                         })
                     }
                 })
-                .catch(console.error)
+                
+                console.log(console.error);
         }
     };
 

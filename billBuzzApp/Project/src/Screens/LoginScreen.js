@@ -29,7 +29,7 @@ class LoginScreen extends React.Component {
         console.log(email + ", " + password);
         this.setState({loading: true});
 
-        fetch('http://localhost:3000/login/verify/login/verify/sms', {
+        fetch('http://192.168.56.1:3000/login/verify/login/verify/sms', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
