@@ -3,14 +3,14 @@ import {StatusBar} from 'react-native';
 
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import {NavigationContainer} from "@react-navigation/native";
-//import Signinscreen from "./src/Screens/SignInScreen/Signinscreen";
-// import SignUpScreen from "./src/SignUpScreen";
-// import ConfirmSignUP from "./src/Screens/SignInScreen/confirmSignUp";
-import NavComponent from './src/Components/NavComponent';
 import CardDetailScreen from './src/Screens/CardDetailScreen';
 import LoginScreen from "./src/Screens/LoginScreen";
 import RegisterScreen from "./src/Screens/RegisterScreen";
 import ConfirmCodeScreen from "./src/Screens/ConfirmCodeScreen";
+import DashboardScreen from "./src/Screens/DashboardScreen";
+import AccountsScreen from "./src/Screens/AccountsScreen";
+import ProfileScreen from "./src/Screens/ProfileScreen";
+import RegisterInfoScreen from "./src/Screens/RegisterInfoScreen";
 
 //The main app stack navigator used to hold all the other navigators
 const AppStack = createNativeStackNavigator();
@@ -47,8 +47,20 @@ const App = () => {
 const AppMain = ({navigation, route}) => (
     <MainStack.Navigator initialRouteName={'AppHome'} >
         <MainStack.Screen
-            name={'AppHome'}
-            component={NavComponent}
+            name={'Dashboard'}
+            component={DashboardScreen}
+            options={{headerShown: false}}
+        />
+
+        <MainStack.Screen
+            name={'Accounts'}
+            component={AccountsScreen}
+            options={{headerShown: false}}
+        />
+
+        <MainStack.Screen
+            name={'Profile'}
+            component={ProfileScreen}
             options={{headerShown: false}}
         />
 
@@ -64,6 +76,7 @@ const AppWelcome = ({navigation, route}) => (
     <WelcomeStack.Navigator initialRouteName={'SignIn'}>
         <WelcomeStack.Screen name="SignIn" component={LoginScreen} options={{headerShown: false}}/>
         <WelcomeStack.Screen name="SignUp" component={RegisterScreen} options={{headerShown: false}}/>
+        <WelcomeStack.Screen name="RegisterInfo" component={RegisterInfoScreen} options={{headerShown: false}}/>
         <WelcomeStack.Screen name="VerifyCode" component={ConfirmCodeScreen} options={{headerShown: false, gestureEnabled: false}}/>
     </WelcomeStack.Navigator>
 );

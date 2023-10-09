@@ -22,7 +22,7 @@ class ConfirmCodeScreen extends React.Component {
 
     componentDidMount() {
       
-        fetch('http://localhost:3000/login/verify', {
+        fetch('http://192.168.1.40:3000/login/verify', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ class ConfirmCodeScreen extends React.Component {
     verifyCode = () => {
         const {code} = this.state;
 
-        fetch('http://localhost:3000/login/login/verify/sms', {
+        fetch('http://192.168.1.40:3000/login/login/verify/sms', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -100,7 +100,7 @@ class ConfirmCodeScreen extends React.Component {
                             style={[
                                 styles.verifyButton,
                                 {
-                                    backgroundColor: loading ? '#F4CE82' : '#eca239'
+                                    backgroundColor: loading ? '#ed8439' : '#f26805'
                                 }
                             ]}
                             disabled={loading}

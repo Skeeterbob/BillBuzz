@@ -26,73 +26,21 @@ class RegisterScreen extends React.Component {
 
     state = {
         email: '',
-        firstName: '',
-        lastName: '',
-        birthday: '',
         phoneNumber: '',
         password: '',
         repeatPassword: '',
-        passwordVisible: '',
-        loading: false
-    };
-
-    registerUser = () => {
-        const {email, firstName, lastName, birthday, phoneNumber, password} = this.state;
-        
-        
-        this.setState({loading: true});
-        if (this.validateInputs()) {
-            //TODO: Register user on server here
-            validate = fetch('http://localhost:8081/register/createUser', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                    firstName,
-                    lastName,
-                    birthday,
-                    phoneNumber,
-                    bankBalance: 0,
-                    availableCredit: 0,
-                    accountList: []
-                })
-            })
-                .then(data => data.text())
-                .then(data => {
-                    if (data['acknowledged'] === true) {
-                        this.props.navigation.navigate({
-                            name: 'VerifyCode',
-                            params: {
-                                email,
-                                password,
-                                phoneNumber
-                            }
-                        })
-                    }
-                })
-                
-                console.log(console.error);
-        }
+        passwordVisible: ''
     };
 
     validateInputs = () => {
-        const {email, firstName, lastName, birthday, phoneNumber, password, repeatPassword} = this.state;
-        if (!email || !firstName || !lastName || !password || !repeatPassword || !phoneNumber || !birthday) {
+        const {email, phoneNumber, password, repeatPassword} = this.state;
+        if (!email || !password || !repeatPassword || !phoneNumber) {
             this.showError('Make sure all fields are entered!');
             return false;
         }
 
         if (!EMAIL_REGEX.test(email)) {
             this.showError('Invalid email entered!');
-            return false;
-        }
-
-        if (birthday.length < 10) {
-            this.showError('Invalid birthday entered!');
             return false;
         }
 
@@ -128,23 +76,17 @@ class RegisterScreen extends React.Component {
         Toast.show({
             type: 'error',
             text1: message,
-            position: 'bottom'
+            position: 'top'
         });
-
-        this.setState({loading: false});
     };
 
     render() {
         const {
             email,
-            firstName,
-            lastName,
-            birthday,
             phoneNumber,
             password,
             repeatPassword,
-            passwordVisible,
-            loading
+            passwordVisible
         } = this.state;
 
         return (
@@ -177,49 +119,6 @@ class RegisterScreen extends React.Component {
                                 autoFocus={false}
                             />
 
-                            <TextInput
-                                style={styles.textInput}
-                                placeholder={'Enter your first name'}
-                                placeholderTextColor={'#000000'}
-                                onChangeText={text => this.setState({firstName: text})}
-                                value={firstName}
-                                autoCapitalize={'none'}
-                                autoComplete={'name-given'}
-                                keyboardType={'default'}
-                                textContentType={'givenName'}
-                                autoFocus={false}
-                            />
-
-                            <TextInput
-                                style={styles.textInput}
-                                placeholder={'Enter your last name'}
-                                placeholderTextColor={'#000000'}
-                                onChangeText={text => this.setState({lastName: text})}
-                                value={lastName}
-                                autoCapitalize={'none'}
-                                autoComplete={'name-family'}
-                                keyboardType={'default'}
-                                textContentType={'familyName'}
-                                autoFocus={false}
-                            />
-
-                            <TextInputMask
-                                type={'datetime'}
-                                options={{
-                                    format: 'MM/DD/YYYY'
-                                }}
-                                style={styles.textInput}
-                                placeholder={'Enter your birthday'}
-                                placeholderTextColor={'#000000'}
-                                onChangeText={text => this.setState({birthday: text})}
-                                value={this.state.birthday}
-                                autoCapitalize={'none'}
-                                autoComplete={'birthdate-full'}
-                                keyboardType={'number-pad'}
-                                textContentType={'none'}
-                                autoFocus={false}
-                            />
-
                             <TextInputMask
                                 type={'custom'}
                                 options={{
@@ -229,7 +128,7 @@ class RegisterScreen extends React.Component {
                                 placeholder={'Enter your phone number'}
                                 placeholderTextColor={'#000000'}
                                 onChangeText={text => this.setState({phoneNumber: text})}
-                                value={this.state.phoneNumber}
+                                value={phoneNumber}
                                 autoCapitalize={'none'}
                                 autoComplete={'off'}
                                 keyboardType={'number-pad'}
@@ -271,21 +170,35 @@ class RegisterScreen extends React.Component {
                                 autoFocus={false}
                                 maxLength={30}
                             />
+
+                            <View style={styles.passwordRequirements}>
+                                <Text style={styles.requirementText}>Password must contain:</Text>
+                                <Text style={{...styles.requirementText, paddingLeft: 8}}>- At least 8 characters.</Text>
+                                <Text style={{...styles.requirementText, paddingLeft: 8}}>- 1 Capital letter.</Text>
+                                <Text style={{...styles.requirementText, paddingLeft: 8}}>- 1 Symbol.</Text>
+                            </View>
                         </View>
                     </View>
 
                     <View style={styles.bottomHalf}>
                         <TouchableOpacity
-                            style={[
-                                styles.registerButton,
-                                {
-                                    backgroundColor: loading ? '#F4CE82' : '#eca239'
+                            style={styles.registerButton}
+                            onPress={() => {
+                                if (this.validateInputs()) {
+                                    this.props.navigation.navigate('RegisterInfo')
+
+                                    this.props.navigation.navigate({
+                                        name: 'RegisterInfo',
+                                        params: {
+                                            email,
+                                            password,
+                                            phoneNumber
+                                        }
+                                    })
                                 }
-                            ]}
-                            disabled={loading}
-                            onPress={() => this.registerUser()}
+                            }}
                         >
-                            <Text style={styles.registerButtonText}>Register</Text>
+                            <Text style={styles.registerButtonText}>Continue</Text>
                         </TouchableOpacity>
                     </View>
 
@@ -298,11 +211,12 @@ class RegisterScreen extends React.Component {
 
 const styles = StyleSheet.create({
     scrollView: {
+        width: '100%',
+        height: '100%',
         paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'space-between',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
     },
     body: {
         flex: 1,
@@ -403,13 +317,25 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: 16,
-        marginBottom: 32
+        marginBottom: 32,
+        backgroundColor: '#f26805'
     },
     registerButtonText: {
         fontWeight: 'bold',
         textTransform: 'uppercase',
         color: '#000000',
         fontSize: 24
+    },
+    passwordRequirements: {
+        width: '90%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: -12
+    },
+    requirementText: {
+        fontSize: 16,
+        color: '#FFFFFF'
     }
 });
 
