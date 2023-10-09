@@ -16,6 +16,11 @@ class DBHandler {
     #mongoConnectionURL
     #encryption;
     #client;
+    #db;
+    #usersCollection;
+    #getKeyId;
+    #insertKeyId;
+
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
@@ -34,7 +39,10 @@ class DBHandler {
         //Create our initial connection to MongoDB
         await this.#client.connect();
         this.#encryption = new Encryption(this.#client);
-        await this.#encryption.init();
+        this.#db = this.#client.db(DATABASE_NAME);
+        this.#usersCollection = this.#db.collection(USERS_COLLECTION);
+        this.#idCollection = this.#db.collection('idcollection');
+        //await this.#encryption.init();
     }
 
     //Insert a new encrypted user into the database
