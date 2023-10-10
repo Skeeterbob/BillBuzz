@@ -29,7 +29,7 @@ class LoginScreen extends React.Component {
         console.log(email + ", " + password);
         this.setState({loading: true});
 
-        fetch('http://192.168.56.1:3000/login/verify/login/verify/sms', {
+        fetch('http://192.168.1.40:3000/login/login/verify/sms', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ class LoginScreen extends React.Component {
                                         console.log("Forgot password clicked, need to implement this");
                                     }}
                                 >
-                                    Forgot Password? Click Here.
+                                    Forgot Password? Reset Here.
                                 </Text>
                             </View>
                         </View>
@@ -125,13 +125,13 @@ class LoginScreen extends React.Component {
                             style={[
                                 styles.loginButton,
                                 {
-                                    backgroundColor: loading ? '#F4CE82' : '#eca239'
+                                    backgroundColor: loading ? '#ed8439' : '#f26805'
                                 }
                             ]}
                             disabled={loading}
                             onPress={() => this.login()}
                         >
-                            <Text style={styles.loginButtonText}>Login</Text>
+                            <Text style={styles.loginButtonText}>Confirm</Text>
                         </TouchableOpacity>
 
                         <Text
@@ -258,11 +258,11 @@ const styles = StyleSheet.create({
     },
     forgotPassText: {
         color: '#F4CE82',
-        fontSize: 14
+        fontSize: 18
     },
     registerText: {
         color: '#F4CE82',
-        fontSize: 14,
+        fontSize: 18,
         marginBottom: 22
     },
     loginButton: {
