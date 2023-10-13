@@ -20,21 +20,6 @@ class ConfirmCodeScreen extends React.Component {
         loading: false
     };
 
-    componentDidMount() {
-      
-        fetch('http://192.168.1.40:3000/login/verify', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                email: this.props.route.params.email,
-                password: this.props.route.params.password
-            })
-        }).catch(console.error)
-    }
-
     verifyCode = () => {
         const {code} = this.state;
 
