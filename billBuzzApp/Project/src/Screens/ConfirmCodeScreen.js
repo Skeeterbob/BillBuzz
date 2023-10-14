@@ -23,7 +23,7 @@ class ConfirmCodeScreen extends React.Component {
     verifyCode = () => {
         const {code} = this.state;
 
-        fetch('http://192.168.1.40:3000/login/login/verify/sms', {
+        fetch('http://192.168.56.1:3000/login/verify/sms', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,6 +35,7 @@ class ConfirmCodeScreen extends React.Component {
             })
         }).then(data => data.json())
             .then(data => {
+                console.log(data);
                 if (data['validate'] === true) {
                     this.props.navigation.navigate({
                         name: 'AppMain',
