@@ -35,7 +35,7 @@ loginRouter.post('/verify', async (req, res) => {
     }
 });
 
-loginRouter.post('/login/verify/sms', async(req,res)=>{
+loginRouter.post('/verify/sms', async(req,res)=>{
     try{
         const phNum = req.body.phNum;
         const code = req.body.code;
