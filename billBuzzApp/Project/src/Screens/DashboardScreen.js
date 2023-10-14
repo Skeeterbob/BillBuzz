@@ -1,4 +1,6 @@
 import React from "react";
+import { LineChart } from 'react-native-chart-kit';
+import { Dimensions } from 'react-native';
 import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
