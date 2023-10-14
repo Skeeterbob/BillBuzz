@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-app.use(express.json());
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 //load environment variables from .env
@@ -34,7 +33,7 @@ constructor(){
    }
 
    //Method to link accounts through Plaid
-   async linkAccount(userAccessToken, institutionId){
+    async linkAccount(userAccessToken, institutionId){
     try{
         if(!this.client){
             throw new Error('Plaid is not initialized');
@@ -61,6 +60,10 @@ constructor(){
         console.error('Plaid linkAccount error:', error);
         throw error;
     }
+   }
+
+   async completeLink(){
+
    }
 };
 
