@@ -1,6 +1,5 @@
 import express from 'express';
 import { PlaidHandler } from '../../plaidHandler.js';
-//import { plaidHandler } from '../../handlers';
 const plaidRouter = express.Router();
 
 plaidRouter.get('/plaid', (req, res)=>{
