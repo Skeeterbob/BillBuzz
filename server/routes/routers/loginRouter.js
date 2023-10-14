@@ -50,6 +50,7 @@ loginRouter.post('/login/verify/sms', async(req,res)=>{
             res.status(400).json({error:'Verification Error!'});
         }
     }
+<<<<<<< HEAD
         catch(error){
             console.error(error);
             res.status(500).json({error:'Error'});
@@ -57,3 +58,12 @@ loginRouter.post('/login/verify/sms', async(req,res)=>{
     });
 
 export {loginRouter};
+=======
+    catch(error){
+        console.error(error);
+        res.status(500).json({error:'Error'});
+    }
+});
+
+export {loginRouter};
+>>>>>>> 846875abb46ed1194a69e1068d0ae6a550452b59
