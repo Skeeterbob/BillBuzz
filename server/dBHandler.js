@@ -182,7 +182,6 @@ class DBHandler {
 class Encryption {
     //Our ClientEncryption instance and dataKey
     #encryption;
-    #encryptionOptions;
 
     //Take in a mongo client parameter as it's required to create a ClientEncryption instance
     constructor(mongoClient) {

@@ -17,7 +17,7 @@ class TwilioHandler {
             client.verify.v2.services
             .create({friendlyName: 'BillBuzz service'})
             .then(service => {this.#serviceSid = service.sid; 
-                console.log(this.#serviceSid);
+                //console.log(this.#serviceSid);
                 resolve();
             });
         })
