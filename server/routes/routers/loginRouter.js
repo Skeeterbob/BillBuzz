@@ -30,40 +30,4 @@ loginRouter.post('/login/verify', async (req, res) => {
     }
 });
 
-loginRouter.post('/login/verify/sms', async(req,res)=>{
-    try{
-        const phNum = req.body.phNum;
-        const code = req.body.code;
-        const token = req.body.token;
-        const id = req.body.id;
-
-        const ctoken = AuthHandler.createToken(token, id);
-        if(!ctoken){
-            return res.status(400).json({error:'TOKEN INVALID!'});
-        }
-
-        const result = await twilioHandler.validateSMSCode('+1'+ phNum, code);
-        if(result){
-            res.status(200).send(JSON.stringify(result));
-        }
-        else{
-            res.status(400).json({error:'Verification Error!'});
-        }
-    }
-<<<<<<< HEAD
-        catch(error){
-            console.error(error);
-            res.status(500).json({error:'Error'});
-        }
-    });
-
 export {loginRouter};
-=======
-    catch(error){
-        console.error(error);
-        res.status(500).json({error:'Error'});
-    }
-});
-
-export {loginRouter};
->>>>>>> 846875abb46ed1194a69e1068d0ae6a550452b59
