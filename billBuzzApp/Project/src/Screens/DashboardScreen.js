@@ -35,6 +35,19 @@ const MOCK_DATA = {
             amountDue: 34.45
         }
     ],
+    upcomingOverdrafts: [
+        {
+            name: 'Utility Bill',
+            dueDate: '10/15/2023',
+            amountDue: 50.00
+        },
+        {
+            name: 'Phone Bill',
+            dueDate: '10/20/2023',
+            amountDue: 30.00
+        },
+        // Add more overdrafts as needed
+    ],
     creditCard: {
         name: 'American Express',
         dueDate: '10/22/2023',
@@ -92,7 +105,22 @@ class DashboardScreen extends React.Component {
             borderRadius: 16,
         }}
     />
-</View>
+     <View style={styles.upcomingOverdrafts}>
+              <View style={styles.upcomingOverdraftsHeader}>
+                  <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
+              </View>
+      
+              <View style={styles.upcomingOverdraftsDetails}>
+                  {MOCK_DATA.upcomingOverdrafts.map((overdraft, index) => (
+                      <View key={index} style={styles.overdraftTextContainer}>
+                          <Text style={styles.overdraftText}>{overdraft.name}</Text>
+                          <Text style={styles.overdraftText}>{overdraft.dueDate}</Text>
+                          <Text style={styles.overdraftText}>${overdraft.amountDue}</Text>
+                      </View>
+                  ))}
+              </View>
+          </View>
+    </View>
 
                 <SafeAreaView style={styles.body}>
                     <View style={styles.headerInfo}>
@@ -205,11 +233,51 @@ class DashboardScreen extends React.Component {
                     </View>
                 </SafeAreaView>
             </RNLinearGradient>
+             
         );
+      
     }
 }
 
 const styles = StyleSheet.create({
+    upcomingOverdrafts: {
+        width: '90%',
+        height: 'auto',
+        backgroundColor: '#13181d',
+        borderRadius: 8,
+        marginTop: 16,
+    },
+    upcomingOverdraftsHeader: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#FFFFFF',
+        borderBottomWidth: 2,
+    },
+    upcomingOverdraftsTitle: {
+        color: '#FFFFFF',
+        fontWeight: 'bold',
+        fontSize: 22
+    },
+    upcomingOverdraftsDetails: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: 8
+    },
+    overdraftTextContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 4
+    },
+    overdraftText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#eca239'
+    },
     lineChartContainer: {
         width: '90%',
         height: 250,
