@@ -72,7 +72,16 @@ class PlaidHandler {
     }
 
     async completeLink(publicToken){
-        
+        try {
+            const response = await this.#client.itemPublicTokenExchange({
+                public_token: publicToken,
+            });
+            return {accessToken: response.data.access_token,
+                itemId: response.data.item_id}
+        }
+        catch (error) {
+            // handle error
+        }
     }
 };
 
