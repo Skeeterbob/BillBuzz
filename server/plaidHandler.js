@@ -69,11 +69,11 @@ class PlaidHandler {
             console.error('Plaid linkAccount error:', error);
             throw error;
         }
-   }
+    }
 
-   async completeLink(){
-
-   }
+    async completeLink(publicToken){
+        
+    }
 };
 
 export {PlaidHandler};
