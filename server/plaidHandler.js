@@ -80,7 +80,19 @@ class PlaidHandler {
                 itemId: response.data.item_id}
         }
         catch (error) {
-            // handle error
+            // handle error using PLaidAPI specific error handeling
+            if(error.response && error.response.data){
+                const plaidError = error.response.data;
+
+                if(plaidError.INVALID_INPUT === 'Invalid Input'){
+                    return{error:'Invalid input, check your input'};
+                }else{
+                    return{error:'Plaid API error. Please try again.'};
+                }
+            }
+            console.error('Plaid completeLink error:', error);
+
+                return{error:'An error occurred while completing the link process.'};
         }
     }
 };
