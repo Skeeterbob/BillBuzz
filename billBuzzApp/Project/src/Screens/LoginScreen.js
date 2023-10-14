@@ -26,8 +26,19 @@ class LoginScreen extends React.Component {
 
     login = () => {
         const {email, password} = this.state;
+        if (!email || !email.trim()) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+    
+        // Basic password validation
+        if (!password || password.length < 6) {
+            alert('Please enter a valid password with at least 6 characters.');
+            return;
+        }
         console.log(email + ", " + password);
         this.setState({loading: true});
+
 
         fetch('http://192.168.56.1:3000/login/verify', {
             method: 'POST',
@@ -51,6 +62,13 @@ class LoginScreen extends React.Component {
                     }
                 })
             })
+            .catch((error) => {
+                console.error('Login failed:', error);
+                alert('Invalid email or password. Please try again.');
+            })
+            .finally(() => {
+                this.setState({ loading: false });
+            });
     };
 
     render() {
