@@ -35,7 +35,7 @@ class ConfirmCodeScreen extends React.Component {
             })
         }).then(data => data.json())
             .then(data => {
-                console.log(data);
+                
                 if (data['validate'] === true) {
                     this.props.navigation.navigate({
                         name: 'AppMain',
