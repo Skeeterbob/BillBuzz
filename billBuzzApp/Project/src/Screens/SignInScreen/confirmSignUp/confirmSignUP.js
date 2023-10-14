@@ -21,43 +21,56 @@ const ConfirmSignUP = () => {
   
 
 
-    async function confrimPressed () {
-        const result = await verifyUser();
-        console.log(result.validate);
-        console.warn('confrimPressed');
+  async function confrimPressed() {
+    try {
+        const code = getCode;
+        const phNum = "YourPhoneNumberHere";  // Add the actual phone number
+
+        console.log("Confirm pressed with code and phNum:", code, phNum);  // Debug log
+        const result = await verifyUser(code, phNum);
+        console.log("API Response:", result);  // Debug log
+
         if(result.validate){
-          //let authToken = result['token'];
-          // sharedPreferences.putString("jwtAuthToken", authToken, (result) => {
-          //   console.log("sharedPreferencese PUT result: " + result);
-          // })
-          navigation.navigate('Account');
+            navigation.navigate('Account');
+        } else {
+            Alert.alert("Error", "Code Invalid");
         }
-        else{
-          Alert.alert("Error", "Code Invalid");
-        }
-      }
+    } catch (error) {
+        console.error("Error in confrimPressed:", error);
+        Alert.alert("Error", "An error occurred while verifying user");
+    }
+}
         
        
 
-    async function verifyUser(code, phNum) {
-     
-     
-      const response = await fetch("http://10.0.2.2:3000/login/verify/sms", options = {
-        method: "POST",
-        headers: {
-        "Content-Type": 'application/json',
-        "Access-Control-Allow-Origin":'http://10.0.2.2:3000/login/verify/sms',
-        "Accept":"application/json"
-        },
-        body:{
-            "code": code,
-            "phNum": phNum             
+      async function verifyUser(code, phNum) {
+        try {
+            const response = await fetch("http://192.168.56.1:3000/login/verify/sms", {
+                method: "POST",
+                headers: {
+                    "Content-Type": 'application/json',
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    code: code,
+                    phNum: phNum
+                })
+            });
+            // Log response status and text for debugging
+            console.log("Response Status:", response.status);
+            console.log("Response Text:", await response.text());
+    
+            if(!response.ok) {
+                throw new Error("Response was not OK");
+            }
+    
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Error in verifyUser:", error);
+            throw error;
         }
-        
-      })
-      console.log(response);
-      return response
-      }
+    }
 
       
 
