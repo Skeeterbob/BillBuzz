@@ -91,8 +91,7 @@ class PlaidHandler {
                 }
             }
             console.error('Plaid completeLink error:', error);
-
-                return{error:'An error occurred while completing the link process.'};      
+            throw error;
         }
     }
 //Method to delete the plaid account
