@@ -6,7 +6,6 @@ const registerRouter = express.Router();
 const authHandler = new AuthHandler();
 const dbHandler = new DBHandler();
 dbHandler.init();
-authHandler.init();
 
 registerRouter.post('/createUser', async(req, res) => {
    try {

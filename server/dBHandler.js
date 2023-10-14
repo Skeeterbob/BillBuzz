@@ -16,6 +16,9 @@ class DBHandler {
     #mongoConnectionURL
     #encryption;
     #client;
+    #db;
+    #usersCollection;
+    #idCollection;
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
@@ -34,7 +37,9 @@ class DBHandler {
         //Create our initial connection to MongoDB
         await this.#client.connect();
         this.#encryption = new Encryption(this.#client);
-        await this.#encryption.init();
+        this.#db = this.#client.db(DATABASE_NAME);
+        this.#usersCollection = this.#db.collection(USERS_COLLECTION);
+        this.#idCollection = this.#db.collection('idcollection');
     }
 
     //Insert a new encrypted user into the database
@@ -61,7 +66,7 @@ class DBHandler {
     //Get a user from the database by their email
     async getUser(email) {
         try {
-            let id = this.#getKeyId(email);
+            let id = await this.#getKeyId(email);
             id = id['key'];
             console.log(id);
             if (id != null) {
@@ -70,7 +75,7 @@ class DBHandler {
                 //Retrieve the user from the database, all the data would be encrypted
                 const encryptedUser = await this.#usersCollection.findOne({email: encryptedEmail});
                 //Return the user's properties decrypted so that we can actually read them
-                return await this.#encryption.decryptUser(encryptedUser);
+                return await this.#encryption.decryptUser(encryptedUser,id);
             }
             else {
                 console.log('user does not exist');
@@ -81,6 +86,96 @@ class DBHandler {
             throw error;
         }
     }
+
+    //Verify if a user's profile already exists in the database by email
+    //If the user exists we return true, false if no user is found
+    async verifyUser (email, password) {
+        let retVal = {};
+        console.log(email);
+        let id = await this.#getKeyId(email);
+        id = id['key'];
+        console.log(id);
+        if (id != null) {
+            const encryptedEmail = await this.#encryption.encryptString(email,id);
+            const encryptedPassword = await this.#encryption.encryptString(password,id);
+            const result = await this.#usersCollection.findOne({"email":encryptedEmail});
+            let phNum = result['phoneNumber'];
+            retVal["phoneNumber"] = await this.#encryption.decryptString(phNum,id);
+            retVal["validate"] = true;
+            retVal['id'] = result['_id']
+          
+            console.log(result);
+            return retVal;
+        }
+        else {
+            return retVal["validate"] = false;
+        }        
+    }
+
+    //private function to return the keyId for encryption from the other collection
+    async #getKeyId (email) {
+        return await this.#idCollection.findOne({"email":email});
+    }
+
+    //private functio to insert keyId into idCollection when account is created
+    async #insertKeyId (email) {
+        let id = await this.#encryption.createNewKey()
+        let result = await this.#idCollection.insertOne({"email":
+            email,"key":id});
+        console.log('insertKeyId',id);
+        return id;
+    };
+    //This functioni returns a schema to identify fields to be encrypted.
+    //Will be useful if we setup autoencryption later.
+    /*#getUserEncryptSchema (id) {
+        const schema = {
+            bsonType: "object",
+            encryptMetadata: {
+                keyId: [new Binary(Buffer.from(id, "base64"), 4)],
+            },
+            properties: {
+                email: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                password: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                firstName: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                lastName: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                birthday: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                phoneNumber: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                bankBalance: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                availableCredit: {
+                    bsonType: "string",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+                accountList: {
+                    bsonType: "array",
+                    algorithm: ENCRYPTION_ALGORITHM,
+                },
+            },
+        }
+        var userSchema = {};
+        userSchema[keyVaultNamespace] = schema;
+        return userSchema;
+    }*/
 }
 
 //Base encryption class with MongoDB
