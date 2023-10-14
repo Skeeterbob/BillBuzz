@@ -56,6 +56,18 @@ const MOCK_DATA = {
 }
 
 class DashboardScreen extends React.Component {
+    state = {
+        showTransactions: false,
+        showOverdrafts: false
+    };
+
+    toggleTransactions = () => {
+        this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
+    };
+
+    toggleOverdrafts = () => {
+        this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
+    };
     
 
     render() {
