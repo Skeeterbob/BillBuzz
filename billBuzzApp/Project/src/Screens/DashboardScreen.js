@@ -54,7 +54,7 @@ class DashboardScreen extends React.Component {
                 end={{x: 1, y: 1}}
                 style={{backgroundColor: '#0B0D10'}}
             >
-                <View style={styles.lineChartContainer}>
+<View style={styles.lineChartContainer}>
     <Text style={styles.lineChartTitle}>Transactions Over Time</Text>
     <LineChart
         data={{
