@@ -1,7 +1,7 @@
 import React from "react";
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions, ScrollView } from 'react-native';
-import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal} from "react-native";
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
 import HexagonComponent from "../Components/HexagonComponent";
@@ -53,10 +53,13 @@ const MOCK_DATA = {
         dueDate: '10/22/2023',
         amountDue: 321.54
     }
+    
 }
 
 class DashboardScreen extends React.Component {
+   
     state = {
+        expanded: false,
         showTransactions: false,
         showOverdrafts: false,
         currentWeek: 0,  // New state to track the current week being displayed
@@ -81,9 +84,14 @@ class DashboardScreen extends React.Component {
         this.setState(prevState => ({ currentWeek: prevState.currentWeek + 1 }));
     }
     
+    handleToggleExpand = () => {
+        this.setState(prevState => ({ expanded: !prevState.expanded }));
+    };
 
     render() {
-        const { currentWeek, weeklyData } = this.state;
+        
+        const { currentWeek, weeklyData, expanded } = this.state;
+        
         return (
             <RNLinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
@@ -110,16 +118,14 @@ class DashboardScreen extends React.Component {
                     </View>
                    
     <View style={styles.lineChartContainer}>
-    <Text style={styles.lineChartTitle}>Transactions Over Time</Text>
-    <TouchableOpacity onPress={this.prevWeek} style={{backgroundColor: 'lightgray'}}>
-    <Text>Previous Week</Text>
-</TouchableOpacity>
+    <Text style={styles.lineChartTitle}>Transactions This Week:</Text>
+    <TouchableOpacity onPress={this.handleToggleExpand}>
 
    
     <LineChart
         data={weeklyData[currentWeek]}
         width={Dimensions.get('window').width-50} // from react-native
-        labels={data.labels}
+        animationType="fade"
         height={220}
         yAxisLabel="$"
         yAxisSuffix="k"
@@ -147,10 +153,51 @@ class DashboardScreen extends React.Component {
         }}
         
     />
-        <TouchableOpacity onPress={this.prevWeek} style={{backgroundColor: 'lightgray'}}>
-    <Text>Previous Week</Text>
-</TouchableOpacity>
-
+     </TouchableOpacity>
+     <Modal
+                visible={expanded}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={this.handleToggleExpand}
+            >
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <View style={{ width: Dimensions.get('window').width - 50, borderRadius: 16, padding: 10, backgroundColor: '#13181d' }}>
+                        <LineChart
+                           data={weeklyData[currentWeek]}
+                           width={Dimensions.get('window').width-70} // from react-native
+                           height={350}
+                           yAxisLabel="$"
+                           yAxisSuffix="k"
+                           yAxisInterval={expanded ? 0.5 : 1}
+                           chartConfig={{
+                               backgroundColor: '#13181d',
+                               backgroundGradientFrom: '#13181d',
+                               backgroundGradientTo: '#13181d',
+                               decimalPlaces: 2, // optional, defaults to 2dp
+                               color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                               labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                               style: {
+                                   borderRadius: 16,
+                               },
+                               propsForDots: {
+                                   r: '6',
+                                   strokeWidth: '2',
+                                   stroke: '#ffa726',
+                               },
+                           }}
+                           bezier
+                           style={{
+                               marginVertical: 8,
+                               borderRadius: 16,
+                           }}
+                        />
+                        <TouchableOpacity style={{ alignSelf: 'flex-end', marginTop: 10 }} onPress={this.handleToggleExpand}>
+                            <Text style={styles.Text}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+    
      
     </View>
     <View style={styles.upcomingOverdrafts}>
@@ -274,6 +321,16 @@ class DashboardScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    Text: {
+    color: '#FFFFFF', 
+    fontSize: 16,    
+    fontWeight: '500', 
+    fontFamily: 'Arial', 
+    textShadowColor: 'rgba(0, 0, 0, 0.75)', 
+    textShadowOffset: { width: -1, height: 1 },
+    textShadowRadius: 1,
+    padding: 5, 
+    },
     upcomingOverdrafts: {
         width: '90%',
         height: 'auto',
