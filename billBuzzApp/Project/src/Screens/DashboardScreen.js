@@ -43,6 +43,7 @@ const MOCK_DATA = {
 }
 
 class DashboardScreen extends React.Component {
+    
 
     render() {
         return (
@@ -53,6 +54,46 @@ class DashboardScreen extends React.Component {
                 end={{x: 1, y: 1}}
                 style={{backgroundColor: '#0B0D10'}}
             >
+                <View style={styles.lineChartContainer}>
+    <Text style={styles.lineChartTitle}>Transactions Over Time</Text>
+    <LineChart
+        data={{
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // You can customize these labels based on your data
+            datasets: [
+                {
+                    data: [20, 45, 28, 80, 99, 43], // Example data, replace with your transaction data
+                },
+            ],
+        }}
+        width={Dimensions.get('window').width - 20} // from react-native
+        height={220}
+        yAxisLabel="$"
+        yAxisSuffix="k"
+        yAxisInterval={1}
+        chartConfig={{
+            backgroundColor: '#13181d',
+            backgroundGradientFrom: '#13181d',
+            backgroundGradientTo: '#13181d',
+            decimalPlaces: 2, // optional, defaults to 2dp
+            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+            style: {
+                borderRadius: 16,
+            },
+            propsForDots: {
+                r: '6',
+                strokeWidth: '2',
+                stroke: '#ffa726',
+            },
+        }}
+        bezier
+        style={{
+            marginVertical: 8,
+            borderRadius: 16,
+        }}
+    />
+</View>
+
                 <SafeAreaView style={styles.body}>
                     <View style={styles.headerInfo}>
                         <Text style={styles.welcomeText}>{`Hello ${MOCK_DATA.firstName} ${MOCK_DATA.lastName}!`}</Text>
