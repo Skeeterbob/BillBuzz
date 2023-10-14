@@ -5,9 +5,10 @@ import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 dotenv.config('../.env');
 
 class PlaidHandler {
+    #client;
+
     constructor(){
         this.client = null;
-        this.linkToken = null;
     }
 
     // Function to instantiate the plaid client
@@ -24,7 +25,7 @@ class PlaidHandler {
             },
         });
    
-        this.client = new PlaidApi(configuration);
+        this.#client = new PlaidApi(configuration);
 
         return 'Plaid initilaized successfully';
 
@@ -34,30 +35,35 @@ class PlaidHandler {
         }
    }
 
-   //Method to link accounts through Plaid
-    async linkAccount(userAccessToken, institutionId){
+   //Method to generate a link token to be used on the front end to 
+   //authenticate the Plaid account link interface
+   //needs a user id (mongoDB id)
+    async linkAccount(userId){
         try {
-            if(!this.client){
+
+            // makes sure the client exists. Might be able to perform
+            // better validation here.
+            if(!this.#client){
                 throw new Error('Plaid is not initialized');
             }
 
-            if(!userAccessToken || !institutionId){
+            //could add better validation here
+            if(!userId){
             throw new Error('Must enter Access Token or institution ID ');
             }
 
-            //Create link token
-            const linkAccountResponse = await this.client.linkTokenCreate({
+            //Create link token by providing a unique user id
+            const linkAccountResponse = await this.#client.linkTokenCreate({
                 user:{
-                    client_user_id: userAccessToken,
+                    client_user_id: userId,
                 },
                 client_name: 'BillBuzz service',
                 products:['auth', 'transactions'],
                 country_codes:['US'],
                 language: 'en',
-                institution_id: institutionId,
             });
 
-            return linkAccountResponse.data.link_token;
+            return linkAccountResponse.data;
         } 
         catch(error){
             console.error('Plaid linkAccount error:', error);
