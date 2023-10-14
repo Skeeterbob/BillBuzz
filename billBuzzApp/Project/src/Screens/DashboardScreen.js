@@ -1,6 +1,6 @@
 import React from "react";
 import { LineChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native';
+import { Dimensions, ScrollView } from 'react-native';
 import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
@@ -58,7 +58,12 @@ const MOCK_DATA = {
 class DashboardScreen extends React.Component {
     state = {
         showTransactions: false,
-        showOverdrafts: false
+        showOverdrafts: false,
+        currentWeek: 0,  // New state to track the current week being displayed
+        weeklyData: [    // Weekly data example, replace with your own data
+            { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: [10, 15, 20, 25, 30, 35, 40] }] },
+            // ... more weeks data
+    ]
     };
 
     toggleTransactions = () => {
@@ -68,9 +73,17 @@ class DashboardScreen extends React.Component {
     toggleOverdrafts = () => {
         this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
     };
+    prevWeek = () => {  // Go to the previous week
+        this.setState(prevState => ({ currentWeek: prevState.currentWeek - 1 }));
+    }
+
+    nextWeek = () => {  // Go to the next week
+        this.setState(prevState => ({ currentWeek: prevState.currentWeek + 1 }));
+    }
     
 
     render() {
+        const { currentWeek, weeklyData } = this.state;
         return (
             <RNLinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
@@ -79,18 +92,34 @@ class DashboardScreen extends React.Component {
                 end={{x: 1, y: 1}}
                 style={{backgroundColor: '#0B0D10'}}
             >
-<View style={styles.lineChartContainer}>
+
+
+                <SafeAreaView style={styles.body}>
+                {/* <ScrollView contentContainerStyle={{flexGrow: 1}}> */}
+                    <View style={styles.headerInfo}>
+                        <Text style={styles.welcomeText}>{`Hello ${MOCK_DATA.firstName} ${MOCK_DATA.lastName}!`}</Text>
+
+                        <TouchableOpacity
+                            style={styles.profileButton}
+                            onPress={() => {
+                                this.props.navigation.navigate('Profile');
+                            }}
+                        >
+                            <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'} />
+                        </TouchableOpacity>
+                    </View>
+                   
+    <View style={styles.lineChartContainer}>
     <Text style={styles.lineChartTitle}>Transactions Over Time</Text>
+    <TouchableOpacity onPress={this.prevWeek} style={{backgroundColor: 'lightgray'}}>
+    <Text>Previous Week</Text>
+</TouchableOpacity>
+
+   
     <LineChart
-        data={{
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'], // You can customize these labels based on your data
-            datasets: [
-                {
-                    data: [20, 45, 28, 80, 99, 43], // Example data, replace with your transaction data
-                },
-            ],
-        }}
-        width={Dimensions.get('window').width - 20} // from react-native
+        data={weeklyData[currentWeek]}
+        width={Dimensions.get('window').width-50} // from react-native
+        labels={data.labels}
         height={220}
         yAxisLabel="$"
         yAxisSuffix="k"
@@ -116,8 +145,15 @@ class DashboardScreen extends React.Component {
             marginVertical: 8,
             borderRadius: 16,
         }}
+        
     />
-     <View style={styles.upcomingOverdrafts}>
+        <TouchableOpacity onPress={this.prevWeek} style={{backgroundColor: 'lightgray'}}>
+    <Text>Previous Week</Text>
+</TouchableOpacity>
+
+     
+    </View>
+    <View style={styles.upcomingOverdrafts}>
               <View style={styles.upcomingOverdraftsHeader}>
                   <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
               </View>
@@ -132,21 +168,6 @@ class DashboardScreen extends React.Component {
                   ))}
               </View>
           </View>
-    </View>
-
-                <SafeAreaView style={styles.body}>
-                    <View style={styles.headerInfo}>
-                        <Text style={styles.welcomeText}>{`Hello ${MOCK_DATA.firstName} ${MOCK_DATA.lastName}!`}</Text>
-
-                        <TouchableOpacity
-                            style={styles.profileButton}
-                            onPress={() => {
-                                this.props.navigation.navigate('Profile');
-                            }}
-                        >
-                            <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'} />
-                        </TouchableOpacity>
-                    </View>
 
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
@@ -243,6 +264,7 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    {/* </ScrollView> */}
                 </SafeAreaView>
             </RNLinearGradient>
              
