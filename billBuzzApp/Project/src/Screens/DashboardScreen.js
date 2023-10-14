@@ -169,6 +169,20 @@ class DashboardScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    lineChartContainer: {
+        width: '90%',
+        height: 250,
+        borderRadius: 8,
+        backgroundColor: '#13181d',
+        marginTop: 16,
+        padding: 8,
+    },
+    lineChartTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        marginBottom: 8,
+    },
     bodyGradient: {
         flex: 1,
         width: '100%',
