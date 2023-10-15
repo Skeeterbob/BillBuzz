@@ -96,6 +96,22 @@ class DashboardScreen extends React.Component {
                 style={{backgroundColor: '#0B0D10'}}
             >
 
+                <View style={styles.addAccount}>
+                    {/*TODO: Make this button work with plaid to add a new account*/}
+                    <TouchableOpacity>
+                        <Icon name={'add'} size={48} color={'#000000'}/>
+                    </TouchableOpacity>
+                </View>
+
+                <View style={styles.dashboardButton}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            this.props.navigation.navigate('Accounts');
+                        }}
+                    >
+                        <Icon name={'card'} size={32} color={'#000000'}/>
+                    </TouchableOpacity>
+                </View>
 
                 <ScrollView contentContainerStyle={styles.body}>
                     <View style={styles.headerInfo}>
@@ -119,7 +135,7 @@ class DashboardScreen extends React.Component {
 
                         <View style={styles.weeklyView}>
                             <TouchableOpacity>
-                                <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                                <Icon name={'arrow-back'} size={32} color={'#FFFFFF'}/>
                             </TouchableOpacity>
 
                             <View>
@@ -127,7 +143,7 @@ class DashboardScreen extends React.Component {
                             </View>
 
                             <TouchableOpacity>
-                                <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
+                                <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'}/>
                             </TouchableOpacity>
                         </View>
 
@@ -284,56 +300,6 @@ class DashboardScreen extends React.Component {
                             <Text style={styles.paymentText}>${MOCK_DATA.creditCard.amountDue}</Text>
                         </View>
                     </View>
-
-                    <View style={styles.dashboardLinks}>
-                        <View style={styles.dashboardLink}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    this.props.navigation.navigate('Accounts');
-                                }}
-                            >
-                                <HexagonComponent size={80}>
-                                    <Icon name={'card'} size={32} color={'#FFFFFF'}/>
-                                </HexagonComponent>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={{...styles.dashboardLink, alignItems: 'flex-end'}}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    console.log("Pressed bank accounts");
-                                }}
-                            >
-                                <HexagonComponent size={80}>
-                                    <Icon name={'cash'} size={32} color={'#FFFFFF'}/>
-                                </HexagonComponent>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={styles.dashboardLink}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    console.log("Pressed transactions list");
-                                }}
-                            >
-                                <HexagonComponent size={80}>
-                                    <Icon name={'list-sharp'} size={32} color={'#FFFFFF'}/>
-                                </HexagonComponent>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View style={{...styles.dashboardLink, alignItems: 'flex-end'}}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    console.log("Figure out what this button will be")
-                                }}
-                            >
-                                <HexagonComponent size={80}>
-                                    <Icon name={'help'} size={32} color={'#FFFFFF'}/>
-                                </HexagonComponent>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
                 </ScrollView>
             </RNLinearGradient>
 
@@ -423,6 +389,56 @@ const styles = StyleSheet.create({
         flex: 1,
         width: '100%',
         height: '100%'
+    },
+    addAccount: {
+        width: 64,
+        height: 64,
+        position: 'absolute',
+        bottom: 16,
+        right: 16,
+        zIndex: 100,
+        backgroundColor: '#eca239',
+        borderRadius: 32,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#FFFFFF',
+        borderWidth: 3,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
+    },
+    dashboardButton: {
+        width: 64,
+        height: 64,
+        position: 'absolute',
+        bottom: 16,
+        left: 16,
+        zIndex: 100,
+        backgroundColor: '#eca239',
+        borderRadius: 32,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#FFFFFF',
+        borderWidth: 3,
+
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
     },
     body: {
         display: 'flex',
@@ -541,7 +557,8 @@ const styles = StyleSheet.create({
         height: 'auto',
         backgroundColor: '#13181d',
         borderRadius: 8,
-        marginTop: 16
+        marginTop: 16,
+        marginBottom: 100
     },
     upcomingPaymentHeader: {
         width: '100%',
