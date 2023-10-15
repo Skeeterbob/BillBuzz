@@ -64,7 +64,7 @@ class DashboardScreen extends React.Component {
         showOverdrafts: false,
         currentWeek: 0,  // New state to track the current week being displayed
         weeklyData: [    // Weekly data example, replace with your own data
-            { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: [10, 15, 20, 25, 30, 35, 40] }] },
+            { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: [200, 50 , 100, 25, 10, 35, 10] }] },
             // ... more weeks data
     ]
     };
@@ -128,8 +128,8 @@ class DashboardScreen extends React.Component {
         animationType="fade"
         height={220}
         yAxisLabel="$"
-        yAxisSuffix="k"
-        yAxisInterval={1}
+        yAxisSuffix=" "
+        yAxisInterval={.5}
         chartConfig={{
             backgroundColor: '#13181d',
             backgroundGradientFrom: '#13181d',
@@ -167,8 +167,8 @@ class DashboardScreen extends React.Component {
                            width={Dimensions.get('window').width-70} // from react-native
                            height={350}
                            yAxisLabel="$"
-                           yAxisSuffix="k"
-                           yAxisInterval={expanded ? 0.5 : 1}
+                           yAxisSuffix=" "
+                           yAxisInterval={.5}
                            chartConfig={{
                                backgroundColor: '#13181d',
                                backgroundGradientFrom: '#13181d',
