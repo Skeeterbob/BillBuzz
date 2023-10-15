@@ -80,7 +80,7 @@ class PlaidHandler {
                 itemId: response.data.item_id}
         }
         catch (error) {
-            // handle error using PLaidAPI specific error handeling
+            // handle error using PlaidAPI specific error handeling
             if(error.response && error.response.data){
                 const plaidError = error.response.data;
 
@@ -91,8 +91,20 @@ class PlaidHandler {
                 }
             }
             console.error('Plaid completeLink error:', error);
-
-                return{error:'An error occurred while completing the link process.'};
+            throw error;
+        }
+    }
+//Method to delete the plaid account
+    async deleteAccount(accessToken){
+        try{
+            const response = await this.#client.itemRemove({
+                access_token: accessToken,
+            });
+            return response.data;
+        }
+        catch(error){
+            console.error('Plaid deleteAccount error:', error);
+            throw error;
         }
     }
 };
