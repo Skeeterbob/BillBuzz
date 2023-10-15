@@ -25,19 +25,19 @@ class LoginScreen extends React.Component {
     };
 
     login = () => {
-        const {email, password} = this.state;
+        const { email, password } = this.state;
         if (!email || !email.trim()) {
             alert('Please enter a valid email address.');
             return;
         }
-    
+
         // Basic password validation
         if (!password || password.length < 6) {
             alert('Please enter a valid password with at least 6 characters.');
             return;
         }
         console.log(email + ", " + password);
-        this.setState({loading: true});
+        this.setState({ loading: true });
 
 
         fetch('http://192.168.56.1:3000/login/verify', {
@@ -72,20 +72,20 @@ class LoginScreen extends React.Component {
     };
 
     render() {
-        const {email, password, passwordVisible, loading} = this.state;
+        const { email, password, passwordVisible, loading } = this.state;
 
         return (
             <LinearGradient
                 colors={['#3D3E43', '#202125', '#101215']}
-                start={{x: 1, y: 0}}
-                end={{x: 0, y: 1}}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
                 locations={[0.1, 0.7, 1]}
                 style={styles.body}
             >
                 <SafeAreaView style={styles.safeArea}>
                     <View style={styles.topHalf}>
                         <View style={styles.logoHeader}>
-                            <Image source={Logo} style={styles.logo}/>
+                            <Image source={Logo} style={styles.logo} />
                         </View>
 
                         <View style={styles.formFields}>
@@ -95,7 +95,7 @@ class LoginScreen extends React.Component {
                                 style={styles.textInput}
                                 placeholder={'Enter your email'}
                                 placeholderTextColor={'#000000'}
-                                onChangeText={text => this.setState({email: text})}
+                                onChangeText={text => this.setState({ email: text })}
                                 value={email}
                                 autoCapitalize={'none'}
                                 autoComplete={'email'}
@@ -107,15 +107,15 @@ class LoginScreen extends React.Component {
                             <View style={styles.passwordContainer}>
                                 <Pressable
                                     style={styles.passwordIcon}
-                                    onPress={() => this.setState({passwordVisible: !passwordVisible})}
+                                    onPress={() => this.setState({ passwordVisible: !passwordVisible })}
                                 >
-                                    <Icon name={passwordVisible ? 'eye' : 'eye-off'} size={24} color={'#000000'}/>
+                                    <Icon name={passwordVisible ? 'eye' : 'eye-off'} size={24} color={'#000000'} />
                                 </Pressable>
                                 <TextInput
                                     style={styles.textInput}
                                     placeholder={'Enter your password'}
                                     placeholderTextColor={'#000000'}
-                                    onChangeText={text => this.setState({password: text})}
+                                    onChangeText={text => this.setState({ password: text })}
                                     value={password}
                                     autoCapitalize={'none'}
                                     autoComplete={'password'}
