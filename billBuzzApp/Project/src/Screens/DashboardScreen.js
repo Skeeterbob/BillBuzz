@@ -116,9 +116,22 @@ class DashboardScreen extends React.Component {
                         <View style={styles.summaryHeader}>
                             <Text style={styles.lineChartTitle}>Transactions This Week:</Text>
                         </View>
+
+                        <View style={styles.weeklyView}>
+                            <TouchableOpacity>
+                                <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                            </TouchableOpacity>
+
+                            <View>
+                                <Text style={styles.weeklyViewText}>This Week</Text>
+                            </View>
+
+                            <TouchableOpacity>
+                                <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
+                            </TouchableOpacity>
+                        </View>
+
                         <TouchableOpacity onPress={this.handleToggleExpand}>
-
-
                             <LineChart
                                 data={weeklyData[currentWeek]}
                                 width={Dimensions.get('window').width - 50} // from react-native
@@ -391,6 +404,20 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         color: '#FFFFFF',
         marginBottom: 8,
+    },
+    weeklyView: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 8,
+        marginBottom: 8
+    },
+    weeklyViewText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF'
     },
     bodyGradient: {
         flex: 1,
