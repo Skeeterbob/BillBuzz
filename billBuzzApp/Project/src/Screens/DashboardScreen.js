@@ -1,6 +1,6 @@
 import React from "react";
-import { LineChart } from 'react-native-chart-kit';
-import { Dimensions, ScrollView } from 'react-native';
+import {LineChart} from 'react-native-chart-kit';
+import {Dimensions, ScrollView} from 'react-native';
 import {Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal} from "react-native";
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
@@ -25,14 +25,6 @@ const MOCK_DATA = {
         {
             name: 'Hulu',
             amountDue: 12.99
-        },
-        {
-            name: 'Crunchyroll',
-            amountDue: 7.99
-        },
-        {
-            name: 'Amazon',
-            amountDue: 34.45
         }
     ],
     upcomingOverdrafts: [
@@ -53,45 +45,48 @@ const MOCK_DATA = {
         dueDate: '10/22/2023',
         amountDue: 321.54
     }
-    
+
 }
 
 class DashboardScreen extends React.Component {
-   
+
     state = {
         expanded: false,
         showTransactions: false,
         showOverdrafts: false,
         currentWeek: 0,  // New state to track the current week being displayed
         weeklyData: [    // Weekly data example, replace with your own data
-            { labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'], datasets: [{ data: [200, 50 , 100, 25, 10, 35, 10] }] },
+            {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{data: [200, 50, 100, 25, 10, 35, 10]}]
+            },
             // ... more weeks data
-    ]
+        ]
     };
 
     toggleTransactions = () => {
-        this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
+        this.setState(prevState => ({showTransactions: !prevState.showTransactions}));
     };
 
     toggleOverdrafts = () => {
-        this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
+        this.setState(prevState => ({showOverdrafts: !prevState.showOverdrafts}));
     };
     prevWeek = () => {  // Go to the previous week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek - 1 }));
+        this.setState(prevState => ({currentWeek: prevState.currentWeek - 1}));
     }
 
     nextWeek = () => {  // Go to the next week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek + 1 }));
+        this.setState(prevState => ({currentWeek: prevState.currentWeek + 1}));
     }
-    
+
     handleToggleExpand = () => {
-        this.setState(prevState => ({ expanded: !prevState.expanded }));
+        this.setState(prevState => ({expanded: !prevState.expanded}));
     };
 
     render() {
-        
-        const { currentWeek, weeklyData, expanded } = this.state;
-        
+
+        const {currentWeek, weeklyData, expanded} = this.state;
+
         return (
             <RNLinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
@@ -102,10 +97,10 @@ class DashboardScreen extends React.Component {
             >
 
 
-                <SafeAreaView style={styles.body}>
-                {/* <ScrollView contentContainerStyle={{flexGrow: 1}}> */}
+                <ScrollView contentContainerStyle={styles.body}>
                     <View style={styles.headerInfo}>
-                        <Text style={styles.welcomeText}>{`Hello ${MOCK_DATA.firstName} ${MOCK_DATA.lastName}!`}</Text>
+                        <Text
+                            style={styles.welcomeText}>{`Hello ${MOCK_DATA.firstName} ${MOCK_DATA.lastName}!`}</Text>
 
                         <TouchableOpacity
                             style={styles.profileButton}
@@ -113,108 +108,104 @@ class DashboardScreen extends React.Component {
                                 this.props.navigation.navigate('Profile');
                             }}
                         >
-                            <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'} />
+                            <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'}/>
                         </TouchableOpacity>
                     </View>
-                   
-    <View style={styles.lineChartContainer}>
-    <Text style={styles.lineChartTitle}>Transactions This Week:</Text>
-    <TouchableOpacity onPress={this.handleToggleExpand}>
 
-   
-    <LineChart
-        data={weeklyData[currentWeek]}
-        width={Dimensions.get('window').width-50} // from react-native
-        animationType="fade"
-        height={220}
-        yAxisLabel="$"
-        yAxisSuffix=" "
-        yAxisInterval={.5}
-        chartConfig={{
-            backgroundColor: '#13181d',
-            backgroundGradientFrom: '#13181d',
-            backgroundGradientTo: '#13181d',
-            decimalPlaces: 2, // optional, defaults to 2dp
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            style: {
-                borderRadius: 16,
-            },
-            propsForDots: {
-                r: '6',
-                strokeWidth: '2',
-                stroke: '#ffa726',
-            },
-        }}
-        bezier
-        style={{
-            marginVertical: 8,
-            borderRadius: 16,
-        }}
-        
-    />
-     </TouchableOpacity>
-     <Modal
-                visible={expanded}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={this.handleToggleExpand}
-            >
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <View style={{ width: Dimensions.get('window').width - 50, borderRadius: 16, padding: 10, backgroundColor: '#13181d' }}>
-                        <LineChart
-                           data={weeklyData[currentWeek]}
-                           width={Dimensions.get('window').width-70} // from react-native
-                           height={350}
-                           yAxisLabel="$"
-                           yAxisSuffix=" "
-                           yAxisInterval={.5}
-                           chartConfig={{
-                               backgroundColor: '#13181d',
-                               backgroundGradientFrom: '#13181d',
-                               backgroundGradientTo: '#13181d',
-                               decimalPlaces: 2, // optional, defaults to 2dp
-                               color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                               labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                               style: {
-                                   borderRadius: 16,
-                               },
-                               propsForDots: {
-                                   r: '6',
-                                   strokeWidth: '2',
-                                   stroke: '#ffa726',
-                               },
-                           }}
-                           bezier
-                           style={{
-                               marginVertical: 8,
-                               borderRadius: 16,
-                           }}
-                        />
-                        <TouchableOpacity style={{ alignSelf: 'flex-end', marginTop: 10 }} onPress={this.handleToggleExpand}>
-                            <Text style={styles.Text}>Close</Text>
+                    <View style={styles.lineChartContainer}>
+                        <View style={styles.summaryHeader}>
+                            <Text style={styles.lineChartTitle}>Transactions This Week:</Text>
+                        </View>
+                        <TouchableOpacity onPress={this.handleToggleExpand}>
+
+
+                            <LineChart
+                                data={weeklyData[currentWeek]}
+                                width={Dimensions.get('window').width - 50} // from react-native
+                                animationType="fade"
+                                height={220}
+                                yAxisLabel="$"
+                                yAxisSuffix=" "
+                                yAxisInterval={.5}
+                                chartConfig={{
+                                    backgroundColor: '#13181d',
+                                    backgroundGradientFrom: '#13181d',
+                                    backgroundGradientTo: '#13181d',
+                                    decimalPlaces: 2, // optional, defaults to 2dp
+                                    color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                    labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                    style: {
+                                        borderRadius: 16,
+                                    },
+                                    propsForDots: {
+                                        r: '6',
+                                        strokeWidth: '2',
+                                        stroke: '#ffa726',
+                                    },
+                                }}
+                                bezier
+                                style={{
+                                    marginVertical: 8,
+                                    borderRadius: 16,
+                                }}
+
+                            />
                         </TouchableOpacity>
+                        <Modal
+                            visible={expanded}
+                            transparent={true}
+                            animationType="fade"
+                            onRequestClose={this.handleToggleExpand}
+                        >
+                            <View style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(0,0,0,0.5)'
+                            }}>
+                                <View style={{
+                                    width: Dimensions.get('window').width - 50,
+                                    borderRadius: 16,
+                                    padding: 10,
+                                    backgroundColor: '#13181d'
+                                }}>
+                                    <LineChart
+                                        data={weeklyData[currentWeek]}
+                                        width={Dimensions.get('window').width - 70} // from react-native
+                                        height={350}
+                                        yAxisLabel="$"
+                                        yAxisSuffix=" "
+                                        yAxisInterval={.5}
+                                        chartConfig={{
+                                            backgroundColor: '#13181d',
+                                            backgroundGradientFrom: '#13181d',
+                                            backgroundGradientTo: '#13181d',
+                                            decimalPlaces: 2, // optional, defaults to 2dp
+                                            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                            style: {
+                                                borderRadius: 16,
+                                            },
+                                            propsForDots: {
+                                                r: '6',
+                                                strokeWidth: '2',
+                                                stroke: '#ffa726',
+                                            },
+                                        }}
+                                        bezier
+                                        style={{
+                                            marginVertical: 8,
+                                            borderRadius: 16,
+                                        }}
+                                    />
+                                    <TouchableOpacity style={{alignSelf: 'flex-end', marginTop: 10}}
+                                                      onPress={this.handleToggleExpand}>
+                                        <Text style={styles.Text}>Close</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Modal>
                     </View>
-                </View>
-            </Modal>
-    
-     
-    </View>
-    <View style={styles.upcomingOverdrafts}>
-              <View style={styles.upcomingOverdraftsHeader}>
-                  <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
-              </View>
-      
-              <View style={styles.upcomingOverdraftsDetails}>
-                  {MOCK_DATA.upcomingOverdrafts.map((overdraft, index) => (
-                      <View key={index} style={styles.overdraftTextContainer}>
-                          <Text style={styles.overdraftText}>{overdraft.name}</Text>
-                          <Text style={styles.overdraftText}>{overdraft.dueDate}</Text>
-                          <Text style={styles.overdraftText}>${overdraft.amountDue}</Text>
-                      </View>
-                  ))}
-              </View>
-          </View>
 
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
@@ -222,9 +213,12 @@ class DashboardScreen extends React.Component {
                         </View>
 
                         <View style={styles.summaryDetails}>
-                            <Text style={styles.detailsText}>Total Bank Balance: <Text style={styles.detailsInfoText}>${MOCK_DATA.balance}</Text></Text>
-                            <Text style={styles.detailsText}>Total Available Credit: <Text style={styles.detailsInfoText}>${MOCK_DATA.availableCredit}</Text></Text>
-                            <Text style={styles.detailsText}>Total Credit Balance: <Text style={styles.detailsInfoText}>${MOCK_DATA.creditBalance}</Text></Text>
+                            <Text style={styles.detailsText}>Total Bank Balance: <Text
+                                style={styles.detailsInfoText}>${MOCK_DATA.balance}</Text></Text>
+                            <Text style={styles.detailsText}>Total Available Credit: <Text
+                                style={styles.detailsInfoText}>${MOCK_DATA.availableCredit}</Text></Text>
+                            <Text style={styles.detailsText}>Total Credit Balance: <Text
+                                style={styles.detailsInfoText}>${MOCK_DATA.creditBalance}</Text></Text>
                         </View>
 
                         <Text style={styles.recentTransactionsText}>Recent Transactions</Text>
@@ -250,6 +244,22 @@ class DashboardScreen extends React.Component {
                         </TouchableOpacity>
                     </View>
 
+                    <View style={styles.upcomingOverdrafts}>
+                        <View style={styles.upcomingOverdraftsHeader}>
+                            <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
+                        </View>
+
+                        <View style={styles.upcomingOverdraftsDetails}>
+                            {MOCK_DATA.upcomingOverdrafts.map((overdraft, index) => (
+                                <View key={index} style={styles.overdraftTextContainer}>
+                                    <Text style={styles.overdraftText}>{overdraft.name}</Text>
+                                    <Text style={styles.overdraftText}>{overdraft.dueDate}</Text>
+                                    <Text style={styles.overdraftText}>${overdraft.amountDue}</Text>
+                                </View>
+                            ))}
+                        </View>
+                    </View>
+
                     <View style={styles.upcomingPayment}>
                         <View style={styles.upcomingPaymentHeader}>
                             <Text style={styles.upcomingPaymentTitle}>Upcoming Card Payment</Text>
@@ -270,7 +280,7 @@ class DashboardScreen extends React.Component {
                                 }}
                             >
                                 <HexagonComponent size={80}>
-                                    <Icon name={'card'} size={32} color={'#FFFFFF'} />
+                                    <Icon name={'card'} size={32} color={'#FFFFFF'}/>
                                 </HexagonComponent>
                             </TouchableOpacity>
                         </View>
@@ -282,7 +292,7 @@ class DashboardScreen extends React.Component {
                                 }}
                             >
                                 <HexagonComponent size={80}>
-                                    <Icon name={'cash'} size={32} color={'#FFFFFF'} />
+                                    <Icon name={'cash'} size={32} color={'#FFFFFF'}/>
                                 </HexagonComponent>
                             </TouchableOpacity>
                         </View>
@@ -294,7 +304,7 @@ class DashboardScreen extends React.Component {
                                 }}
                             >
                                 <HexagonComponent size={80}>
-                                    <Icon name={'list-sharp'} size={32} color={'#FFFFFF'} />
+                                    <Icon name={'list-sharp'} size={32} color={'#FFFFFF'}/>
                                 </HexagonComponent>
                             </TouchableOpacity>
                         </View>
@@ -306,30 +316,29 @@ class DashboardScreen extends React.Component {
                                 }}
                             >
                                 <HexagonComponent size={80}>
-                                    <Icon name={'help'} size={32} color={'#FFFFFF'} />
+                                    <Icon name={'help'} size={32} color={'#FFFFFF'}/>
                                 </HexagonComponent>
                             </TouchableOpacity>
                         </View>
                     </View>
-                    {/* </ScrollView> */}
-                </SafeAreaView>
+                </ScrollView>
             </RNLinearGradient>
-             
+
         );
-      
+
     }
 }
 
 const styles = StyleSheet.create({
     Text: {
-    color: '#FFFFFF', 
-    fontSize: 16,    
-    fontWeight: '500', 
-    fontFamily: 'Arial', 
-    textShadowColor: 'rgba(0, 0, 0, 0.75)', 
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 1,
-    padding: 5, 
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '500',
+        fontFamily: 'Arial',
+        textShadowColor: 'rgba(0, 0, 0, 0.75)',
+        textShadowOffset: {width: -1, height: 1},
+        textShadowRadius: 1,
+        padding: 5,
     },
     upcomingOverdrafts: {
         width: '90%',
@@ -371,7 +380,7 @@ const styles = StyleSheet.create({
     },
     lineChartContainer: {
         width: '90%',
-        height: 250,
+        height: 'auto',
         borderRadius: 8,
         backgroundColor: '#13181d',
         marginTop: 16,
@@ -389,8 +398,6 @@ const styles = StyleSheet.create({
         height: '100%'
     },
     body: {
-        width: '100%',
-        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
