@@ -80,7 +80,7 @@ class PlaidHandler {
                 itemId: response.data.item_id}
         }
         catch (error) {
-            // handle error using PlaidAPI specific error handeling
+            // handle error using PlaidAPI error codes
             if(error.response && error.response.data){
                 const plaidError = error.response.data;
 
@@ -94,6 +94,59 @@ class PlaidHandler {
             throw error;
         }
     }
+
+//Method to get transactions from plaids API
+    async getTransactions(accessToken, startDate, endDate){
+        try{
+            const response = await this.#client.transactionsGet({
+                access_token: accessToken,
+                start_date: startDate,
+                end_date: endDate,
+            });
+            return response.data;
+        }
+        catch(error){
+            //handle error 
+            console.error('Plaid getTransactions error:', error);
+            throw error;
+        }
+    }
+
+//Method to get recurring transactions from plaids API
+    async getRecurringTransactions(accessToken, startDate, endDate){
+        try{
+            const response = await this.#client.transactionsGet({
+                access_token: accessToken,
+                start_date: startDate,
+                end_date: endDate,
+                count: 500,
+                offset: 0,
+            });
+            return response.data;
+        }
+        catch(error){
+            //handle error
+            console.error('Plaid getRecurringTransactions error:', error);
+            throw error;
+        }
+    }
+
+    //a method to sync transactions from plaid to the database
+    async syncTransactions(userId, startDate, endDate, accessToken){
+        try{
+            //get transactions from plaid
+            const transactions = await this.getTransactions(accessToken, startDate, endDate);
+            //get recurring transactions from plaid
+            const recurringTransactions = await this.getRecurringTransactions(accessToken, startDate, endDate);
+            //return the transactions and recurring transactions
+            return {transactions, recurringTransactions};
+        }
+        catch(error){
+            console.error('Syncing Transactions error:', error);
+            throw error;
+        }
+    }
+
 //Method to delete the plaid account
     async deleteAccount(accessToken){
         try{

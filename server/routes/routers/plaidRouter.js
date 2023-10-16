@@ -50,4 +50,51 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
     }
 })
 
+plaidRouter.post('/getTransactions', async (req,res) => {
+    const accessToken = req.body.accessToken;
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
+    try {
+        const response = await plaidHandler.getTransactions(accessToken, startDate, endDate);
+        res.json(response);
+    }
+    catch (error) {
+        // handle error for getTransactions
+        console.error('Retreving Transactions error:', error);
+        throw error;
+    }
+});
+
+plaidRouter.post('/getrecurringTransactions', async (req,res) => {
+    const accessToken = req.body.accessToken;
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
+    try {
+        const response = await plaidHandler.getRecurringTransactions(accessToken, startDate, endDate);
+        res.json(response);
+    }
+    catch (error) {
+        // handle error for getRecurringTransactions
+        console.error('Retreving Recurring Transactions error:', error);
+        throw error;
+    }
+});
+
+//method to get sync transactions from plaid to the database
+plaidRouter.post('/syncTransactions', async (req,res) => {
+    const userId = req.body.userId;
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
+    const accessToken = req.body.accessToken;
+    try {
+        const response = await plaidHandler.syncTransactions(userId, startDate, endDate, accessToken);
+        res.json(response);
+    }
+    catch (error) {
+        // handle error for syncTransactions
+        console.error('Syncing Transactions error:', error);
+        throw error;
+    }
+});
+
 export {plaidRouter};
