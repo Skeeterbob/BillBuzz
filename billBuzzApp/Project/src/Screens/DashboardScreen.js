@@ -1,5 +1,5 @@
 import React from "react";
-import { LineChart } from 'react-native-chart-kit';
+import { BarChart, LineChart} from 'react-native-chart-kit';
 import { Dimensions, ScrollView } from 'react-native';
 import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal } from "react-native";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
@@ -58,7 +58,7 @@ class DashboardScreen extends React.Component {
         weeklyData: [    // Weekly data example, replace with your own data
             {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{ data: [200, 50, 100, 25, 10, 35, 10] }]
+                datasets: [{ data: [15, 50, 100, 25, 200, 35, 10] }]
             },
             // ... more weeks data
         ]
@@ -148,7 +148,7 @@ class DashboardScreen extends React.Component {
                         </View>
 
                         <TouchableOpacity onPress={this.handleToggleExpand}>
-                            <LineChart
+                            <BarChart
                                 data={weeklyData[currentWeek]}
                                 width={Dimensions.get('window').width - 50} // from react-native
                                 animationType="fade"
