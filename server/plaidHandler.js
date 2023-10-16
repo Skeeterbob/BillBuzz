@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 
 //load environment variables from .env
-dotenv.config('../.env');
+dotenv.config();
 
 class PlaidHandler {
     #client;
@@ -105,6 +105,21 @@ class PlaidHandler {
         catch(error){
             console.error('Plaid deleteAccount error:', error);
             throw error;
+        }
+    }
+
+    async getAccounts(accessToken) {
+        const request = {
+            access_token: accessToken,
+        };
+        try {
+            const response = await this.#client.accountsGet(request);
+            console.log('response in getAccounts: ', response.data.accounts);
+            const accounts = response.data.accounts;
+            return accounts;
+        }
+        catch (error) {
+            //error handling
         }
     }
 };
