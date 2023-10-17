@@ -45,7 +45,7 @@ const App = () => {
 }
 
 const AppMain = ({navigation, route}) => (
-    <MainStack.Navigator initialRouteName={'AppHome'} >
+    <MainStack.Navigator>
         <MainStack.Screen
             name={'Dashboard'}
             component={DashboardScreen}

@@ -35,6 +35,21 @@ loginRouter.post('/verify', async (req, res) => {
     }
 });
 
+loginRouter.post('/getUser', async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+    if (!email || !password) {
+        return res.status(400).json({"error":'Email and Password fields are required'});
+    }
+
+    const result = await dBHandler.getUser(email);
+    if (result.getPassword() !== password) {
+        return res.status(401).json({'error': 'Invalid password'});
+    }
+
+    return res.status(200).json(JSON.parse(result.toJSONString()));
+});
+
 loginRouter.post('/verify/sms', async(req,res)=>{
     try{
         const phNum = req.body.phNum;
@@ -43,7 +58,10 @@ loginRouter.post('/verify/sms', async(req,res)=>{
 
         if(await twilioHandler.validateSMSCode('+1'+ phNum, code)){
             //let token = authHandler.createToken(id);
-            let result = {"validate":true};
+            const user = req
+            let result = {
+                "validate" : true
+            };
             res.status(200).json(result);
         }
         else{

@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import Logo from "../../assets/images/bee_logo.png";
+import {inject, observer} from "mobx-react";
 
 class ConfirmCodeScreen extends React.Component {
 
@@ -23,7 +24,7 @@ class ConfirmCodeScreen extends React.Component {
     verifyCode = () => {
         const {code} = this.state;
 
-        fetch('http://192.168.56.1:3000/login/verify/sms', {
+        fetch('http://192.168.1.46:3000/login/verify/sms', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -33,20 +34,35 @@ class ConfirmCodeScreen extends React.Component {
                 phNum: this.props.route.params.phoneNumber,
                 code
             })
-        }).then(data => data.json())
+        })
+            .then(data => data.json())
             .then(data => {
-                
                 if (data['validate'] === true) {
-                    this.props.navigation.navigate({
-                        name: 'AppMain',
-                        params: {
-                            email: this.props.route.params.email,
-                            password: this.props.route.params.password
-                        }
-                    })
+                    const email = this.props.route.params.email;
+                    const password = this.props.route.params.password;
+                    this.getUserData(email, password).then(userData => {
+                        this.props.userStore.updateUser(userData);
+                        this.props.navigation.navigate({
+                            name: 'AppMain'
+                        })
+                    });
                 }
             })
             .catch(console.error)
+    }
+
+    getUserData = async (email, password) => {
+        return await fetch('http://192.168.1.46:3000/login/getuser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        }).then(data => data.json()).catch(console.error);
     }
 
     render() {
@@ -189,4 +205,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ConfirmCodeScreen;
+export default inject('userStore')(observer(ConfirmCodeScreen));

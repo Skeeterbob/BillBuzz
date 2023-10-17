@@ -1,52 +1,24 @@
 import React from "react";
-import { BarChart, LineChart} from 'react-native-chart-kit';
-import { Dimensions, ScrollView } from 'react-native';
-import { Platform, SafeAreaView, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal } from "react-native";
-import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
+import {BarChart, LineChart} from 'react-native-chart-kit';
+import {Dimensions, ScrollView} from 'react-native';
+import {Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View, Modal} from "react-native";
+import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
-import HexagonComponent from "../Components/HexagonComponent";
+import {inject, observer} from "mobx-react";
 
-
-const MOCK_DATA = {
-    firstName: 'Hadi',
-    lastName: 'Ghaddar',
-    balance: 24846.12,
-    availableCredit: 8453.54,
-    creditBalance: 12642.64,
-    transactions: [
-        {
-            name: 'Netflix',
-            amountDue: 17.99
-        },
-        {
-            name: 'Starbucks',
-            amountDue: 8.54
-        },
-        {
-            name: 'Hulu',
-            amountDue: 12.99
-        }
-    ],
-    upcomingOverdrafts: [
-        {
-            name: 'Utility Bill',
-            dueDate: '10/15/2023',
-            amountDue: 50.00
-        },
-        {
-            name: 'Phone Bill',
-            dueDate: '10/20/2023',
-            amountDue: 30.00
-        },
-        // Add more overdrafts as needed
-    ],
-    creditCard: {
-        name: 'American Express',
-        dueDate: '10/22/2023',
-        amountDue: 321.54
-    }
-
-}
+const upcomingOverdrafts = [
+    {
+        name: 'Utility Bill',
+        dueDate: '10/15/2023',
+        amountDue: 50.00
+    },
+    {
+        name: 'Phone Bill',
+        dueDate: '10/20/2023',
+        amountDue: 30.00
+    },
+    // Add more overdrafts as needed
+];
 
 class DashboardScreen extends React.Component {
 
@@ -58,48 +30,72 @@ class DashboardScreen extends React.Component {
         weeklyData: [    // Weekly data example, replace with your own data
             {
                 labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{ data: [15, 50, 100, 25, 200, 35, 10] }]
+                datasets: [{data: [15, 50, 100, 25, 200, 35, 10]}]
             },
             // ... more weeks data
         ]
     };
 
     toggleTransactions = () => {
-        this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
+        this.setState(prevState => ({showTransactions: !prevState.showTransactions}));
     };
 
     toggleOverdrafts = () => {
-        this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
+        this.setState(prevState => ({showOverdrafts: !prevState.showOverdrafts}));
     };
     prevWeek = () => {  // Go to the previous week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek - 1 }));
+        this.setState(prevState => ({currentWeek: prevState.currentWeek - 1}));
     }
 
     nextWeek = () => {  // Go to the next week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek + 1 }));
+        this.setState(prevState => ({currentWeek: prevState.currentWeek + 1}));
     }
 
     handleToggleExpand = () => {
-        this.setState(prevState => ({ expanded: !prevState.expanded }));
+        this.setState(prevState => ({expanded: !prevState.expanded}));
     };
 
     render() {
+        const {currentWeek, weeklyData, expanded} = this.state;
+        const user = this.props.userStore;
+        const transactions = [
+            {
+                name: 'Netflix',
+                amount: 17.99
+            },
+            {
+                name: 'Starbucks',
+                amount: 8.54
+            },
+            {
+                name: 'Hulu',
+                amount: 12.99
+            }
+        ];
+        const creditCard = user.accountList[0] ?? {name: 'TEst Data', balance: 0};
 
-        const { currentWeek, weeklyData, expanded } = this.state;
+        user.accountList.forEach(account => {
+            account.transactionList.transactionList.forEach(transaction => {
+                transactions.push({
+                    name: transaction.vendor,
+                    amount: transaction.amount
+                })
+            })
+        });
 
         return (
             <RNLinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
                 locations={[0, 0.2, 0.4, 0.8, 1]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ backgroundColor: '#0B0D10' }}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+                style={{backgroundColor: '#0B0D10', width: '100%', height: '100%'}}
             >
 
                 <View style={styles.addAccount}>
                     {/*TODO: Make this button work with plaid to add a new account*/}
                     <TouchableOpacity>
-                        <Icon name={'add'} size={48} color={'#000000'} />
+                        <Icon name={'add'} size={48} color={'#000000'}/>
                     </TouchableOpacity>
                 </View>
 
@@ -109,22 +105,22 @@ class DashboardScreen extends React.Component {
                             this.props.navigation.navigate('Accounts');
                         }}
                     >
-                        <Icon name={'card'} size={32} color={'#000000'} />
+                        <Icon name={'card'} size={32} color={'#000000'}/>
                     </TouchableOpacity>
                 </View>
 
                 <ScrollView contentContainerStyle={styles.body}>
                     <View style={styles.headerInfo}>
                         <Text
-                            style={styles.welcomeText}>{`Hello ${MOCK_DATA.firstName} ${MOCK_DATA.lastName}!`}</Text>
+                            style={styles.welcomeText}>{`Hello ${user.firstName} ${user.lastName}!`}</Text>
 
                         <TouchableOpacity
                             style={styles.profileButton}
                             onPress={() => {
-                                this.props.navigation.navigate('Profile');
+                                this.props.navigation.push('Profile');
                             }}
                         >
-                            <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'} />
+                            <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'}/>
                         </TouchableOpacity>
                     </View>
 
@@ -135,7 +131,7 @@ class DashboardScreen extends React.Component {
 
                         <View style={styles.weeklyView}>
                             <TouchableOpacity>
-                                <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                                <Icon name={'arrow-back'} size={32} color={'#FFFFFF'}/>
                             </TouchableOpacity>
 
                             <View>
@@ -143,7 +139,7 @@ class DashboardScreen extends React.Component {
                             </View>
 
                             <TouchableOpacity>
-                                <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
+                                <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'}/>
                             </TouchableOpacity>
                         </View>
 
@@ -227,8 +223,8 @@ class DashboardScreen extends React.Component {
                                             borderRadius: 16,
                                         }}
                                     />
-                                    <TouchableOpacity style={{ alignSelf: 'flex-end', marginTop: 10 }}
-                                        onPress={this.handleToggleExpand}>
+                                    <TouchableOpacity style={{alignSelf: 'flex-end', marginTop: 10}}
+                                                      onPress={this.handleToggleExpand}>
                                         <Text style={styles.Text}>Close</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -243,22 +239,23 @@ class DashboardScreen extends React.Component {
 
                         <View style={styles.summaryDetails}>
                             <Text style={styles.detailsText}>Total Bank Balance: <Text
-                                style={styles.detailsInfoText}>${MOCK_DATA.balance}</Text></Text>
+                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
                             <Text style={styles.detailsText}>Total Available Credit: <Text
-                                style={styles.detailsInfoText}>${MOCK_DATA.availableCredit}</Text></Text>
+                                style={styles.detailsInfoText}>${user.availableCredit}</Text></Text>
+                            {/*TODO: Figure out what total credit balance is*/}
                             <Text style={styles.detailsText}>Total Credit Balance: <Text
-                                style={styles.detailsInfoText}>${MOCK_DATA.creditBalance}</Text></Text>
+                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
                         </View>
 
                         <Text style={styles.recentTransactionsText}>Recent Transactions</Text>
                         <View style={styles.summaryCards}>
-                            {MOCK_DATA.transactions.map(card => (
+                            {transactions.map(transaction => (
                                 <View
-                                    key={card.name}
+                                    key={transaction.name}
                                     style={styles.summardCard}
                                 >
-                                    <Text style={styles.creditCardText}>{card.name}</Text>
-                                    <Text style={styles.creditCardText}>${card.amountDue}</Text>
+                                    <Text style={styles.creditCardText}>{transaction.name}</Text>
+                                    <Text style={styles.creditCardText}>${transaction.amount}</Text>
                                 </View>
                             ))}
                         </View>
@@ -279,7 +276,7 @@ class DashboardScreen extends React.Component {
                         </View>
 
                         <View style={styles.upcomingOverdraftsDetails}>
-                            {MOCK_DATA.upcomingOverdrafts.map((overdraft, index) => (
+                            {upcomingOverdrafts.map((overdraft, index) => (
                                 <View key={index} style={styles.overdraftTextContainer}>
                                     <Text style={styles.overdraftText}>{overdraft.name}</Text>
                                     <Text style={styles.overdraftText}>{overdraft.dueDate}</Text>
@@ -289,17 +286,18 @@ class DashboardScreen extends React.Component {
                         </View>
                     </View>
 
-                    <View style={styles.upcomingPayment}>
+                    {creditCard ? <View style={styles.upcomingPayment}>
                         <View style={styles.upcomingPaymentHeader}>
                             <Text style={styles.upcomingPaymentTitle}>Upcoming Card Payment</Text>
                         </View>
 
                         <View style={styles.upcomingPaymentDetails}>
-                            <Text style={styles.paymentText}>{MOCK_DATA.creditCard.name}</Text>
-                            <Text style={styles.paymentText}>{MOCK_DATA.creditCard.dueDate}</Text>
-                            <Text style={styles.paymentText}>${MOCK_DATA.creditCard.amountDue}</Text>
+                            <Text style={styles.paymentText}>{creditCard.name}</Text>
+                            {/*//TODO: The account on the backend doesn't have a due date field*/}
+                            <Text style={styles.paymentText}>{'N/A'}</Text>
+                            <Text style={styles.paymentText}>${creditCard.balance}</Text>
                         </View>
-                    </View>
+                    </View> : undefined}
                 </ScrollView>
             </RNLinearGradient>
 
@@ -315,7 +313,7 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontFamily: 'Arial',
         textShadowColor: 'rgba(0, 0, 0, 0.75)',
-        textShadowOffset: { width: -1, height: 1 },
+        textShadowOffset: {width: -1, height: 1},
         textShadowRadius: 1,
         padding: 5,
     },
@@ -602,4 +600,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default DashboardScreen;
+export default inject('userStore')(observer(DashboardScreen));

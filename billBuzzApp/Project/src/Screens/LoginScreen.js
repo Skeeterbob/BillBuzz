@@ -39,7 +39,7 @@ class LoginScreen extends React.Component {
         }
         this.setState({ loading: true });
 
-        fetch('http://192.168.56.1:3000/login/verify', {
+        fetch('http://192.168.1.46:3000/login/verify', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -62,11 +62,10 @@ class LoginScreen extends React.Component {
                 })
             })
             .catch((error) => {
-                alert('Invalid email or password. Please try again.');
-            })
-            .finally(() => {
+                this.showError('Invalid email or password. Please try again.');
+                console.log(error)
                 this.setState({ loading: false });
-            });
+            })
     };
 
     showError = (message) => {

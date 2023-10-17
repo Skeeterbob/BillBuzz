@@ -11,19 +11,16 @@ import {
     TouchableOpacity,
     ScrollView
 } from "react-native";
+import {inject, observer} from "mobx-react";
 
-const MOCK_USER = {
-    firstName: 'Hadi',
-    lastName: 'Ghaddar',
-    email: 'hadimghaddar@gmail.com',
-    birthday: '09/10/2001',
-    phoneNumber: '+1 (313) 421-6784',
-    profilePicture: 'https://i.pinimg.com/736x/03/4b/de/034bde783ea726b922100c86547831e8.jpg'
-};
+const profilePicture = 'https://i.pinimg.com/736x/03/4b/de/034bde783ea726b922100c86547831e8.jpg';
 
 class ProfileScreen extends React.Component {
 
     render() {
+        const user = this.props.userStore;
+        const date = new Date(user.birthday);
+
         return (
             <LinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
@@ -34,19 +31,19 @@ class ProfileScreen extends React.Component {
             >
                 <ScrollView style={styles.body}>
                     <View style={styles.profileIntro}>
-                        <Image style={styles.profileImage} source={{uri: MOCK_USER.profilePicture}} resizeMode={"cover"}/>
+                        <Image style={styles.profileImage} source={{uri: profilePicture}} resizeMode={"cover"}/>
                         <Text style={styles.nameHeading}>
-                            {`${MOCK_USER.firstName} ${MOCK_USER.lastName}`}
+                            {`${user.firstName} ${user.lastName}`}
                         </Text>
                     </View>
 
                     <View style={styles.profileOptions}>
                         <Text style={styles.categoryHeader}>Profile Info</Text>
                         <View style={styles.category}>
-                            <TextInput style={{...styles.dataInput, borderTopWidth: 2}} value={`${MOCK_USER.firstName} ${MOCK_USER.lastName}`} editable={false} />
-                            <TextInput style={styles.dataInput} value={MOCK_USER.birthday} editable={false} />
-                            <TextInput style={styles.dataInput} value={MOCK_USER.email} editable={false} />
-                            <TextInput style={styles.dataInput} value={MOCK_USER.phoneNumber} editable={false} />
+                            <TextInput style={{...styles.dataInput, borderTopWidth: 2}} value={`${user.firstName} ${user.lastName}`} editable={false} />
+                            <TextInput style={styles.dataInput} value={`${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`} editable={false} />
+                            <TextInput style={styles.dataInput} value={user.email} editable={false} />
+                            <TextInput style={styles.dataInput} value={user.phoneNumber} editable={false} />
                         </View>
 
                         <Text style={styles.categoryHeader}>Legal</Text>
@@ -162,4 +159,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ProfileScreen;
+export default inject('userStore')(observer(ProfileScreen));
