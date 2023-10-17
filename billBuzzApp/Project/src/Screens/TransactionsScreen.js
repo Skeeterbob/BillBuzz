@@ -7,7 +7,7 @@ const TransactionScreen = () => {
 
     useEffect(() => {
 
-        fetch('YOUR_BACKEND_ENDPOINT_URL')
+        fetch('url here')
             .then(response => response.json())
             .then(transactions => {
                 const groupedTransactions = transactions.reduce((acc, cur) => {
