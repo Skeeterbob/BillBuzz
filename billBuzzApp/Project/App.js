@@ -29,13 +29,13 @@ const App = () => {
                 <AppStack.Navigator initialRouteName={'AppWelcome'}>
                     <AppStack.Screen
                         name={'AppMain'}
-                        component={AppWelcome}
+                        component={AppMain}
                         options={{headerShown: false}}
                     />
 
                     <AppStack.Screen
                         name={'AppWelcome'}
-                        component={AppMain}
+                        component={AppWelcome}
                         options={{headerShown: false}}
                     />
                 </AppStack.Navigator>
