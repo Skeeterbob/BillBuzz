@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SectionList } from 'react-native';
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 
+
+
 const TransactionScreen = () => {
     const [data, setData] = useState([]);
 
@@ -34,6 +36,9 @@ const TransactionScreen = () => {
             end={{ x: 1, y: 1 }}
             style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
         >
+            <View style={styles.summaryHeader}>
+                <Text style={styles.lineChartTitle}>Recent Transactions</Text>
+            </View>
             <SectionList
                 sections={data}
                 keyExtractor={(item, index) => item + index}
@@ -63,12 +68,28 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
     },
+    lineChartTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF',
+        marginBottom: 8,
+    },
     header: {
         fontSize: 16,
         fontWeight: 'bold',
         backgroundColor: 'rgba(221, 221, 221, 0.5)', // semi-transparent background for headers
         padding: 10,
         marginTop: 10,
+    },
+    summaryHeader: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#FFFFFF',
+        borderBottomWidth: 2,
+        paddingTop: 40,
     },
     debit: {
         color: 'red',
