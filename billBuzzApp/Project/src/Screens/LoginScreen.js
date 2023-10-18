@@ -20,6 +20,7 @@ import {SERVER_ENDPOINT} from "@env";
 
 class LoginScreen extends React.Component {
 
+    
     state = {
         email: '',
         password: '',
@@ -136,9 +137,7 @@ class LoginScreen extends React.Component {
                             <View style={styles.subLoginContent}>
                                 <Text
                                     style={styles.forgotPassText}
-                                    onPress={() => {
-                                        console.log("Forgot password clicked, need to implement this");
-                                    }}
+                                    onPress={() => this.props.navigation.navigate('ForgotPassword')}
                                 >
                                     Forgot Password? Reset Here.
                                 </Text>
