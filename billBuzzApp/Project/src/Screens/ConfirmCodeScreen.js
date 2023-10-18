@@ -13,8 +13,9 @@ import {
 import LinearGradient from "react-native-linear-gradient";
 import Logo from "../../assets/images/bee_logo.png";
 import {inject, observer} from "mobx-react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import {SERVER_ENDPOINT } from "@env";
+import {SERVER_ENDPOINT} from "@env";
 class ConfirmCodeScreen extends React.Component {
 
     state = {
@@ -41,7 +42,9 @@ class ConfirmCodeScreen extends React.Component {
                 if (data['validate'] === true) {
                     const email = this.props.route.params.email;
                     const password = this.props.route.params.password;
-                    this.getUserData(email, password).then(userData => {
+                    this.getUserData(email, password).then(async userData => {
+                        await AsyncStorage.setItem('user', JSON.stringify({email, password}));
+
                         this.props.userStore.updateUser(userData);
                         this.props.navigation.navigate({
                             name: 'AppMain'

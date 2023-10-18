@@ -1,7 +1,8 @@
 import React from "react";
-import {View, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions} from "react-native";
+import {View, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions, Platform, StatusBar} from "react-native";
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import HexagonComponent from "../Components/HexagonComponent";
+import Icon from "react-native-vector-icons/Ionicons";
 
 const MOCK_TRANSACTIONS = [
     {
@@ -110,9 +111,16 @@ class AccountsScreen extends React.Component {
                 locations={[0, 0.2, 0.4, 0.8, 1]}
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 1}}
-                style={{backgroundColor: '#0B0D10'}}
+                style={{backgroundColor: '#0B0D10', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0}}
             >
                 <ScrollView style={styles.body}>
+                    <View style={styles.pageHeader}>
+                        <TouchableOpacity style={styles.backButton} onPress={() => this.props.navigation.goBack(null)}>
+                            <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                        </TouchableOpacity>
+                        <Text style={styles.backText}>Back</Text>
+                    </View>
+
                     <View style={styles.dashboardTop}>
                         <HexagonComponent size={hexagonSize}>
                             <Text style={{color: '#FFFFFF', fontWeight: 'bold', fontSize: 32}}>${balance}</Text>
@@ -277,6 +285,29 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between'
+    },
+    pageHeader: {
+        width: '100%',
+        height: 'auto',
+        paddingLeft: 8,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#F4CE82',
+        borderRadius: 25
+    },
+    backText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold'
     }
 });
 

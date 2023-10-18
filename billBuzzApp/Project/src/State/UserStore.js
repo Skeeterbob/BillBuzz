@@ -22,7 +22,8 @@ class UserStore {
             bankBalance: observable,
             availableCredit: observable,
             accountList: observable,
-            updateUser: action
+            updateUser: action,
+            clearUser: action
         });
     }
 
@@ -36,6 +37,18 @@ class UserStore {
         this.bankBalance = user.bankBalance;
         this.availableCredit = user.availableCredit;
         this.accountList = user.accountList;
+    }
+
+    clearUser() {
+        this.email = '';
+        this.password = '';
+        this.firstName = '';
+        this.lastName = '';
+        this.birthday = '';
+        this.phoneNumber = '';
+        this.bankBalance = 0;
+        this.availableCredit = 0;
+        this.accountList = [];
     }
 }
 

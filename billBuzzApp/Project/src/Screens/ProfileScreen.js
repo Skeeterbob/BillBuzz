@@ -12,6 +12,8 @@ import {
     ScrollView
 } from "react-native";
 import {inject, observer} from "mobx-react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import Icon from "react-native-vector-icons/Ionicons";
 
 const profilePicture = 'https://i.pinimg.com/736x/03/4b/de/034bde783ea726b922100c86547831e8.jpg';
 
@@ -30,6 +32,13 @@ class ProfileScreen extends React.Component {
                 style={{backgroundColor: '#0B0D10'}}
             >
                 <ScrollView style={styles.body}>
+                    <View style={styles.pageHeader}>
+                        <TouchableOpacity style={styles.backButton} onPress={() => this.props.navigation.goBack(null)}>
+                            <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                        </TouchableOpacity>
+                        <Text style={styles.backText}>Back</Text>
+                    </View>
+
                     <View style={styles.profileIntro}>
                         <Image style={styles.profileImage} source={{uri: profilePicture}} resizeMode={"cover"}/>
                         <Text style={styles.nameHeading}>
@@ -55,7 +64,16 @@ class ProfileScreen extends React.Component {
                         <Text style={styles.categoryHeader}>Account</Text>
                         <View style={styles.category}>
                             <TouchableOpacity style={{...styles.settingsBtn, borderTopWidth: 2}}><Text style={styles.importantText}>Delete User Account</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.settingsBtn}><Text style={styles.importantText}>Log Out</Text></TouchableOpacity>
+                            <TouchableOpacity style={styles.settingsBtn} onPress={() => {
+                                this.props.userStore.clearUser();
+                                AsyncStorage.removeItem('user').then(() => {
+                                    this.props.navigation.navigate({
+                                        name: 'AppWelcome'
+                                    });
+                                });
+                            }}>
+                                <Text style={styles.importantText}>Log Out</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 </ScrollView>
@@ -157,6 +175,29 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold'
     },
+    pageHeader: {
+        width: '100%',
+        height: 'auto',
+        paddingLeft: 8,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#F4CE82',
+        borderRadius: 25
+    },
+    backText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold'
+    }
 });
 
 export default inject('userStore')(observer(ProfileScreen));
