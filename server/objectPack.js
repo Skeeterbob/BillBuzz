@@ -153,6 +153,7 @@ class Account {
     #name;
     #balance;
     #transactionList;
+    #accessToken;
     #variableList = ['id', 'name', 'balance', 'transactionList'];
 
     constructor(data) {
@@ -174,6 +175,7 @@ class Account {
             this.#name = data["name"];
             this.#balance = data["balance"];
             this.#transactionList = new TransactionList(data["transactionList"]);
+            this.#accessToken = data["accessToken"];
         }
         catch (err){
             console.log(err);
@@ -232,6 +234,10 @@ class Account {
 
     getTransactionList() {
         return this.#transactionList;
+    }
+
+    getAccessToken() {
+        return this.#accessToken;
     }
 }
 
