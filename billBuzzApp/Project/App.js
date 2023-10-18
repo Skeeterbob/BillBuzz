@@ -29,73 +29,77 @@ import AnimatedSplashScreen from "./src/Components/AnimatedSplashScreen";
 
 class App extends React.Component {
 
-    // state = {
-    //     loaded: false
-    // }
+    state = {
+        loaded: false
+    }
 
-    // componentDidMount() {
-    //     this.getUserCredentials().then(user => {
-    //         if (user) {
-    //             try {
-    //                 this.getUserData(user.email, user.password).then(userData => {
-    //                     this.props.userStore.updateUser(userData);
-    //                     this.setState({loaded: true});
-    //                 });
-    //             } catch (e) {
-    //                 AsyncStorage.removeItem('user').then(() => {
-    //                     this.setState({loaded: true});
-    //                 });
-    //             }
-    //         }
-    //     });
-    // }
+    componentDidMount() {
+        this.getUserCredentials().then(user => {
+            if  (user) {
+                try {
+                    this.getUserData(user.email, user.password).then(userData => {
+                        this.props.userStore.updateUser(userData);
+                        this.setState({loaded: true});
+                        
+                    });
+                } catch (e) {
+                    AsyncStorage.removeItem('user').then(() => {
+                        this.setState({loaded: true});
+                    });
+                }
+            } else{
+                this.setState({loaded: true});
+            }
 
-    // getUserData = async (email, password) => {
-    //     return await fetch(SERVER_ENDPOINT + '/login/getuser', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             'Accept': 'application/json'
-    //         },
-    //         body: JSON.stringify({
-    //             email,
-    //             password
-    //         })
-    //     }).then(data => data.json()).catch(console.error);
-    // };
+        });
+    }
 
-    // getUserCredentials = async () => {
-    //     return AsyncStorage.getItem('user').then(result => {
-    //         return result ? JSON.parse(result) : null;
-    //     });
-    // };
+    getUserData = async (email, password) => {
+        return await fetch(SERVER_ENDPOINT + '/login/getuser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        }).then(data => data.json()).catch(console.error);
+    };
+
+    getUserCredentials = async () => {
+        return AsyncStorage.getItem('user').then(result => {
+            return result ? JSON.parse(result) : null;
+        });
+    };
 
     render() {
-        // const {loaded} = this.state;
+        const {loaded} = this.state;
 
-        // if (!loaded) {
-        //     return (
-        //         <>
-        //             <StatusBar translucent={true} backgroundColor={'transparent'} />
-        //             <AnimatedSplashScreen
-        //                 loaded={loaded}
-        //                 backgroundColor="#202125"
-        //                 logoWidth={256}
-        //                 logoHeight={256}
-        //             />
-        //         </>
-        //     );
-        // }
+        if (!loaded) {
+            return (
+                <>
+                    <StatusBar translucent={true} backgroundColor={'transparent'} />
+                    <AnimatedSplashScreen
+                        loaded={loaded}
+                        backgroundColor="#202125"
+                        logoWidth={256}
+                        logoHeight={256}
+                    />
+                </>
+            );
+        }
 
         return (
-            // <>
-            //     <StatusBar translucent={true} backgroundColor={'transparent'}/>
-            //     <AnimatedSplashScreen
-            //         loaded={loaded}
-            //         backgroundColor="#202125"
-            //         logoWidth={256}
-            //         logoHeight={256}
-            //     />
+            <>
+                <StatusBar translucent={true} backgroundColor={'transparent'}/>
+                <AnimatedSplashScreen
+                    loaded={loaded}
+                    backgroundColor="#202125"
+                    logoWidth={256}
+                    logoHeight={256}
+                />
 
             <NavigationContainer>
                 <AppStack.Navigator initialRouteName={this.props.userStore.email ? 'AppMain' : 'AppWelcome'}>
@@ -112,7 +116,7 @@ class App extends React.Component {
                     />
                 </AppStack.Navigator>
             </NavigationContainer>
-            // </>
+            </>
         );
     }
 }
