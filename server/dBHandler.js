@@ -100,7 +100,7 @@ class DBHandler {
                 //Encrypt the email so that we can search for it in the database
                 const encryptedEmail = await this.#encryption.encryptString(email,id);
                 //Retrieve the user from the database, all the data would be encrypted
-                const encryptedUser = await this.#usersCollection.findOne({email: encryptedEmail});
+                const encryptedUser = await this.#usersCollection.findOne({'email': encryptedEmail});
                 //Return the user's properties decrypted so that we can actually read them
                 return await this.#encryption.decryptUser(encryptedUser,id);
             }
@@ -126,17 +126,18 @@ class DBHandler {
             const encryptedEmail = await this.#encryption.encryptString(email,id);
             const encryptedPassword = await this.#encryption.encryptString(password,id);
             const result = await this.#usersCollection.findOne({"email":encryptedEmail});
-            let phNum = result['phoneNumber'];
-            retVal["phoneNumber"] = await this.#encryption.decryptString(phNum,id);
-            retVal["validate"] = true;
-            retVal['id'] = result['_id']
-          
-            console.log(result);
-            return retVal;
+            if (result) {
+                let phNum = result['phoneNumber'];
+                retVal["phoneNumber"] = await this.#encryption.decryptString(phNum,id);
+                retVal["validate"] = true;
+                retVal['id'] = result['_id']
+
+                console.log(result);
+                return retVal;
+            }
         }
-        else {
-            return retVal["validate"] = false;
-        }        
+
+        return retVal["validate"] = false;
     }
 
     //private function to return the keyId for encryption from the other collection

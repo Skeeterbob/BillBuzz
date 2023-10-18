@@ -1,41 +1,162 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
 import React from 'react';
-import { ImageBackground, StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import {StatusBar} from 'react-native';
 
-import Navigation from './src/Navigation/index';
+import {createNativeStackNavigator} from "@react-navigation/native-stack";
+import {NavigationContainer} from "@react-navigation/native";
+import CardDetailScreen from './src/Screens/CardDetailScreen';
+import LoginScreen from "./src/Screens/LoginScreen";
+import RegisterScreen from "./src/Screens/RegisterScreen";
+import ConfirmCodeScreen from "./src/Screens/ConfirmCodeScreen";
+import DashboardScreen from "./src/Screens/DashboardScreen";
+import AccountsScreen from "./src/Screens/AccountsScreen";
+import ProfileScreen from "./src/Screens/ProfileScreen";
+import RegisterInfoScreen from "./src/Screens/RegisterInfoScreen";
+import TransactionScreen from "./src/Screens/TransactionsScreen";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {inject, observer} from "mobx-react";
 
+//The main app stack navigator used to hold all the other navigators
+const AppStack = createNativeStackNavigator();
+//Used for welcome, login, signup, and sms verification screens
+const WelcomeStack = createNativeStackNavigator();
+//Used for all the main app navigation: home, dashboard, settings, etc
+const MainStack = createNativeStackNavigator();
 
+import {SERVER_ENDPOINT} from "@env";
+import AnimatedSplashScreen from "./src/Components/AnimatedSplashScreen";
 
-const App = () => {
+class App extends React.Component {
 
-  return (
-    <SafeAreaView style={styles.root}>
-        
-    
-      <Navigation/>
-    </SafeAreaView>
-  );
+    state = {
+        loaded: false
+    }
+
+    componentDidMount() {
+        this.getUserCredentials().then(user => {
+            if (user) {
+                try {
+                    this.getUserData(user.email, user.password).then(userData => {
+                        this.props.userStore.updateUser(userData);
+                        this.setState({loaded: true});
+                    });
+                } catch (e) {
+                    AsyncStorage.removeItem('user').then(() => {
+                        this.setState({loaded: true});
+                    });
+                }
+            }
+        });
+    }
+
+    getUserData = async (email, password) => {
+        return await fetch(SERVER_ENDPOINT + '/login/getuser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        }).then(data => data.json()).catch(console.error);
+    };
+
+    getUserCredentials = async () => {
+        return AsyncStorage.getItem('user').then(result => {
+            return result ? JSON.parse(result) : null;
+        });
+    };
+
+    render() {
+        const {loaded} = this.state;
+
+        if (!loaded) {
+            return (
+                <>
+                    <StatusBar translucent={true} backgroundColor={'transparent'} />
+                    <AnimatedSplashScreen
+                        loaded={loaded}
+                        backgroundColor="#202125"
+                        logoWidth={256}
+                        logoHeight={256}
+                    />
+                </>
+            );
+        }
+
+        return (
+            <>
+                <StatusBar translucent={true} backgroundColor={'transparent'}/>
+                <AnimatedSplashScreen
+                    loaded={loaded}
+                    backgroundColor="#202125"
+                    logoWidth={256}
+                    logoHeight={256}
+                />
+
+                <NavigationContainer>
+                    <AppStack.Navigator initialRouteName={this.props.userStore.email ? 'AppMain' : 'AppWelcome'}>
+                        <AppStack.Screen
+                            name={'AppWelcome'}
+                            component={AppWelcome}
+                            options={{headerShown: false}}
+                        />
+
+                        <AppStack.Screen
+                            name={'AppMain'}
+                            component={AppMain}
+                            options={{headerShown: false}}
+                        />
+                    </AppStack.Navigator>
+                </NavigationContainer>
+            </>
+        );
+    }
 }
 
-const styles = StyleSheet.create({
- root:{
-flex: 2,
-backgroundColor: "#FAE526",
+const AppMain = ({navigation, route}) => (
+    <MainStack.Navigator initialRouteName='Dashboard'>
+        <MainStack.Screen
+            name={'Dashboard'}
+            component={DashboardScreen}
+            options={{headerShown: false}}
+        />
 
- },
- image: {
- 
-  
-  height: '100%',
-  width: '100%',
-},
+        <MainStack.Screen
+            name={'Accounts'}
+            component={AccountsScreen}
+            options={{headerShown: false}}
+        />
 
-});
+        <MainStack.Screen
+            name={'Profile'}
+            component={ProfileScreen}
+            options={{headerShown: false}}
+        />
 
-export default App;
+        <MainStack.Screen
+            name={'CardDetails'}
+            component={CardDetailScreen}
+            options={{headerShown: false}}
+        />
+
+        <MainStack.Screen
+            name={'Transactions'}
+            component={TransactionScreen}
+            options={{headerShown: false}}
+        />
+    </MainStack.Navigator>
+)
+
+const AppWelcome = ({navigation, route}) => (
+    <WelcomeStack.Navigator initialRouteName={'SignIn'}>
+        <WelcomeStack.Screen name="SignIn" component={LoginScreen} options={{headerShown: false}}/>
+        <WelcomeStack.Screen name="SignUp" component={RegisterScreen} options={{headerShown: false}}/>
+        <WelcomeStack.Screen name="RegisterInfo" component={RegisterInfoScreen} options={{headerShown: false}}/>
+        <WelcomeStack.Screen name="VerifyCode" component={ConfirmCodeScreen}
+                             options={{headerShown: false, gestureEnabled: false}}/>
+    </WelcomeStack.Navigator>
+);
+
+export default inject('userStore')(observer(App));
