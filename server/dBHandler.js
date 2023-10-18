@@ -55,7 +55,7 @@ class DBHandler {
                 console.log(id);
                 const encryptedUser = await this.#encryption.encryptUser(user,id);
                 return await this.#usersCollection.insertOne(encryptedUser);
-            }            
+            }
         }catch (error) {
             //Throw and log any error we get when trying to insert a new user
             console.error("Error inserting user to database:", error);
@@ -64,27 +64,29 @@ class DBHandler {
     }
 
     //Update user information
-    async updateUser(user){
-        try{
+    async updateUser(user) {
+        console.log("updating user:")
+        console.log(user.toJSONString())
+        try {
             //Get key from email in user class
-            const id = await this.#getKeyId(user.getEmail());
-            
-            if (id == null){
+            let id = await this.#getKeyId(user.getEmail());
+            id = id['key'];
+
+            if (id == null) {
                 console.log('User does not exist');
                 return false;
-            }
-            else{
-            //Encrypt new user data
-            const encryptedUser = await this.#encryption.encryptUser(user, id);
+            } else {
+                const encryptedEmail = await this.#encryption.encryptString(user.getEmail(),id);
+                //Encrypt new user data
+                const encryptedUser = await this.#encryption.encryptUser(user, id);
 
-            const result = await this.#usersCollection.updateUser(
-                {email: encryptedEmail},
-                {$set: encryptedUser}
-            );
-          return result;
-        }
-    }
-        catch (error){
+                return await this.#usersCollection.updateOne(
+                    {email: encryptedEmail},
+                    {$set: encryptedUser},
+                    {upsert: true}
+                );
+            }
+        } catch (error) {
             console.error("Error updating user in database:", error);
             throw error;
         }
@@ -106,7 +108,7 @@ class DBHandler {
             }
             else {
                 console.log('user does not exist');
-            }            
+            }
         } catch (error) {
             //Throw and log any error we get when trying to get a user from the database
             console.error("Error getting user from database:", error);
@@ -272,7 +274,8 @@ class Encryption {
                 id: await this.encryptString(account.getId(),id),
                 name: await this.encryptString(account.getName(),id),
                 balance: await this.encryptString(account.getBalance().toString(),id),
-                transactionList: encryptedTransactionList
+                transactionList: encryptedTransactionList,
+                accessToken: await this.encryptString(account.getAccessToken(),id)
             };
 
             //Add the encrypted account to the accountList
@@ -334,7 +337,8 @@ class Encryption {
                 id: await this.decryptString(account['id'],id),
                 name: await this.decryptString(account['name'],id),
                 balance: await this.decryptString(account['balance'],id),
-                transactionList: transactionList
+                transactionList: transactionList,
+                accessToken: await this.decryptString(account['accessToken'],id)
             };
 
             //Add the decrypted account to the accountList
@@ -385,7 +389,7 @@ class Encryption {
                 local: {
                     key: MONGO_MASTER_KEY
                 }
-            }            
+            }
         };
         let secureClient = new MongoClient(process.env.MONGO_CONNECTION,{
             serverApi: {

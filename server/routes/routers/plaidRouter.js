@@ -1,22 +1,25 @@
 import express from 'express';
 import { PlaidHandler } from '../../plaidHandler.js';
 import { User } from '../../objectPack.js'
+import {DBHandler} from "../../dBHandler.js";
 
 const plaidRouter = express.Router();
 const plaidHandler = new PlaidHandler();
 plaidHandler.init();
+
+const dbHandler = new DBHandler();
+dbHandler.init();
 
 plaidRouter.get('/', (req, res)=>{
 
 });
 
 // This route takes a unique userId from the front-end and sends a request to
-// the plaid API to generate a link token and return the response to the 
+// the plaid API to generate a link token and return the response to the
 // front-end
 plaidRouter.post('/getLinkToken', async(req,res)=>{
     try{
-        const linkToken = await PlaidHandler.linkAccount(req.body.userId);
-
+        const linkToken = await plaidHandler.linkAccount(req.body.userId);
         //sends response to frontend
         res.json(linkToken);
     }catch(error){
@@ -29,24 +32,69 @@ plaidRouter.post('/getLinkToken', async(req,res)=>{
 // by the plaid link interface and exchanges that for an access token.
 // This route will add a new Account to the user's profile on the database
 // and return the new user data as well. The front-end will be responsible for
-// getting account details from the user and updating the user if there are 
+// getting account details from the user and updating the user if there are
 // changes made to the account details such as account name.
 plaidRouter.post('/getAccessToken', async (req,res) => {
     const publicToken = req.body.publicToken;
-    const user = new User(req.body.user);
+    const email = req.body.email;
+    if (!publicToken || !email) {
+        return res.status(400).send({"error":'email and publicToken fields are required'});
+    }
+
     try {
         // send request to plaid API to get the accessToken associated with the
         // new account link.
+        const user = await dbHandler.getUser(email);
         const response = await plaidHandler.completeLink(publicToken);
+        const accessToken = response.accessToken;
 
-        const accessToken = response.data.access_token;
-        const itemID = response.data.item_id;
-        // need to create new account on the user object and call dbHandler to
-        // update the user with the new information.
-        res.json({ getAccessToken: 'complete'});
+        const accounts = await plaidHandler.getAccounts(accessToken);
+        let date = new Date();
+        const endDate = date.toLocaleString('en-CA').split(",")[0].toString();
+
+        date.setMonth(date.getMonth() - 1);
+        const startDate = date.toLocaleString('en-CA').split(",")[0].toString();
+
+        let newUserData = JSON.parse(user.toJSONString());
+        for (const account of accounts) {
+            let newAccount = {
+                id: account['account_id'],
+                name: account['name'],
+                balance: account['balances']['current'],
+                transactionList: {
+                    transactionList: [],
+                    length: 1,
+                    beginDate: startDate,
+                    endDate: endDate
+                },
+                accessToken: accessToken
+            };
+
+            const transactionsResult = await plaidHandler.getTransactions(accessToken, [account['account_id']], startDate, endDate);
+            const transactions = transactionsResult.transactions;
+
+            newAccount.transactionList.length = transactions.length;
+            for (const transaction of transactions) {
+                newAccount.transactionList.transactionList.push({
+                    amount: transaction.amount,
+                    date: transaction.date,
+                    subscriptionName: transaction.name ? transaction.name : 'Unknown',
+                    //TODO: Figure out how to know if a transaction is a subscription
+                    subscriptionBool: true,
+                    vendor: transaction.merchant_name ? transaction.merchant_name : 'Unknown'
+                });
+            }
+
+            newUserData.accountList.push(newAccount);
+        }
+
+        await dbHandler.updateUser(new User(newUserData))
+        res.status(200).json({status: 'success', user: newUserData});
     }
     catch (error) {
         // handle error
+        res.status(500).json({status: 'failure'});
+        console.log(error);
     }
 })
 
