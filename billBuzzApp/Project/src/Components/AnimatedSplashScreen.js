@@ -3,8 +3,6 @@ import {Image, Modal, Text, View} from 'react-native';
 import Logo from '../../assets/images/bee_logo.png';
 
 const AnimatedSplashScreen = ({loaded, backgroundColor, logoWidth, logoHeight}) => {
-
-    console.log(loaded)
     return (
         <Modal
             visible={!loaded}

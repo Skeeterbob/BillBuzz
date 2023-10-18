@@ -5,6 +5,7 @@ import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "re
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
 import { inject, observer } from "mobx-react";
+import PlaidComponent from "../Components/PlaidComponent";
 
 const upcomingOverdrafts = [
     {
@@ -92,12 +93,7 @@ class DashboardScreen extends React.Component {
                 style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
 
-                <View style={styles.addAccount}>
-                    {/*TODO: Make this button work with plaid to add a new account*/}
-                    <TouchableOpacity>
-                        <Icon name={'add'} size={48} color={'#000000'} />
-                    </TouchableOpacity>
-                </View>
+                <PlaidComponent />
 
                 <View style={styles.dashboardButton}>
                     <TouchableOpacity

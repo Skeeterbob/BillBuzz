@@ -96,12 +96,15 @@ class PlaidHandler {
     }
 
 //Method to get transactions from plaids API
-    async getTransactions(accessToken, startDate, endDate){
+    async getTransactions(accessToken, accountIds, startDate, endDate){
         try{
             const response = await this.#client.transactionsGet({
                 access_token: accessToken,
                 start_date: startDate,
                 end_date: endDate,
+                options: {
+                    account_ids: accountIds
+                }
             });
             return response.data;
         }
@@ -167,15 +170,13 @@ class PlaidHandler {
         };
         try {
             const response = await this.#client.accountsGet(request);
-            console.log('response in getAccounts: ', response.data.accounts);
-            const accounts = response.data.accounts;
-            return accounts;
+            return response.data.accounts;
         }
         catch (error) {
             //error handling
         }
     }
-};
+}
 
 export {PlaidHandler};
 
