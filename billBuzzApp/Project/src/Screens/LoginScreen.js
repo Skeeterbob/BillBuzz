@@ -16,6 +16,8 @@ import LinearGradient from "react-native-linear-gradient";
 import Icon from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
 
+import {SERVER_ENDPOINT} from "@env";
+
 class LoginScreen extends React.Component {
 
     state = {
@@ -39,7 +41,7 @@ class LoginScreen extends React.Component {
         }
         this.setState({ loading: true });
 
-        fetch('http://192.168.1.46:3000/login/verify', {
+        fetch(SERVER_ENDPOINT + '/login/verify', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

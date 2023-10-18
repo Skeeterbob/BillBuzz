@@ -15,6 +15,8 @@ import Logo from "../../assets/images/bee_logo.png";
 import Toast from "react-native-toast-message";
 import {TextInputMask} from "react-native-masked-text";
 
+import {SERVER_ENDPOINT} from "@env";
+
 class RegisterInfoScreen extends React.Component {
 
     state = {
@@ -43,7 +45,7 @@ class RegisterInfoScreen extends React.Component {
         this.setState({loading: true});
         if (this.validateInputs()) {
             //TODO: Register user on server here
-            fetch('http://192.168.1.46:3000/register/createUser', {
+            fetch(SERVER_ENDPOINT + '/register/createUser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

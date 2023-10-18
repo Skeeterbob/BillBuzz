@@ -14,6 +14,7 @@ import LinearGradient from "react-native-linear-gradient";
 import Logo from "../../assets/images/bee_logo.png";
 import {inject, observer} from "mobx-react";
 
+import {SERVER_ENDPOINT } from "@env";
 class ConfirmCodeScreen extends React.Component {
 
     state = {
@@ -24,7 +25,7 @@ class ConfirmCodeScreen extends React.Component {
     verifyCode = () => {
         const {code} = this.state;
 
-        fetch('http://192.168.1.46:3000/login/verify/sms', {
+        fetch(SERVER_ENDPOINT + '/login/verify/sms', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -52,7 +53,7 @@ class ConfirmCodeScreen extends React.Component {
     }
 
     getUserData = async (email, password) => {
-        return await fetch('http://192.168.1.46:3000/login/getuser', {
+        return await fetch(SERVER_ENDPOINT + '/login/getuser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
