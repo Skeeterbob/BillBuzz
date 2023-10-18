@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SectionList } from 'react-native';
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
-
+import {SERVER_ENDPOINT} from "@env";
 
 
 const TransactionScreen = () => {
@@ -10,24 +10,23 @@ const TransactionScreen = () => {
     useEffect(() => {
 
         //TODO: put the url here so it doesnt crash app
-        // fetch('url here')
-        //     .then(response => response.json())
-        //     .then(transactions => {
-        //         const groupedTransactions = transactions.reduce((acc, cur) => {
-        //             if (!acc[cur.date]) acc[cur.date] = [];
-        //             acc[cur.date].push(cur);
-        //             return acc;
-        //         }, {});
-        //
-        //         const formattedData = Object.keys(groupedTransactions).map(key => ({
-        //             title: key,
-        //             data: groupedTransactions[key]
-        //         }));
-        //         setData(formattedData);
-        //     })
-        //     .catch(error => console.error('Error fetching transactions:', error));
-    }, []); // The empty array means this useEffect will run once when the component mounts.
-
+        fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
+            .then(response => response.json())
+            .then(transactions => {
+                const groupedTransactions = transactions.reduce((acc, cur) => {
+                    if (!acc[cur.date]) acc[cur.date] = [];
+                    acc[cur.date].push(cur);
+                    return acc;
+                }, {});
+        
+                const formattedData = Object.keys(groupedTransactions).map(key => ({
+                    title: key,
+                    data: groupedTransactions[key]
+                }));
+                setData(formattedData);
+            })
+            .catch(error => console.error('Error fetching transactions:', error));
+    }, []); 
     return (
 
         <RNLinearGradient
