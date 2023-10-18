@@ -63,6 +63,33 @@ class DBHandler {
         }
     }
 
+    //Update user information
+    async updateUser(user){
+        try{
+            //Get key from email in user class
+            const id = await this.#getKeyId(user.getEmail());
+            
+            if (id == null){
+                console.log('User does not exist');
+                return false;
+            }
+            else{
+            //Encrypt new user data
+            const encryptedUser = await this.#encryption.encryptUser(user, id);
+
+            const result = await this.#usersCollection.updateUser(
+                {email: encryptedEmail},
+                {$set: encryptedUser}
+            );
+          return result;
+        }
+    }
+        catch (error){
+            console.error("Error updating user in database:", error);
+            throw error;
+        }
+    }
+
     //Get a user from the database by their email
     async getUser(email) {
         try {
@@ -75,7 +102,7 @@ class DBHandler {
                 //Retrieve the user from the database, all the data would be encrypted
                 const encryptedUser = await this.#usersCollection.findOne({'email': encryptedEmail});
                 //Return the user's properties decrypted so that we can actually read them
-                return await this.#encryption.decryptUser(encryptedUser);
+                return await this.#encryption.decryptUser(encryptedUser,id);
             }
             else {
                 console.log('user does not exist');
@@ -183,7 +210,6 @@ class DBHandler {
 class Encryption {
     //Our ClientEncryption instance and dataKey
     #encryption;
-    #encryptionOptions;
 
     //Take in a mongo client parameter as it's required to create a ClientEncryption instance
     constructor(mongoClient) {
@@ -327,6 +353,17 @@ class Encryption {
             availableCredit: await this.decryptString(user['availableCredit'],id),
             accountList: accountList
         });
+    }
+
+    // Encrypt a JSON object by interating over its keys and reconstructing with 
+    // all values encrypted and keys intact.
+    async encryptJSON (data) {
+        let keyList = Object.keys(data);
+        let retJSON = {}
+        keyList.forEach((element) => {
+            retJSON[element] = this.encryptString(data[element]);
+        })
+        return retJSON;
     }
 
     //Encrypt a single string

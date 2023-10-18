@@ -1,27 +1,11 @@
 import express from 'express';
-//import {loginRouter} from './routers/loginRouter.js';
+import { AuthHandler } from '../../authHandler.js';
 import { DBHandler } from '../../dBHandler.js';
 import { User } from '../../objectPack.js';
 const registerRouter = express.Router();
-const dBHandler = new DBHandler();
-dBHandler.init()
-/*registerRouter.post('/', async(req, res)=>
-{
- try{
- 
-    //Request users' information
-    const {email, password} = req.body;
-
-    //const  = new User({email, password});
-    await newUser.save();
-
-    res.status(200).json({message: 'Registered Successfully'});
- }
- catch(error){
-    console.log(error);
-    res.status(200).json({error:'Registration Error'});
- }
-});*/
+const authHandler = new AuthHandler();
+const dbHandler = new DBHandler();
+dbHandler.init();
 
 registerRouter.post('/createUser', async(req, res) => {
    try {
