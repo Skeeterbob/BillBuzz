@@ -1,14 +1,8 @@
 import express from 'express';
-import { PlaidHandler } from '../../plaidHandler.js';
 import { User } from '../../objectPack.js'
-import {DBHandler} from "../../dBHandler.js";
+import {dbHandler, plaidHandler} from "../../handlers.js";
 
 const plaidRouter = express.Router();
-const plaidHandler = new PlaidHandler();
-plaidHandler.init();
-
-const dbHandler = new DBHandler();
-dbHandler.init();
 
 plaidRouter.get('/', (req, res)=>{
 
@@ -96,7 +90,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         res.status(500).json({status: 'failure'});
         console.log(error);
     }
-})
+});
 
 plaidRouter.post('/getTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;

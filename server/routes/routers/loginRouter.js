@@ -1,33 +1,25 @@
 import express from 'express';
-import { TwilioHandler } from '../../twilioHandler.js';
-import { DBHandler } from '../../dBHandler.js';
-import { AuthHandler } from '../../authHandler.js';
+import {dbHandler, twilioHandler} from "../../handlers.js";
 
 const loginRouter = express.Router();
-const dBHandler =  new DBHandler();
-const twilioHandler = new TwilioHandler();
-const authHandler = new AuthHandler();
 
-twilioHandler.init();
-dBHandler.init();
-
-loginRouter.post('/login', async (req, res) => {
+loginRouter.post('/', async (req, res) => {
 });
 
-loginRouter.post('/login/verify', async (req, res) => {
+loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
     if (!email || !password) {
-        return res.status(400).send({"error":'Email and Password fields are required'});
-        
+        return res.status(400).send({"error": 'Email and Password fields are required'});
     }
 
-    const result = await dBHandler.verifyUser(email, password);
-    
+    const result = await dbHandler.verifyUser(email, password);
+
     if (result) {
+        await twilioHandler.sendSMS('+1' + result.phoneNumber);
         return res.status(200).send(JSON.stringify(result));
-    }else {
+    } else {
         return res.status(401).send('Incorrect Email/Password provided!');
     }
 });
@@ -36,15 +28,31 @@ loginRouter.post('/getUser', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
     if (!email || !password) {
-        return res.status(400).json({"error":'Email and Password fields are required'});
+        return res.status(400).json({"error": 'Email and Password fields are required'});
     }
 
-    const result = await dBHandler.getUser(email);
+    const result = await dbHandler.getUser(email);
     if (result.getPassword() !== password) {
         return res.status(401).json({'error': 'Invalid password'});
     }
 
     return res.status(200).json(JSON.parse(result.toJSONString()));
+});
+
+loginRouter.post('/verify/sms', async (req, res) => {
+    try {
+        const phNum = req.body.phNum;
+        const code = req.body.code;
+
+        if (await twilioHandler.validateSMSCode('+1' + phNum, code)) {
+            res.status(200).json({"validate": true});
+        } else {
+            res.status(400).json({"validate": false, "error": 'Verification Error!'});
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({error: 'Error'});
+    }
 });
 
 export {loginRouter};

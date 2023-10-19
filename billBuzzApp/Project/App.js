@@ -12,8 +12,10 @@ import AccountsScreen from "./src/Screens/AccountsScreen";
 import ProfileScreen from "./src/Screens/ProfileScreen";
 import RegisterInfoScreen from "./src/Screens/RegisterInfoScreen";
 import TransactionScreen from "./src/Screens/TransactionsScreen";
+import ForgotPasswordScreen from "./src/Screens/ForgotPasswordScreen";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {inject, observer} from "mobx-react";
+
 
 //The main app stack navigator used to hold all the other navigators
 const AppStack = createNativeStackNavigator();
@@ -44,6 +46,8 @@ class App extends React.Component {
                         this.setState({loaded: true});
                     });
                 }
+            } else {
+                this.setState({loaded: true});
             }
         });
     }
@@ -59,7 +63,7 @@ class App extends React.Component {
                 email,
                 password
             })
-        }).then(data => data.json()).catch(console.error);
+        }).then(data => data.json());
     };
 
     getUserCredentials = async () => {
@@ -74,7 +78,7 @@ class App extends React.Component {
         if (!loaded) {
             return (
                 <>
-                    <StatusBar translucent={true} backgroundColor={'transparent'} />
+                    <StatusBar translucent={true} backgroundColor={'transparent'}/>
                     <AnimatedSplashScreen
                         loaded={loaded}
                         backgroundColor="#202125"
@@ -146,6 +150,12 @@ const AppMain = ({navigation, route}) => (
             component={TransactionScreen}
             options={{headerShown: false}}
         />
+
+        <MainStack.Screen
+            name={'ForgotPassword'}
+            component={ForgotPasswordScreen}
+            options={{headerShown: false}}
+        />
     </MainStack.Navigator>
 )
 
@@ -154,7 +164,8 @@ const AppWelcome = ({navigation, route}) => (
         <WelcomeStack.Screen name="SignIn" component={LoginScreen} options={{headerShown: false}}/>
         <WelcomeStack.Screen name="SignUp" component={RegisterScreen} options={{headerShown: false}}/>
         <WelcomeStack.Screen name="RegisterInfo" component={RegisterInfoScreen} options={{headerShown: false}}/>
-        <WelcomeStack.Screen name="VerifyCode" component={ConfirmCodeScreen}
+        <WelcomeStack.Screen name="VerifyCode" component={ConfirmCodeScreen}/>
+        <WelcomeStack.Screen name="ForgotPassword" component={ForgotPasswordScreen}
                              options={{headerShown: false, gestureEnabled: false}}/>
     </WelcomeStack.Navigator>
 );

@@ -52,7 +52,6 @@ class DBHandler {
             }
             else{
                 id = await this.#insertKeyId(user.getEmail());
-                console.log(id);
                 const encryptedUser = await this.#encryption.encryptUser(user,id);
                 return await this.#usersCollection.insertOne(encryptedUser);
             }
@@ -65,8 +64,6 @@ class DBHandler {
 
     //Update user information
     async updateUser(user) {
-        console.log("updating user:")
-        console.log(user.toJSONString())
         try {
             //Get key from email in user class
             let id = await this.#getKeyId(user.getEmail());
@@ -97,7 +94,6 @@ class DBHandler {
         try {
             let id = await this.#getKeyId(email);
             id = id['key'];
-            console.log(id);
             if (id != null) {
                 //Encrypt the email so that we can search for it in the database
                 const encryptedEmail = await this.#encryption.encryptString(email,id);
@@ -120,10 +116,8 @@ class DBHandler {
     //If the user exists we return true, false if no user is found
     async verifyUser (email, password) {
         let retVal = {};
-        console.log(email);
         let id = await this.#getKeyId(email);
         id = id['key'];
-        console.log(id);
         if (id != null) {
             const encryptedEmail = await this.#encryption.encryptString(email,id);
             const encryptedPassword = await this.#encryption.encryptString(password,id);
@@ -134,7 +128,6 @@ class DBHandler {
                 retVal["validate"] = true;
                 retVal['id'] = result['_id']
 
-                console.log(result);
                 return retVal;
             }
         }
@@ -150,9 +143,7 @@ class DBHandler {
     //private functio to insert keyId into idCollection when account is created
     async #insertKeyId (email) {
         let id = await this.#encryption.createNewKey()
-        let result = await this.#idCollection.insertOne({"email":
-            email,"key":id});
-        console.log('insertKeyId',id);
+        let result = await this.#idCollection.insertOne({"email": email, "key":id});
         return id;
     };
     //This functioni returns a schema to identify fields to be encrypted.
