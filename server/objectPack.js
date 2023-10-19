@@ -42,7 +42,7 @@ class User {
                 if (!keyList.includes(element)){
                     console.log('User Constructor failed, ', element,
                         ' was not provided');
-                    throw(err);
+                    //throw(err);
                 }
             })
 
@@ -98,7 +98,7 @@ class User {
                 }
             }
         });
-        return '[' + JSON.stringify(newDict) + ']';
+        return JSON.stringify(newDict);
     };
 
     //iterate over the accountList array and convert to Account objects
@@ -153,6 +153,7 @@ class Account {
     #name;
     #balance;
     #transactionList;
+    #accessToken;
     #variableList = ['id', 'name', 'balance', 'transactionList'];
 
     constructor(data) {
@@ -174,6 +175,7 @@ class Account {
             this.#name = data["name"];
             this.#balance = data["balance"];
             this.#transactionList = new TransactionList(data["transactionList"]);
+            this.#accessToken = data["accessToken"];
         }
         catch (err){
             console.log(err);
@@ -232,6 +234,10 @@ class Account {
 
     getTransactionList() {
         return this.#transactionList;
+    }
+
+    getAccessToken() {
+        return this.#accessToken;
     }
 }
 

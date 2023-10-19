@@ -1,3 +1,4 @@
 {
-    "git.allowForcePush": false
+    "git.allowForcePush": false,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
