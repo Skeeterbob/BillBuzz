@@ -1,6 +1,6 @@
 import express from 'express';
 import {User} from '../../objectPack.js';
-import {dbHandler} from "../../handlers.js";
+import {dbHandler, twilioHandler} from "../../handlers.js";
 
 const registerRouter = express.Router();
 
@@ -8,6 +8,7 @@ registerRouter.post('/createUser', async (req, res) => {
     try {
         let user = new User({...req.body});
         const result = await dbHandler.insertUser(user);
+        await twilioHandler.sendSMS('+1' + user.getPhoneNumber());
         res.status(200).json(result);
     } catch (err) {
         console.log(err);
