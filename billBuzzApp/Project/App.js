@@ -151,11 +151,7 @@ const AppMain = ({navigation, route}) => (
             options={{headerShown: false}}
         />
 
-        <MainStack.Screen
-            name={'ForgotPassword'}
-            component={ForgotPasswordScreen}
-            options={{headerShown: false}}
-        />
+      
     </MainStack.Navigator>
 )
 
