@@ -164,7 +164,8 @@ const AppWelcome = ({navigation, route}) => (
         <WelcomeStack.Screen name="SignIn" component={LoginScreen} options={{headerShown: false}}/>
         <WelcomeStack.Screen name="SignUp" component={RegisterScreen} options={{headerShown: false}}/>
         <WelcomeStack.Screen name="RegisterInfo" component={RegisterInfoScreen} options={{headerShown: false}}/>
-        <WelcomeStack.Screen name="VerifyCode" component={ConfirmCodeScreen}/>
+        <WelcomeStack.Screen name="VerifyCode" component={ConfirmCodeScreen}
+                             options={{headerShown: false, gestureEnabled: false}}/>
         <WelcomeStack.Screen name="ForgotPassword" component={ForgotPasswordScreen}
                              options={{headerShown: false, gestureEnabled: false}}/>
     </WelcomeStack.Navigator>
