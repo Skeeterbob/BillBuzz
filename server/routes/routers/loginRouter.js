@@ -11,10 +11,10 @@ const authHandler = new AuthHandler();
 twilioHandler.init();
 dBHandler.init();
 
-loginRouter.post('/login', async (req, res) => {
+loginRouter.post('/', async (req, res) => {
 });
 
-loginRouter.post('/login/verify', async (req, res) => {
+loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
