@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, SectionList } from 'react-native';
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
-import {SERVER_ENDPOINT} from "@env";
+import { SERVER_ENDPOINT } from "@env";
 
 
 const TransactionScreen = () => {
@@ -18,7 +18,7 @@ const TransactionScreen = () => {
                     acc[cur.date].push(cur);
                     return acc;
                 }, {});
-        
+
                 const formattedData = Object.keys(groupedTransactions).map(key => ({
                     title: key,
                     data: groupedTransactions[key]
@@ -26,7 +26,7 @@ const TransactionScreen = () => {
                 setData(formattedData);
             })
             .catch(error => console.error('Error fetching transactions:', error));
-    }, []); 
+    }, []);
     return (
 
         <RNLinearGradient
