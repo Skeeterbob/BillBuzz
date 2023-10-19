@@ -52,15 +52,17 @@ class RegisterInfoScreen extends React.Component {
                     'Accept': 'application/json'
                 },
                 body: JSON.stringify({
-                    email,
-                    password,
-                    firstName,
-                    lastName,
-                    birthday,
-                    phoneNumber,
-                    bankBalance: 0,
-                    availableCredit: 0,
-                    accountList: []
+                    user: {
+                        email,
+                        password,
+                        firstName,
+                        lastName,
+                        birthday,
+                        phoneNumber,
+                        bankBalance: 0,
+                        availableCredit: 0,
+                        accountList: []
+                    }
                 })
             })
                 .then(data => data.json())
