@@ -184,7 +184,7 @@ class DashboardScreen extends React.Component {
                         <View style={styles.summaryCards}>
                             {transactions.map(transaction => (
                                 <View
-                                    key={transaction.name}
+                                    key={transaction.name + '-' + transaction.amount}
                                     style={styles.summardCard}
                                 >
                                     <Text style={styles.creditCardText}>{transaction.name}</Text>
