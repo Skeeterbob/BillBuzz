@@ -44,10 +44,14 @@ loginRouter.post('/verify/sms', async (req, res) => {
         const phNum = req.body.phNum;
         const code = req.body.code;
 
-        if (await twilioHandler.validateSMSCode('+1' + phNum, code)) {
-            res.status(200).json({"validate": true});
-        } else {
-            res.status(400).json({"validate": false, "error": 'Verification Error!'});
+        if (phNum && code) {
+            if (await twilioHandler.validateSMSCode('+1' + phNum, code)) {
+                res.status(200).json({"validate": true});
+            } else {
+                res.status(400).json({"validate": false, "error": 'Verification Error!'});
+            }
+        }else {
+            res.status(400).json({"validate": false, "error": 'Phone number and verification code must be provided!'});
         }
     } catch (error) {
         console.error(error);
