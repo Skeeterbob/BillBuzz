@@ -41,7 +41,7 @@ class LoginScreen extends React.Component {
             return;
         }
         this.setState({ loading: true });
-
+        console.log(SERVER_ENDPOINT + '/login/verify');
         fetch(SERVER_ENDPOINT + '/login/verify', {
             method: 'POST',
             headers: {

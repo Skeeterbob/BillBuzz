@@ -25,7 +25,7 @@ class ConfirmCodeScreen extends React.Component {
 
     verifyCode = () => {
         const {code} = this.state;
-
+        console.log(SERVER_ENDPOINT + '/login/verify/sms');
         fetch(SERVER_ENDPOINT + '/login/verify/sms', {
             method: 'POST',
             headers: {
