@@ -3,6 +3,7 @@ import {View, StyleSheet, TouchableOpacity, ScrollView, Text, Dimensions, Platfo
 import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
 import HexagonComponent from "../Components/HexagonComponent";
 import Icon from "react-native-vector-icons/Ionicons";
+import {inject, observer} from "mobx-react";
 
 const MOCK_TRANSACTIONS = [
     {
@@ -87,6 +88,10 @@ class AccountsScreen extends React.Component {
         this.navigation = props.navigation;
     }
 
+    componentDidMount() {
+        console.log(JSON.stringify(this.props.userStore.accountList))
+    }
+
     calcHexagonSize = () => {
         const dimensions = Dimensions.get('screen');
         return Math.min(300, (dimensions.width - 32));
@@ -94,14 +99,14 @@ class AccountsScreen extends React.Component {
 
     calcBalance = () => {
         let balance = 0.0;
-        for (const card of MOCK_CARDS_DATA) {
-            balance += card.balance;
+        for (const account of this.props.userStore.accountList) {
+            balance += parseFloat(account.balance);
         }
 
         return Math.round(balance * 100) / 100;
     }
 
-    render = () => {
+    render() {
         const hexagonSize = this.calcHexagonSize();
         const balance = this.calcBalance();
 
@@ -129,14 +134,14 @@ class AccountsScreen extends React.Component {
                     </View>
 
                     <View style={styles.creditCardView}>
-                        {MOCK_CARDS_DATA.map(card => (
+                        {this.props.userStore.accountList.map(account => (
                             <CreditCardComponent
-                                key={card.name}
-                                name={card.name}
-                                balance={card.balance}
-                                amountDue={card.amountDue}
-                                dueDate={card.dueDate}
-                                transactions={card.transactions}
+                                key={account.id}
+                                name={account.name}
+                                balance={account.balance}
+                                amountDue={0}
+                                dueDate={'N/A'}
+                                transactions={account.transactionList.transactionList}
                                 navigation={this.navigation}
                             />
                         ))}
@@ -311,4 +316,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default AccountsScreen;
+export default inject('userStore')(observer(AccountsScreen));

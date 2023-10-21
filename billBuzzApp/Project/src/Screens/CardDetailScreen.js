@@ -54,7 +54,7 @@ class CardDetailScreen extends React.Component {
                             {this.cardData.transactions.map(transaction => (
                                 <TransactionCardComponent
                                     key={`${transaction.name}-${transaction.date}-${transaction.amount}`}
-                                    name={transaction.name}
+                                    name={transaction.subscriptionName}
                                     date={transaction.date}
                                     amount={transaction.amount}
                                 />
@@ -67,31 +67,45 @@ class CardDetailScreen extends React.Component {
     }
 }
 
-const TransactionCardComponent = ({name, date, amount}) => (
-    <LinearGradient
-        colors={['rgba(28, 28, 29, 0.6)', 'rgba(77, 75, 70, 0.6)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        locations={[0.8, 1]}
+const TransactionCardComponent = ({name, date, amount}) => {
+    const formattedDate = formatDate(date);
 
-        style={styles.transactionCard}
-    >
-        <View>
-            <Text style={{color: '#F4CE82', fontSize: 14}}>Merchant</Text>
-            <Text style={{color: '#eca239', fontSize: 18, fontWeight: 'bold'}}>{name}</Text>
-        </View>
+    return (
+        <LinearGradient
+            colors={['rgba(28, 28, 29, 0.6)', 'rgba(77, 75, 70, 0.6)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            locations={[0.8, 1]}
 
-        <View>
-            <Text style={{color: '#F4CE82', fontSize: 14}}>Amount</Text>
-            <Text style={{color: '#eca239', fontSize: 18, fontWeight: 'bold'}}>${amount}</Text>
-        </View>
+            style={styles.transactionCard}
+        >
+            <View>
+                <Text style={{color: '#F4CE82', fontSize: 14}}>Merchant</Text>
+                <Text style={{color: '#eca239', fontSize: 14, fontWeight: 'bold'}}>{name}</Text>
+            </View>
 
-        <View>
-            <Text style={{color: '#F4CE82', fontSize: 14}}>Date</Text>
-            <Text style={{color: '#eca239', fontSize: 18, fontWeight: 'bold'}}>{date}</Text>
-        </View>
-    </LinearGradient>
-);
+            <View>
+                <Text style={{color: '#F4CE82', fontSize: 14}}>Amount</Text>
+                <Text style={{color: '#eca239', fontSize: 18, fontWeight: 'bold'}}>${amount}</Text>
+            </View>
+
+            <View>
+                <Text style={{color: '#F4CE82', fontSize: 14}}>Date</Text>
+                <Text style={{color: '#eca239', fontSize: 18, fontWeight: 'bold'}}>{formattedDate}</Text>
+            </View>
+        </LinearGradient>
+    )
+};
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${month}/${day}/${year}`;
+}
 
 const styles = StyleSheet.create({
     body: {
