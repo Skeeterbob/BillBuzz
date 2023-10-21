@@ -34,10 +34,13 @@ class App extends React.Component {
     }
 
     componentDidMount() {
+    console.log('in app.js compenentDidMount()');
         this.getUserCredentials().then(user => {
             if (user) {
                 try {
+                    console.log('before getUserData');
                     this.getUserData(user.email, user.password).then(userData => {
+                        console.log(userData);
                         this.props.userStore.updateUser(userData);
                         this.setState({loaded: true});
                     });
@@ -53,17 +56,22 @@ class App extends React.Component {
     }
 
     getUserData = async (email, password) => {
-        return await fetch(SERVER_ENDPOINT + '/login/getuser', {
+        console.log('in getuserdata', email, password);
+        response = await fetch(SERVER_ENDPOINT + '/login/getUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                email,
-                password
+                'email': email,
+                'password': password
             })
-        }).then(data => data.json());
+        })
+        console.log(response);
+        data = await response.json();
+        console.log(data);
+        return data;
     };
 
     getUserCredentials = async () => {

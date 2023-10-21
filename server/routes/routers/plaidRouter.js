@@ -39,6 +39,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
     try {
         // send request to plaid API to get the accessToken associated with the
         // new account link.
+        console.log('line 42 plaidRouter', email);
         const user = await dbHandler.getUser(email);
         const response = await plaidHandler.completeLink(publicToken);
         const accessToken = response.accessToken;

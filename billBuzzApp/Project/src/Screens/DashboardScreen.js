@@ -59,6 +59,7 @@ class DashboardScreen extends React.Component {
     render() {
         const { currentWeek, weeklyData, expanded } = this.state;
         const user = this.props.userStore;
+        console.log('line 62 dashboard', user);
         const transactions = [
             {
                 name: 'Netflix',

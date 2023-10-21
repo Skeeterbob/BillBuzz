@@ -26,7 +26,6 @@ class PlaidComponent extends React.Component {
     }
 
     createToken = async (userId) => {
-        console.log('in create Token user id: ', userId);
         response = await fetch(SERVER_ENDPOINT + '/plaid/getLinkToken', {
             method: 'POST',
             headers: {
@@ -61,6 +60,7 @@ class PlaidComponent extends React.Component {
             .then(data => data.json())
             .then(response => {
                 if (response.success === "success") {
+                    console.log('plaidComponent line 63', response.user);
                     this.props.userStore.updateUser(response.user);
                 }
             })
