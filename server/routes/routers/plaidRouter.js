@@ -15,6 +15,7 @@ plaidRouter.post('/getLinkToken', async(req,res)=>{
     try{
         const linkToken = await plaidHandler.linkAccount(req.body.userId);
         //sends response to frontend
+        console.log(linkToken);
         res.json(linkToken);
     }catch(error){
         console.error('Link Account Error!:', error);
