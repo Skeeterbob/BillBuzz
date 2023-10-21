@@ -16,10 +16,8 @@ class PlaidComponent extends React.Component {
     }
 
     componentDidMount() {
-        console.log(this.props.userStore);
         const userId = this.props.userStore.firstName + '-' + this.props.userStore.lastName;
         this.createToken(userId).then(response => {
-            console.log(response);
             this.setState({token: response});
         })
     }
@@ -59,7 +57,6 @@ class PlaidComponent extends React.Component {
             .then(data => data.json())
             .then(response => {
                 if (response.success === "success") {
-                    console.log('plaidComponent line 63', response.user);
                     this.props.userStore.updateUser(response.user);
                 }
             })

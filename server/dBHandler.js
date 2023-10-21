@@ -92,7 +92,6 @@ class DBHandler {
     //Get a user from the database by their email
     async getUser(email) {
         try {
-            console.log(email);
             let id = await this.#getKeyId(email);
             id = id['key'];
             if (id != null) {
@@ -289,7 +288,6 @@ class Encryption {
 
     //Decrypt a given user
     async decryptUser(user,id) {
-        console.log('decrypt user', user, id);
         if (!user) {
             console.error("Invalid user provided to decrypt: " + user);
             return null;
@@ -304,7 +302,6 @@ class Encryption {
             //Each account with have a list of transactions, we need to decrypt those too
             for (const encryptedTransaction of account['transactionList']['transactionList']) {
                 //Create a new decrypted Transaction
-                console.log(1);
                 const transaction = {
                     amount: await this.decryptString(encryptedTransaction['amount'],id),
                     date: await this.decryptString(encryptedTransaction['date'],id),
@@ -312,7 +309,6 @@ class Encryption {
                     subscriptionBool: await this.decryptString(encryptedTransaction['subscriptionBool'],id),
                     vendor: await this.decryptString(encryptedTransaction['vendor'],id)
                 };
-                console.log(2);
                 //Add the decrypted transaction to the list
                 transactions.push(transaction);
             }
@@ -337,7 +333,6 @@ class Encryption {
             //Add the decrypted account to the accountList
             accountList.push(decryptedAccount);
         }
-        console.log('before return 339',user);
         //Create and return a new user with all properties decrypted
         return new User({
             email: await this.decryptString(user['email'],id),

@@ -38,7 +38,6 @@ class DashboardScreen extends React.Component {
         //TODO: We cant add fetch statements to endpoints that dont exist it will only break
 
         // Fetch weekly data
-           console.log('dashboard mounted');
     }
 
 
@@ -76,7 +75,6 @@ class DashboardScreen extends React.Component {
         const chartData = weeklyData[currentWeek] || this.compileChartData();
 
         const user = this.props.userStore;
-        console.log('line 62 dashboard', user.accountList);
         const transactions = [
             {
                 name: 'Netflix',
