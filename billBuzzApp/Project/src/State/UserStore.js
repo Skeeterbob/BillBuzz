@@ -10,6 +10,7 @@ class UserStore {
     bankBalance = 0;
     availableCredit = 0;
     accountList = [];
+    weeklyData = [];
 
     constructor() {
         makeObservable(this, {
@@ -22,8 +23,9 @@ class UserStore {
             bankBalance: observable,
             availableCredit: observable,
             accountList: observable,
+            weeklyData: observable,
             updateUser: action,
-            clearUser: action
+            clearUser: action,
         });
     }
 
@@ -37,6 +39,7 @@ class UserStore {
         this.bankBalance = user.bankBalance;
         this.availableCredit = user.availableCredit;
         this.accountList = user.accountList;
+        this.weeklyData = user.weeklyData;
     }
 
     clearUser() {
@@ -49,6 +52,7 @@ class UserStore {
         this.bankBalance = 0;
         this.availableCredit = 0;
         this.accountList = [];
+        this.weeklyData = [];
     }
 }
 

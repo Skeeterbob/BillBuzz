@@ -41,7 +41,7 @@ class RegisterInfoScreen extends React.Component {
 
     registerUser = () => {
         const {email, password, phoneNumber, firstName, lastName, birthday} = this.state;
-
+        console.log('server endpoint:',SERVER_ENDPOINT)
         this.setState({loading: true});
         if (this.validateInputs()) {
             //TODO: Register user on server here

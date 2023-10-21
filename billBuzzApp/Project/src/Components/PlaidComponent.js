@@ -16,23 +16,27 @@ class PlaidComponent extends React.Component {
     }
 
     componentDidMount() {
+        console.log(this.props.userStore);
         const userId = this.props.userStore.firstName + '-' + this.props.userStore.lastName;
         this.createToken(userId).then(response => {
-            this.setState({token: response['link_token']});
+            console.log(response);
+            this.setState({token: response});
         })
     }
 
     createToken = async (userId) => {
-        return await fetch(SERVER_ENDPOINT + '/plaid/getLinkToken', {
+        response = await fetch(SERVER_ENDPOINT + '/plaid/getLinkToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                userId
+                userId: userId,
             })
-        }).then(data => data.json()).catch(console.error);
+        }).catch(console.error);
+        data = await response.json();
+        return data.link_token;
     };
 
     onPlaidSuccess = (success) => {
@@ -55,6 +59,7 @@ class PlaidComponent extends React.Component {
             .then(data => data.json())
             .then(response => {
                 if (response.success === "success") {
+                    console.log('plaidComponent line 63', response.user);
                     this.props.userStore.updateUser(response.user);
                 }
             })
