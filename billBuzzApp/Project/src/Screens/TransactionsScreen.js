@@ -1,65 +1,72 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SectionList } from 'react-native';
+import React from 'react';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
-import { SERVER_ENDPOINT } from "@env";
+import {inject, observer} from "mobx-react";
 
+class TransactionScreen extends React.Component {
 
-const TransactionScreen = () => {
-    const [data]= useState([]);
-    const endDate = new Date().toLocaleDateString('en-CA');
+    render() {
+        const user = this.props.userStore;
+        let transactions = [];
+        for (const account of user.accountList) {
+            account.transactionList.transactionList.forEach(value => transactions.push(value))
+        }
 
-    fetch(SERVER_ENDPOINT + '/plaid/getTransactions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          accessToken: 'ACCESS_TOKEN', 
-          startDate: '2022-1-1', 
-          endDate: endDate, 
-        }),
-      })
-        .then(response => response.json())
-        .then(transactions => {
-          if (transactions && transactions.length > 0) {
-            this.setState({ transactions: data.transactions || [] });
-          } else {
-            console.log('No transactions available');
-          }
-        })
-        .catch(error => {
-          console.error('Error fetching transactions:', error);
-        });
-    return (
+        return (
+            <RNLinearGradient
+                colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
+                locations={[0, 0.2, 0.4, 0.8, 1]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
+            >
 
-        <RNLinearGradient
-            colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
-            locations={[0, 0.2, 0.4, 0.8, 1]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
-        >
-            <View style={styles.summaryHeader}>
-                <Text style={styles.lineChartTitle}>Recent Transactions</Text>
-            </View>
-            <SectionList
-                sections={data}
-                keyExtractor={(item, index) => item + index}
-                renderItem={({ item }) => (
-                    <View style={styles.transactionItem}>
-                        <Text style={item.type === 'debit' ? styles.debit : styles.credit}>
-                            {item.description}: ${item.amount}
-                        </Text>
+                <ScrollView contentContainerStyle={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                    <View style={styles.summaryHeader}>
+                        <Text style={styles.lineChartTitle}>Recent Transactions</Text>
                     </View>
-                )}
-                renderSectionHeader={({ section: { title } }) => (
-                    <Text style={styles.header}>{title}</Text>
-                )}
-            />
-        </RNLinearGradient>
-    );
 
-};
+                    {transactions.map(transaction =>
+                        <TransactionComponent
+                            key={transaction.name + '-' + Math.random()}
+                            transaction={transaction}
+                        />
+                    )}
+                </ScrollView>
+            </RNLinearGradient>
+        );
+    }
+}
+
+const TransactionComponent = (transaction) => {
+    console.log(JSON.stringify(transaction));
+
+    return (
+        <View style={styles.transaction}>
+            <View style={styles.transactionHeader}>
+                <Text style={{color: '#FFFFFF'}}>Merchant</Text>
+                <Text style={{color: '#FFFFFF'}}>Amount</Text>
+                <Text style={{color: '#FFFFFF'}}>Date</Text>
+            </View>
+
+            <View style={styles.transactionData}>
+                <Text style={{color: '#f3a111'}}>{transaction.transaction.subscriptionName}</Text>
+                <Text style={{color: '#f3a111'}}>${transaction.transaction.amount}</Text>
+                <Text style={{color: '#f3a111'}}>{formatDate(transaction.transaction.date)}</Text>
+            </View>
+        </View>
+    );
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${month}/${day}/${year}`;
+}
 
 const styles = StyleSheet.create({
     
@@ -97,6 +104,31 @@ const styles = StyleSheet.create({
     credit: {
         color: 'green',
     },
+    transaction: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        backgroundColor: '#212121',
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: 12,
+        padding: 8
+    },
+    transactionHeader: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    transactionData: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 4
+    }
 });
 
-export default TransactionScreen;
+export default inject('userStore')(observer(TransactionScreen));
