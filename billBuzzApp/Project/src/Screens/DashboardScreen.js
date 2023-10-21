@@ -1,11 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { Dimensions, ScrollView } from 'react-native';
-import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
 import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
+import { SERVER_ENDPOINT } from "@env";
 
 const upcomingOverdrafts = [
     {
@@ -22,20 +23,66 @@ const upcomingOverdrafts = [
 ];
 
 class DashboardScreen extends React.Component {
+    constructor(props) {
+        super(props);
 
-    state = {
-        expanded: false,
-        showTransactions: false,
-        showOverdrafts: false,
-        currentWeek: 0,  // New state to track the current week being displayed
-        weeklyData: [    // Weekly data example, replace with your own data
-            {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{ data: [15, 50, 100, 25, 200, 35, 10] }]
-            },
-            // ... more weeks data
-        ]
-    };
+        this.state = {
+            // ... other state properties
+            weeklyData: [],
+            currentWeek: 0,
+            data: [],  // added for transactions
+        };
+    }
+    componentDidMount() {
+        // Fetch weekly data
+        fetch('/server-route')
+            .then((response) => response.json())
+            .then((fetchedData) => {
+                // Update the weeklyData state with the fetched data
+                this.setState({
+                    weeklyData: fetchedData.weeklyData || [], // Use empty array if no data
+                });
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+
+        // Fetch transactions
+        fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
+            .then(response => response.json())
+            .then(transactions => {
+                if (transactions && transactions.length > 0) {
+                    const groupedTransactions = transactions.reduce((acc, cur) => {
+                        if (!acc[cur.date]) acc[cur.date] = [];
+                        acc[cur.date].push(cur);
+                        return acc;
+                    }, {});
+
+                    const formattedData = Object.keys(groupedTransactions).map(key => ({
+                        title: key,
+                        data: groupedTransactions[key]
+                    }));
+
+                    const sortedData = formattedData.sort((a, b) => {
+                        const dateA = new Date(a.title);
+                        const dateB = new Date(b.title);
+                        return dateB - dateA;
+                    });
+
+                    const recentData = sortedData.slice(0, 3);
+
+                    this.setState({ data: recentData });
+                } else {
+                    console.log('No transactions available');
+                    this.setState({ data: [] });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching transactions:', error);
+                this.setState({ data: [] });
+            });
+    }
+
 
     toggleTransactions = () => {
         this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
@@ -58,6 +105,10 @@ class DashboardScreen extends React.Component {
 
     render() {
         const { currentWeek, weeklyData, expanded } = this.state;
+        const chartData = weeklyData[currentWeek] || {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [{ data: [0, 0, 0, 0, 0, 0, 0] }], // Default to 0 if no data
+        };
         const user = this.props.userStore;
         console.log('line 62 dashboard', user);
         const transactions = [
@@ -139,31 +190,32 @@ class DashboardScreen extends React.Component {
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
-                            <BarChart
-                                 data={weeklyData[currentWeek]}
-                                 width={Dimensions.get('window').width - 50} // from react-native
-                                 height={220}
-                                 yAxisLabel="$"
-                                 yAxisSuffix=" "
-                                 yAxisInterval={.5}
-                                 chartConfig={{
-                                     backgroundColor: '#13181d',
-                                     backgroundGradientFrom: '#13181d',
-                                     backgroundGradientTo: '#13181d',
-                                     decimalPlaces: 2, // optional, defaults to 2dp
-                                     color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                                     labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                                     style: {
-                                         borderRadius: 16,
-                                     },
-                                 }}
-                                 style={{
-                                     marginVertical: 8,
-                                     borderRadius: 16,
-                                 }}
-                                 
-                            />
-                        
+                        <BarChart
+                            data={chartData}
+                            width={Dimensions.get('window').width - 50} // from react-native
+                            height={220}
+                            yAxisLabel="$"
+                            yAxisSuffix=" "
+                            yAxisInterval={.5}
+                            chartConfig={{
+                                backgroundColor: '#13181d',
+                                backgroundGradientFrom: '#13181d',
+                                backgroundGradientTo: '#13181d',
+                                decimalPlaces: 2, // optional, defaults to 2dp
+                                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                style: {
+                                    borderRadius: 16,
+                                },
+                            }}
+                            style={{
+                                marginVertical: 8,
+                                marginRight: 410,  // Add right margin
+                                borderRadius: 16,
+                            }}
+
+                        />
+
                     </View>
 
                     <View style={styles.summary}>
@@ -181,18 +233,28 @@ class DashboardScreen extends React.Component {
                                 style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
                         </View>
 
-                        <Text style={styles.recentTransactionsText}>Recent Transactions</Text>
-                        <View style={styles.summaryCards}>
-                            {transactions.map(transaction => (
-                                <View
-                                    key={transaction.name + '-' + transaction.amount}
-                                    style={styles.summardCard}
-                                >
-                                    <Text style={styles.creditCardText}>{transaction.name}</Text>
-                                    <Text style={styles.creditCardText}>${transaction.amount}</Text>
-                                </View>
-                            ))}
+                        
+                        <View style={styles.container}>
+                            <Text style={styles.recentTransactionsText}>Recent Transactions</Text>
+                            <View style={styles.summaryCards}>
+                                {this.state.data.length > 0 ? (
+                                    data.map(section => (
+                                        section.data.map(transaction => (
+                                            <View
+                                                key={transaction.name + '-' + transaction.amount}
+                                                style={styles.summaryCard}
+                                            >
+                                                <Text style={styles.creditCardText}>{transaction.name}</Text>
+                                                <Text style={styles.creditCardText}>${transaction.amount}</Text>
+                                            </View>
+                                        ))
+                                    ))
+                                ) : (
+                                    <Text style={styles.noTransactionsText}>No recent transactions.</Text>
+                                )}
+                            </View>
                         </View>
+
 
                         <TouchableOpacity
                             style={styles.summaryButton}
@@ -531,6 +593,14 @@ const styles = StyleSheet.create({
         height: 'auto',
         display: 'flex',
         flexDirection: 'column'
+    },
+    noTransactionsText: {
+        color: '#FF4500',  // Orange-red color as an example
+        fontSize: 16,
+        fontWeight: 'normal',
+        fontStyle: 'italic',
+        textAlign: 'center',
+        paddingTop: 10,
     }
 });
 

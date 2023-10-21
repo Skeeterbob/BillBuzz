@@ -5,28 +5,31 @@ import { SERVER_ENDPOINT } from "@env";
 
 
 const TransactionScreen = () => {
-    const [data, setData] = useState([]);
+    const [data]= useState([]);
+    const endDate = new Date().toLocaleDateString('en-CA');
 
-    useEffect(() => {
-
-        //TODO: put the url here so it doesnt crash app
-        fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
-            .then(response => response.json())
-            .then(transactions => {
-                const groupedTransactions = transactions.reduce((acc, cur) => {
-                    if (!acc[cur.date]) acc[cur.date] = [];
-                    acc[cur.date].push(cur);
-                    return acc;
-                }, {});
-
-                const formattedData = Object.keys(groupedTransactions).map(key => ({
-                    title: key,
-                    data: groupedTransactions[key]
-                }));
-                setData(formattedData);
-            })
-            .catch(error => console.error('Error fetching transactions:', error));
-    }, []);
+    fetch(SERVER_ENDPOINT + '/plaid/getTransactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          accessToken: 'ACCESS_TOKEN', 
+          startDate: '2022-1-1', 
+          endDate: endDate, 
+        }),
+      })
+        .then(response => response.json())
+        .then(transactions => {
+          if (transactions && transactions.length > 0) {
+            this.setState({ transactions: data.transactions || [] });
+          } else {
+            console.log('No transactions available');
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching transactions:', error);
+        });
     return (
 
         <RNLinearGradient
@@ -59,10 +62,7 @@ const TransactionScreen = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        padding: 10,
-    },
+    
     transactionItem: {
         padding: 10,
         borderBottomWidth: 1,
