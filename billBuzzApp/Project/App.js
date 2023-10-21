@@ -56,7 +56,6 @@ class App extends React.Component {
     }
 
     getUserData = async (email, password) => {
-        console.log('in getuserdata', email, password);
         response = await fetch(SERVER_ENDPOINT + '/login/getUser', {
             method: 'POST',
             headers: {
@@ -70,7 +69,7 @@ class App extends React.Component {
         })
         console.log(response);
         data = await response.json();
-        console.log(data);
+        console.log('72 app',data);
         return data;
     };
 

@@ -25,7 +25,6 @@ const upcomingOverdrafts = [
 class DashboardScreen extends React.Component {
     constructor(props) {
         super(props);
-
         this.state = {
             // ... other state properties
             weeklyData: [],
@@ -35,17 +34,23 @@ class DashboardScreen extends React.Component {
     }
     componentDidMount() {
         // Fetch weekly data
-        fetch('/server-route')
-            .then((response) => response.json())
-            .then((fetchedData) => {
-                // Update the weeklyData state with the fetched data
-                this.setState({
-                    weeklyData: fetchedData.weeklyData || [], // Use empty array if no data
-                });
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
+        if (this.props.userStore.accountList){
+            accountList = this.props.userStore.accountList;
+        }
+
+        console.log('fail here?');
+//        fetch(SERVER_ENDPOINT,'')
+//            .then((response) => response.json())
+//            .then((fetchedData) => {
+//                // Update the weeklyData state with the fetched data
+//
+//                this.setState({
+//                    weeklyData: fetchedData.weeklyData || [], // Use empty array if no data
+//                });
+//            })
+//            .catch((error) => {
+//                console.error('Error fetching data:', error);
+//            });
 
         // Fetch transactions
         fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
@@ -103,14 +108,22 @@ class DashboardScreen extends React.Component {
         this.setState(prevState => ({ expanded: !prevState.expanded }));
     };
 
+    //function to create the chart data for the last 7 days
+    compileChartData = () => {
+        let data = {};
+        // get the current day and construct list of last 7 days ***********************************
+        data['labels'] = ['7','6','5','4','3','2','1'];
+        //iterate over all of the transactions and add them into the appropriate days***************
+        data['datasets'] = [{ data: [10, 20, 30, 20, 50, 60, 70]}];
+        return data;
+    }
+
     render() {
         const { currentWeek, weeklyData, expanded } = this.state;
-        const chartData = weeklyData[currentWeek] || {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{ data: [0, 0, 0, 0, 0, 0, 0] }], // Default to 0 if no data
-        };
+        const chartData = weeklyData[currentWeek] || this.compileChartData();
+
         const user = this.props.userStore;
-        console.log('line 62 dashboard', user);
+        console.log('line 62 dashboard', user.accountList);
         const transactions = [
             {
                 name: 'Netflix',
