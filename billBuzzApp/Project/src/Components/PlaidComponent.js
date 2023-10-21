@@ -2,7 +2,6 @@ import {LinkLogLevel, PlaidLink} from "react-native-plaid-link-sdk";
 import {StyleSheet, Text, View} from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import React from "react";
-
 import {SERVER_ENDPOINT} from "@env";
 import {inject, observer} from "mobx-react";
 
