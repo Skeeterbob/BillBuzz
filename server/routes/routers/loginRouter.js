@@ -25,7 +25,6 @@ loginRouter.post('/verify', async (req, res) => {
 });
 
 loginRouter.post('/getUser', async (req, res) => {
-    console.log('in getUser endpoint');
     const email = req.body.email;
     const password = req.body.password;
     if (!email || !password) {
@@ -33,11 +32,10 @@ loginRouter.post('/getUser', async (req, res) => {
     }
 
     const result = await dbHandler.getUser(email);
-    console.log('36',JSON.parse(result.toJSONString()));
+
     if (result.getPassword() !== password) {
         return res.status(401).json({'error': 'Invalid password'});
     }
-    console.log(result);
     return res.status(200).json(JSON.parse(result.toJSONString()));
 });
 

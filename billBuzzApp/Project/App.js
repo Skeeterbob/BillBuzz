@@ -34,13 +34,10 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-    console.log('in app.js compenentDidMount()');
         this.getUserCredentials().then(user => {
             if (user) {
                 try {
-                    console.log('before getUserData');
                     this.getUserData(user.email, user.password).then(userData => {
-                        console.log(userData);
                         this.props.userStore.updateUser(userData);
                         this.setState({loaded: true});
                     });
@@ -67,9 +64,7 @@ class App extends React.Component {
                 'password': password
             })
         })
-        console.log(response);
         data = await response.json();
-        console.log('72 app',data);
         return data;
     };
 
