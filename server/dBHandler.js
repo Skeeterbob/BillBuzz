@@ -118,10 +118,9 @@ class DBHandler {
     async verifyUser (email, password) {
         let retVal = {};
         let id = await this.#getKeyId(email);
-        id = id['key'];
-        if (id != null) {
+        if (id != null && id['key'] != null) {
+            id = id['key'];
             const encryptedEmail = await this.#encryption.encryptString(email,id);
-            const encryptedPassword = await this.#encryption.encryptString(password,id);
             const result = await this.#usersCollection.findOne({"email":encryptedEmail});
             if (result) {
                 let phNum = result['phoneNumber'];
