@@ -34,53 +34,57 @@ class DashboardScreen extends React.Component {
         };
     }
     componentDidMount() {
+        //TODO: These endpoints do not exist so it breaks the frontend with a network request failed
+        //TODO: Add them back in when the endpoints are created on the server
+        //TODO: We cant add fetch statements to endpoints that dont exist it will only break
+
         // Fetch weekly data
-        fetch('/server-route')
-            .then((response) => response.json())
-            .then((fetchedData) => {
-                // Update the weeklyData state with the fetched data
-                this.setState({
-                    weeklyData: fetchedData.weeklyData || [], // Use empty array if no data
-                });
-            })
-            .catch((error) => {
-                console.error('Error fetching data:', error);
-            });
-
-        // Fetch transactions
-        fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
-            .then(response => response.json())
-            .then(transactions => {
-                if (transactions && transactions.length > 0) {
-                    const groupedTransactions = transactions.reduce((acc, cur) => {
-                        if (!acc[cur.date]) acc[cur.date] = [];
-                        acc[cur.date].push(cur);
-                        return acc;
-                    }, {});
-
-                    const formattedData = Object.keys(groupedTransactions).map(key => ({
-                        title: key,
-                        data: groupedTransactions[key]
-                    }));
-
-                    const sortedData = formattedData.sort((a, b) => {
-                        const dateA = new Date(a.title);
-                        const dateB = new Date(b.title);
-                        return dateB - dateA;
-                    });
-
-                    const recentData = sortedData.slice(0, 3);
-
-                    this.setState({ data: recentData });
-                } else {
-                    console.log('No transactions available');
-                    this.setState({ data: [] });
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching transactions:', error);
-                this.setState({ data: [] });
-            });
+        // fetch('/server-route')
+        //     .then((response) => response.json())
+        //     .then((fetchedData) => {
+        //         // Update the weeklyData state with the fetched data
+        //         this.setState({
+        //             weeklyData: fetchedData.weeklyData || [], // Use empty array if no data
+        //         });
+        //     })
+        //     .catch((error) => {
+        //         console.error('Error fetching data:', error);
+        //     });
+        //
+        // // Fetch transactions
+        // fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
+        //     .then(response => response.json())
+        //     .then(transactions => {
+        //         if (transactions && transactions.length > 0) {
+        //             const groupedTransactions = transactions.reduce((acc, cur) => {
+        //                 if (!acc[cur.date]) acc[cur.date] = [];
+        //                 acc[cur.date].push(cur);
+        //                 return acc;
+        //             }, {});
+        //
+        //             const formattedData = Object.keys(groupedTransactions).map(key => ({
+        //                 title: key,
+        //                 data: groupedTransactions[key]
+        //             }));
+        //
+        //             const sortedData = formattedData.sort((a, b) => {
+        //                 const dateA = new Date(a.title);
+        //                 const dateB = new Date(b.title);
+        //                 return dateB - dateA;
+        //             });
+        //
+        //             const recentData = sortedData.slice(0, 3);
+        //
+        //             this.setState({ data: recentData });
+        //         } else {
+        //             console.log('No transactions available');
+        //             this.setState({ data: [] });
+        //         }
+        //     })
+        //     .catch(error => {
+        //         console.error('Error fetching transactions:', error);
+        //         this.setState({ data: [] });
+        //     });
     }
 
 
