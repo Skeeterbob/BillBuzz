@@ -1,58 +1,57 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import React from 'react';
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 
-const ForgotPasswordScreen = ({ route }) => {
-  const { token } = route.params;  // Assuming you're passing the token through navigation params
+class ForgotPasswordScreen extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      email: '',
+    };
+  }
 
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleResetPassword = async () => {
-    if (!password) {
-      Alert.alert('Error', 'Password is required!');
-      return;
-    }
-
-    setLoading(true);
-
+  handleForgotPassword = async () => {
     try {
-      const response = await fetch('', {
+      const response = await fetch(SERVER_ENDPOINT + '/login/forgot-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token, password }),
+        body: JSON.stringify({
+          email: this.state.email,
+        }),
       });
-
-      const data = await response.json();
-
       if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong!');
+        throw new Error('Network response was not ok ' + response.statusText);
       }
-
-      Alert.alert('Success', 'Your password has been reset successfully.');
-      setPassword('');  // Clear the password input field
-
+      const data = await response.json();
+      Alert.alert(data.message);
     } catch (error) {
-      Alert.alert('Error', error.message);
-    } finally {
-      setLoading(false);
+      console.error(error);
+      Alert.alert('Failed to send email. Please try again later.');
     }
   };
 
-  return (
-    <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
-      <Text>Enter your new password:</Text>
-      <TextInput 
-        value={password}
-        onChangeText={setPassword}
-        placeholder="New Password"
-        secureTextEntry={true}
-        style={{ borderWidth: 1, padding: 10, marginVertical: 10 }}
-      />
-      <Button title="Submit" onPress={handleResetPassword} disabled={loading} />
-    </View>
-  );
-};
+  render() {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
+        <Text style={{ fontSize: 24, marginBottom: 20 }}>Forgot Password</Text>
+
+        <TextInput
+          value={this.state.email}
+          onChangeText={(text) => this.setState({ email: text })}
+          placeholder="Email"
+          style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 20, paddingLeft: 10 }}
+        />
+
+        <TouchableOpacity
+          onPress={this.handleForgotPassword}
+          style={{ backgroundColor: 'blue', padding: 10, alignItems: 'center' }}
+        >
+          <Text style={{ color: 'white' }}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+}
 
 export default ForgotPasswordScreen;
