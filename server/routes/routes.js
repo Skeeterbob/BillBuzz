@@ -5,6 +5,7 @@ import {loginRouter} from './routers/loginRouter.js';
 import {plaidRouter} from './routers/plaidRouter.js';
 import {registerRouter} from './routers/registerRouter.js';
 
+
 const app = express();
 const port = process.env.PORT || 3000; 
 
@@ -18,7 +19,7 @@ function appInit (app) {
     app.use('/plaid', plaidRouter);
     app.use('/db', dBRouter);
     app.use('/register', registerRouter);
-
+    
 };
 
 export {appInit};
