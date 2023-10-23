@@ -28,62 +28,16 @@ class DashboardScreen extends React.Component {
         this.state = {
             // ... other state properties
             weeklyData: [],
-            currentWeek: 0,
+            currentWeek: {},
             data: [],  // added for transactions
+            chartData: {labels: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+                datasets: [{data: [12,20,30,40,50,60,70]}]
+            },
         };
     }
     componentDidMount() {
-        //TODO: These endpoints do not exist so it breaks the frontend with a network request failed
-        //TODO: Add them back in when the endpoints are created on the server
-        //TODO: We cant add fetch statements to endpoints that dont exist it will only break
-    //     fetch('/server-route')
-    //     .then((response) => response.json())
-    //     .then((fetchedData) => {
-    //         // Update the weeklyData state with the fetched data
-    //         this.setState({
-    //             weeklyData: fetchedData.weeklyData || [], // Use empty array if no data
-    //         });
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error fetching data:', error);
-    //     });
-
-    // // Fetch transactions
-    // fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
-    //     .then(response => response.json())
-    //     .then(transactions => {
-    //         if (transactions && transactions.length > 0) {
-    //             const groupedTransactions = transactions.reduce((acc, cur) => {
-    //                 if (!acc[cur.date]) acc[cur.date] = [];
-    //                 acc[cur.date].push(cur);
-    //                 return acc;
-    //             }, {});
-
-    //             const formattedData = Object.keys(groupedTransactions).map(key => ({
-    //                 title: key,
-    //                 data: groupedTransactions[key]
-    //             }));
-
-    //             const sortedData = formattedData.sort((a, b) => {
-    //                 const dateA = new Date(a.title);
-    //                 const dateB = new Date(b.title);
-    //                 return dateB - dateA;
-    //             });
-
-    //             const recentData = sortedData.slice(0, 3);
-
-    //             this.setState({ data: recentData });
-    //         } else {
-    //             console.log('No transactions available');
-    //             this.setState({ data: [] });
-    //         }
-    //     })
-    //     .catch(error => {
-    //         console.error('Error fetching transactions:', error);
-    //         this.setState({ data: [] });
-    //     });
+        this.compileChart();
     }
-
 
     toggleTransactions = () => {
         this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
@@ -93,7 +47,8 @@ class DashboardScreen extends React.Component {
         this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
     };
     prevWeek = () => {  // Go to the previous week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek - 1 }));
+        console.log('in prevweek');
+        this.setState(prevState => (console.log(prevState)));
     }
 
     nextWeek = () => {  // Go to the next week
@@ -104,19 +59,9 @@ class DashboardScreen extends React.Component {
         this.setState(prevState => ({ expanded: !prevState.expanded }));
     };
 
-    //function to create the chart data for the last 7 days
-    compileChartData = (user) => {
-        let data = {};
-        // get the current day and construct list of last 7 days ***********************************
-        data['labels'] = ['7','6','5','4','3','2','1'];
-        //iterate over all of the transactions and add them into the appropriate days***************
-        data['datasets'] = [{ data: [10, 20, 30, 20, 50, 60, 70]}];
-        return data;
-    }
-
-
     // function to return chart data.
     // mode 0 is chart data for the last 7 days.
+    // mode 1 is chart data for a specified week
     // create new modes as needed.
     compileChart = (startDate = null, endDate = null, mode = 0) => {
         const data = {};
@@ -151,15 +96,18 @@ class DashboardScreen extends React.Component {
                     data['datasets'][0]['data'][index] += Number(transaction.amount);
                 }
             }
+            this.setState(() => ({currentWeek: {startDate: threshold, endDate: null}}))
         }
-        return data;
+        this.setState(() => ({chartData: data}));
     }
 
+    //function to initialize the current week to the previous seven days
+    initWeekVar
+
     render() {
-        const { currentWeek, weeklyData, expanded } = this.state;
+        const { chartData, currentWeek, weeklyData, expanded } = this.state;
         const user = this.props.userStore;
-        this.compileChart();
-        let chartData = weeklyData[currentWeek] || this.compileChart();
+        console.log(chartData);
         const transactions = [
             {
                 name: 'Netflix',
@@ -256,6 +204,7 @@ class DashboardScreen extends React.Component {
                                 style: {
                                     borderRadius: 16,
                                 },
+                                barPercentage: 0.85,
                             }}
                             style={{
                                 marginVertical: 8,
