@@ -60,17 +60,13 @@ class UserStore {
     // can also pass one date object to retrieve transaction from today back to a certain date.
     getAllTransactions(endDate = null, startDate = null) {
         var newList = [];
-        console.log(endDate);
-        console.log(startDate);
         for (const account of this.accountList) {
             const transactionList = account.transactionList.transactionList;
             for(const transaction of transactionList) {
                 if (startDate != null && new Date(transaction.date) > startDate){
-                    console.log('start check');
                     continue;
                 }
                 if (endDate != null && new Date(transaction.date) < endDate){
-                    console.log('end check');
                     continue;
                 }
                 transactionDate = new Date(transaction.date);

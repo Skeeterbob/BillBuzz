@@ -119,23 +119,47 @@ class DashboardScreen extends React.Component {
     // mode 0 is chart data for the last 7 days.
     // create new modes as needed.
     compileChart = (startDate = null, endDate = null, mode = 0) => {
-        for(const transaction of transactionList) {
+        const data = {};
+        data['labels'] = []
+        data['datasets'] = [{data: []}];
+        const transList = [];
+        const dayList = ['Sun', 'Mon', 'Tue', 'Wed','Thu','Fri','Sat'];
+        // mode for the last seven days of transactions.
+        if(mode == 0) {
             const today = new Date();
-            const threshold = new Date();
+            // iterate over days going backwards from today to create labels for chart
+            const offset = 6 - today.getDay();
+            for (let i = 0; i < dayList.length; i++){
+                let day = today.getDay() - 1 - i;
+                if (day < 0) {
+                    day = day + 7;
+                }
+                data['labels'][6-i] = dayList[day];
+                data['datasets'][0]['data'][i] = 0;
+            }
+            const threshold = new Date(today);
             threshold.setDate(threshold.getDate() - 7);
-            const date = new Date(transaction.date);
-            if (threshold.getTime() < date.getTime()){
-                //Add functionality to create a list of the transactions that are applicable to the current chart.
-                console.log(date);
-            };
-        };
+            threshold.setHours(0,0,0,0);
+            const transactionList = this.props.userStore.getAllTransactions(threshold, today);
+            for(const transaction of transactionList) {
+                const date = new Date(transaction.date);
+                if (threshold < date){
+                    let index = offset + date.getDay();
+                    if (index > 6) {
+                        index -= 7;
+                    }
+                    data['datasets'][0]['data'][index] += Number(transaction.amount);
+                }
+            }
+        }
+        return data;
     }
 
     render() {
         const { currentWeek, weeklyData, expanded } = this.state;
         const user = this.props.userStore;
-        //this.compileChart(user);
-        let chartData = weeklyData[currentWeek] || this.compileChartData(user);
+        this.compileChart();
+        let chartData = weeklyData[currentWeek] || this.compileChart();
         const transactions = [
             {
                 name: 'Netflix',
