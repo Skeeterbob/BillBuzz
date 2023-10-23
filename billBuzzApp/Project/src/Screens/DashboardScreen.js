@@ -105,7 +105,7 @@ class DashboardScreen extends React.Component {
     };
 
     //function to create the chart data for the last 7 days
-    compileChartData = () => {
+    compileChartData = (user) => {
         let data = {};
         // get the current day and construct list of last 7 days ***********************************
         data['labels'] = ['7','6','5','4','3','2','1'];
@@ -114,11 +114,33 @@ class DashboardScreen extends React.Component {
         return data;
     }
 
+
+
+    compileChart = (user, startDate = null, endDate = null, mode = 0) => {
+            const accountList = user.accountList;
+            for (const account of accountList) {
+                const transactionList = account.transactionList.transactionList;
+                for(const transaction of transactionList) {
+                    console.log('in transaction loop', transaction);
+                    const today = new Date();
+                    const threshold = new Date();
+                    threshold.setDate(threshold.getDate() - 7);
+                    const date = new Date(transaction.date);
+                    if (threshold.getTime() < date.getTime()){
+                        //Add functionality to create a list of the transactions that are applicable to the current chart.
+                        console.log(date);
+                    };
+                };
+            };
+        };
+
     render() {
         const { currentWeek, weeklyData, expanded } = this.state;
-        const chartData = weeklyData[currentWeek] || this.compileChartData();
-
         const user = this.props.userStore;
+        console.log(this.props.userStore.getAllTransactions());
+        //this.compileChart(user);
+        let chartData = weeklyData[currentWeek] || this.compileChartData(user);
+
         const transactions = [
             {
                 name: 'Netflix',
