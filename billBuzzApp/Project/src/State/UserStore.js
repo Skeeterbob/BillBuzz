@@ -56,19 +56,26 @@ class UserStore {
     }
 
     // function to return all transactions for a user in chronological order.
-    getAllTransactions() {
+    // can pass two date objects to only retrieve transactions for a specified time frame
+    // can also pass one date object to retrieve transaction from today back to a certain date.
+    getAllTransactions(endDate = null, startDate = null) {
         var newList = [];
-        console.log(this.accountList)
         for (const account of this.accountList) {
             const transactionList = account.transactionList.transactionList;
             for(const transaction of transactionList) {
-                console.log('in transaction loop', transaction);
-                console.log(newList.length);
+                if (startDate != null && new Date(transaction.date) > startDate){
+                    continue;
+                }
+                if (endDate != null && new Date(transaction.date) < endDate){
+                    continue;
+                }
+
+
                 transactionDate = new Date(transaction.date);
                 if (newList.length > 0) {
                     for (let i = 0; i < newList.length; i++) {
                         const listDate = new Date(newList[i].date);
-                        console.log(transactionDate > listDate);
+
                         if (transactionDate > listDate) {
                             newList.splice(i, 0, transaction);
                             break;
@@ -82,7 +89,7 @@ class UserStore {
                 else {
                     newList.push(transaction);
                 }
-                console.log(newList)
+
             };
         };
         return newList;
