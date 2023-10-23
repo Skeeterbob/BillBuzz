@@ -13,7 +13,7 @@ const KEY_VAULT_NAMESPACE = `${KEY_VAULT_DATABASE}.${KEY_VAULT_COLLECTION}`;
 
 
 class DBHandler {
-    #mongoConnectionURL
+    #mongoConnectionURL;
     #encryption;
     #client;
     #db;

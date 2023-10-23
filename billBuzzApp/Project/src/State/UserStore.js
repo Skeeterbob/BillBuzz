@@ -54,6 +54,39 @@ class UserStore {
         this.accountList = [];
         this.weeklyData = [];
     }
+
+    // function to return all transactions for a user in chronological order.
+    getAllTransactions() {
+        var newList = [];
+        console.log(this.accountList)
+        for (const account of this.accountList) {
+            const transactionList = account.transactionList.transactionList;
+            for(const transaction of transactionList) {
+                console.log('in transaction loop', transaction);
+                console.log(newList.length);
+                transactionDate = new Date(transaction.date);
+                if (newList.length > 0) {
+                    for (let i = 0; i < newList.length; i++) {
+                        const listDate = new Date(newList[i].date);
+                        console.log(transactionDate > listDate);
+                        if (transactionDate > listDate) {
+                            newList.splice(i, 0, transaction);
+                            break;
+                        }
+                        if (i == newList.length -1) {
+                            newList.push(transaction);
+                            break;
+                        }
+                    }
+                }
+                else {
+                    newList.push(transaction);
+                }
+                console.log(newList)
+            };
+        };
+        return newList;
+    }
 }
 
 export default new UserStore();
