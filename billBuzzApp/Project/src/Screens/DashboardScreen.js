@@ -136,7 +136,6 @@ class DashboardScreen extends React.Component {
         const user = this.props.userStore;
         //this.compileChart(user);
         let chartData = weeklyData[currentWeek] || this.compileChartData(user);
-
         const transactions = [
             {
                 name: 'Netflix',
