@@ -8,6 +8,7 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import {getAllTransactions} from "../utils/Utils";
+import { toJS } from "mobx";
 
 const upcomingOverdrafts = [
     {
@@ -55,7 +56,7 @@ class DashboardScreen extends React.Component {
             const offset = currentWeek.startDate.getDay();
             // why is the day reading wrong here?
             console.log(currentWeek.startDate.getDay(),currentWeek.startDate);
-            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - offset);
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - offset - 1);
             currentWeek.endDate = new Date(currentWeek.startDate);
             currentWeek.endDate.setDate(currentWeek.startDate.getDate() + 7);
             currentWeek.endDate.setHours(-4);
@@ -71,6 +72,7 @@ class DashboardScreen extends React.Component {
             currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7);
             currentWeek.endDate.setDate(currentWeek.endDate.getDate() - 7);
             console.log(currentWeek.startDate, currentWeek.endDate);
+            console.log('state', this.state.currentWeek);
             this.setState(() => ({currentWeek: currentWeek}));
             this.compileChart(currentWeek.startDate, currentWeek.endDate,1);
         }
@@ -93,14 +95,14 @@ class DashboardScreen extends React.Component {
         data['labels'] = []
         data['datasets'] = [{data: []}];
         const transList = [];
-        const dayList = ['Sun', 'Mon', 'Tue', 'Wed','Thu','Fri','Sat'];
+        let dayList = ['Sun', 'Mon', 'Tue', 'Wed','Thu','Fri','Sat'];
         // mode for the last seven days of transactions.
         if(mode == 0) {
             const today = new Date();
             // iterate over days going backwards from today to create labels for chart
             const offset = 6 - today.getDay();
             for (let i = 0; i < dayList.length; i++){
-                let day = today.getDay() - 1 - i;
+                let day = today.getDay() - i;
                 if (day < 0) {
                     day = day + 7;
                 }
@@ -114,17 +116,37 @@ class DashboardScreen extends React.Component {
             for(const transaction of transactionList) {
                 const date = new Date(transaction.date);
                 if (threshold < date){
-                    let index = offset + date.getDay();
+                    let index = offset + date.getDay() + 1;
                     if (index > 6) {
                         index -= 7;
                     }
                     data['datasets'][0]['data'][index] += Number(transaction.amount);
                 }
             }
+            console.log(transactionList);
+            console.log(data['datasets'][0]['data']);
             this.setState(() => ({currentWeek: {startDate: threshold, endDate: null}}))
         }
         //mode for standard weekly chart Sunday to Saturday.
         if (mode == 1) {
+            data['labels'] = dayList;
+            const transactionList = getAllTransactions(this.props.userStore, startDate, endDate);
+            console.log(transactionList);
+            for (let i = 0; i < dayList.length; i++){
+                data['datasets'][0]['data'][i] = 0;
+            }
+            console.log(data['datasets'][0]['data']);
+            for (const transaction of transactionList) {
+                console.log(transaction);
+                const date = new Date(transaction.date);
+                let index = date.getDay() + 1;
+                if (index > 6) {
+                    index -= 7;
+                }
+                console.log(date.getDay());
+                data['datasets'][0]['data'][index] += Number(transaction.amount);
+                console.log(data['datasets'][0]['data']);
+            }
             console.log('mode 1');
         }
         this.setState(() => ({chartData: data}));
