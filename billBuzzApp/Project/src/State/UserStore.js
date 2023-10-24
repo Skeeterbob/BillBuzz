@@ -87,7 +87,6 @@ class UserStore {
                 else {
                     newList.push(transaction);
                 }
-
             };
         };
         return newList;

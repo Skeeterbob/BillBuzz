@@ -48,11 +48,26 @@ class DashboardScreen extends React.Component {
     };
     prevWeek = () => {  // Go to the previous week
         console.log('in prevweek');
-        this.setState(prevState => (console.log(prevState)));
+        const currentWeek = this.state.currentWeek;
+        if (currentWeek.startDate.getDay() != 0 && currentWeek.endDate == null) {
+            const offset = currentWeek.startDate.getDay();
+            console.log(currentWeek.startDate)
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - offset);
+            currentWeek.endDate = new Date(currentWeek.startDate);
+            currentWeek.endDate.setDate(currentWeek.startDate.getDate() - 7);
+            console.log(currentWeek.startDate);
+            console.log(currentWeek.endDate);
+            this.compileChart(currentWeek.startDate, currentWeek.endDate);
+            // TODO: can add in code to change the text on the chart here.
+        }
+        else {
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7)
+        }
+        this.compileChart(currentWeek.startDate, currentWeek.endDate);
     }
 
     nextWeek = () => {  // Go to the next week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek + 1 }));
+        console.log('in nextWeek');
     }
 
     handleToggleExpand = () => {
@@ -98,6 +113,9 @@ class DashboardScreen extends React.Component {
             }
             this.setState(() => ({currentWeek: {startDate: threshold, endDate: null}}))
         }
+        if (mode == 1) {
+
+        }
         this.setState(() => ({chartData: data}));
     }
 
@@ -107,7 +125,6 @@ class DashboardScreen extends React.Component {
     render() {
         const { chartData, currentWeek, weeklyData, expanded } = this.state;
         const user = this.props.userStore;
-        console.log(chartData);
         const transactions = [
             {
                 name: 'Netflix',
@@ -171,11 +188,13 @@ class DashboardScreen extends React.Component {
 
                     <View style={styles.lineChartContainer}>
                         <View style={styles.summaryHeader}>
-                            <Text style={styles.lineChartTitle}>Transactions This Week:</Text>
+                            <Text style={styles.lineChartTitle}>Transactions by Week:</Text>
                         </View>
 
                         <View style={styles.weeklyView}>
-                            <TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {this.prevWeek()}}
+                            >
                                 <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
 
@@ -183,7 +202,9 @@ class DashboardScreen extends React.Component {
                                 <Text style={styles.weeklyViewText}>This Week</Text>
                             </View>
 
-                            <TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {this.nextWeek()}}
+                            >
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
