@@ -1,15 +1,37 @@
 import React from 'react';
-import {View, Text, StyleSheet, ScrollView} from 'react-native';
+import {View, Text, StyleSheet, ScrollView, TextInput} from 'react-native';
+import {Picker} from "@react-native-picker/picker";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import {inject, observer} from "mobx-react";
 
 class TransactionScreen extends React.Component {
 
+    state = {
+        filterText: '',
+        sortBy: 'default'
+    };
+
     render() {
+        const {filterText, sortBy} = this.state;
         const user = this.props.userStore;
         let transactions = [];
         for (const account of user.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
+        }
+
+        let filteredTransactions = transactions.filter(transaction =>
+            transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase())
+        );
+
+        switch(sortBy) {
+            case 'cost':
+                filteredTransactions.sort((a, b) => b.amount - a.amount);
+                break;
+            case 'alpha':
+                filteredTransactions.sort((a, b) => a.subscriptionName.localeCompare(b.subscriptionName));
+                break;
+            default:
+                break;
         }
 
         return (
@@ -26,7 +48,28 @@ class TransactionScreen extends React.Component {
                         <Text style={styles.lineChartTitle}>Recent Transactions</Text>
                     </View>
 
-                    {transactions.map(transaction =>
+                    <View style={styles.filterContainer}>
+                        <TextInput
+                            style={styles.filterInput}
+                            placeholder="Filter by keyword..."
+                            value={this.state.filterText}
+                            onChangeText={(text) => this.setState({filterText: text})}
+                            placeholderTextColor={'#FFFFFF'}
+                        />
+
+                        <Picker
+                            selectedValue={filterText}
+                            style={styles.filterPicker}
+                            onValueChange={(itemValue, itemIndex) =>
+                                this.setState({sortBy: itemValue})
+                            }>
+                            <Picker.Item label="Default" value="default" />
+                            <Picker.Item label="Highest to Lowest Cost" value="cost" />
+                            <Picker.Item label="Alphabetical" value="alpha" />
+                        </Picker>
+                    </View>
+
+                    {filteredTransactions.map(transaction =>
                         <TransactionComponent
                             key={transaction.name + '-' + Math.random()}
                             transaction={transaction}
@@ -128,6 +171,30 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 4
+    },
+    filterContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '90%',
+        alignItems: 'center',
+        marginTop: 16
+    },
+    filterInput: {
+        width: '60%',
+        padding: 10,
+        borderRadius: 6,
+        backgroundColor: '#212121',
+        color: '#FFFFFF'
+    },
+    pickerContainer: {
+        borderRadius: 6,
+        marginLeft: 6
+    },
+    filterPicker: {
+        flex: 1,
+        backgroundColor: '#eca239',
+        color: '#FFFFFF',
+        marginLeft: 8
     }
 });
 
