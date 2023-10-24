@@ -63,17 +63,18 @@ class DBHandler {
     }
 
     //Update user information
-    async updateUser(user) {
+    //Take in an email too in case the user updates their email, we will have the original
+    async updateUser(email, user) {
         try {
             //Get key from email in user class
-            let id = await this.#getKeyId(user.getEmail());
+            let id = await this.#getKeyId(email);
             id = id['key'];
 
             if (id == null) {
                 console.log('User does not exist');
                 return false;
             } else {
-                const encryptedEmail = await this.#encryption.encryptString(user.getEmail(),id);
+                const encryptedEmail = await this.#encryption.encryptString(email,id);
                 //Encrypt new user data
                 const encryptedUser = await this.#encryption.encryptUser(user, id);
 

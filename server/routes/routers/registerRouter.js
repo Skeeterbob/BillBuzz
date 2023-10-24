@@ -24,9 +24,14 @@ registerRouter.post('/createUser', async (req, res) => {
 
 registerRouter.post('/updateUser', async (req, res) => {
     try {
-        let user = new User(req.body);
-        const result = await dbHandler.updateUser(user);
-        res.status(200).json(result);
+        let user = new User(req.body.user);
+        let email = req.body.email;
+        const result = await dbHandler.updateUser(email, user);
+        if (result['acknowledged'] && result['modifiedCount'] >= 1) {
+            res.status(200).json(JSON.parse(user.toJSONString()));
+        }else {
+            res.status(500).json({error: "/register/createUser could not update user"})
+        }
     } catch (err) {
         console.log(err);
         res.status(400).json({error: "/register/createUser endpoint error"})
