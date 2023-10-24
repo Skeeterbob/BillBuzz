@@ -58,7 +58,7 @@ class TransactionScreen extends React.Component {
                         />
 
                         <Picker
-                            selectedValue={filterText}
+                            selectedValue={sortBy}
                             style={styles.filterPicker}
                             onValueChange={(itemValue, itemIndex) =>
                                 this.setState({sortBy: itemValue})
