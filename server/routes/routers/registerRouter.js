@@ -29,7 +29,7 @@ registerRouter.post('/updateUser', async (req, res) => {
         res.status(200).json(result);
     } catch (err) {
         console.log(err);
-        res.status(400).json({error: "/register/createUser endpoint error"})
+        res.status(400).json({error: "/register/updateUser endpoint error"})
     }
 });
 

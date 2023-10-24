@@ -36,7 +36,7 @@ class DashboardScreen extends React.Component {
         };
     }
     componentDidMount() {
-        this.compileChart();
+       this.compileChart();
     }
 
     toggleTransactions = () => {
@@ -47,23 +47,32 @@ class DashboardScreen extends React.Component {
         this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
     };
     prevWeek = () => {  // Go to the previous week
-        console.log('in prevweek');
-        const currentWeek = this.state.currentWeek;
-        if (currentWeek.startDate.getDay() != 0 && currentWeek.endDate == null) {
+        let currentWeek = this.state.currentWeek;
+        console.log(currentWeek);
+        // if it is the current week view modify the date range to start on sunday
+        if (currentWeek.startDate.getDay() != 0 || currentWeek.endDate == null) {
             const offset = currentWeek.startDate.getDay();
-            console.log(currentWeek.startDate)
+            // why is the day reading wrong here?
+            console.log(currentWeek.startDate.getDay(),currentWeek.startDate);
             currentWeek.startDate.setDate(currentWeek.startDate.getDate() - offset);
             currentWeek.endDate = new Date(currentWeek.startDate);
-            currentWeek.endDate.setDate(currentWeek.startDate.getDate() - 7);
-            console.log(currentWeek.startDate);
-            console.log(currentWeek.endDate);
-            this.compileChart(currentWeek.startDate, currentWeek.endDate);
+            currentWeek.endDate.setDate(currentWeek.startDate.getDate() + 7);
+            currentWeek.endDate.setHours(-4);
+            currentWeek.startDate.setHours(-4);
+            console.log('if',currentWeek.startDate, currentWeek.endDate);
+            this.setState(() => ({currentWeek: currentWeek}));
+            console.log('state', this.state.currentWeek);
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
+
             // TODO: can add in code to change the text on the chart here.
         }
         else {
-            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7)
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7);
+            currentWeek.endDate.setDate(currentWeek.endDate.getDate() - 7);
+            console.log(currentWeek.startDate, currentWeek.endDate);
+            this.setState(() => ({currentWeek: currentWeek}));
+            this.compileChart(currentWeek.startDate, currentWeek.endDate,1);
         }
-        this.compileChart(currentWeek.startDate, currentWeek.endDate);
     }
 
     nextWeek = () => {  // Go to the next week
@@ -113,8 +122,9 @@ class DashboardScreen extends React.Component {
             }
             this.setState(() => ({currentWeek: {startDate: threshold, endDate: null}}))
         }
+        //mode for standard weekly chart Sunday to Saturday.
         if (mode == 1) {
-
+            console.log('mode 1');
         }
         this.setState(() => ({chartData: data}));
     }
