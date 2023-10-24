@@ -1,11 +1,18 @@
-import nodemailer from 'nodemailer';
-
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'ihatejunkmail42@gmail.com', 
-    pass: 'Sensor1050!' 
+class EmailHandler {
+  constructor(transporter) {
+    this.transporter = transporter;
   }
-});
 
-export default transporter;
+  sendMail(to, subject, text, callback) {
+    const mailOptions = {
+      from: 'your-email@example.com', // sender address
+      to, // list of receivers
+      subject, // Subject line
+      text, // plain text body
+    };
+
+    this.transporter.sendMail(mailOptions, callback);
+  }
+}
+
+export default EmailHandler;
