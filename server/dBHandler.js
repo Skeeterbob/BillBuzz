@@ -24,6 +24,7 @@ class DBHandler {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
     }
 
+    
     async init() {
         //Create our initial MongoClient based on our connection URL and options
         this.#client = new MongoClient(this.#mongoConnectionURL, {
@@ -400,6 +401,7 @@ class Encryption {
         //return await clientEncryption.decrypt(targetString);
         return await this.#encryption.decrypt(targetString, encryptionOptions);
     }
+    
 }
 
 export {DBHandler};
