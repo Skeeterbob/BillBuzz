@@ -8,6 +8,7 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import {getAllTransactions} from "../utils/Utils";
+import { toJS } from "mobx";
 
 const upcomingOverdrafts = [
     {
@@ -29,62 +30,16 @@ class DashboardScreen extends React.Component {
         this.state = {
             // ... other state properties
             weeklyData: [],
-            currentWeek: 0,
+            currentWeek: {},
             data: [],  // added for transactions
+            chartData: {labels: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+                datasets: [{data: [12,20,30,40,50,60,70]}]
+            },
         };
     }
     componentDidMount() {
-        //TODO: These endpoints do not exist so it breaks the frontend with a network request failed
-        //TODO: Add them back in when the endpoints are created on the server
-        //TODO: We cant add fetch statements to endpoints that dont exist it will only break
-    //     fetch('/server-route')
-    //     .then((response) => response.json())
-    //     .then((fetchedData) => {
-    //         // Update the weeklyData state with the fetched data
-    //         this.setState({
-    //             weeklyData: fetchedData.weeklyData || [], // Use empty array if no data
-    //         });
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error fetching data:', error);
-    //     });
-
-    // // Fetch transactions
-    // fetch(SERVER_ENDPOINT + '/plaid/getTransactions')
-    //     .then(response => response.json())
-    //     .then(transactions => {
-    //         if (transactions && transactions.length > 0) {
-    //             const groupedTransactions = transactions.reduce((acc, cur) => {
-    //                 if (!acc[cur.date]) acc[cur.date] = [];
-    //                 acc[cur.date].push(cur);
-    //                 return acc;
-    //             }, {});
-
-    //             const formattedData = Object.keys(groupedTransactions).map(key => ({
-    //                 title: key,
-    //                 data: groupedTransactions[key]
-    //             }));
-
-    //             const sortedData = formattedData.sort((a, b) => {
-    //                 const dateA = new Date(a.title);
-    //                 const dateB = new Date(b.title);
-    //                 return dateB - dateA;
-    //             });
-
-    //             const recentData = sortedData.slice(0, 3);
-
-    //             this.setState({ data: recentData });
-    //         } else {
-    //             console.log('No transactions available');
-    //             this.setState({ data: [] });
-    //         }
-    //     })
-    //     .catch(error => {
-    //         console.error('Error fetching transactions:', error);
-    //         this.setState({ data: [] });
-    //     });
+       this.compileChart();
     }
-
 
     toggleTransactions = () => {
         this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
@@ -94,44 +49,73 @@ class DashboardScreen extends React.Component {
         this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
     };
     prevWeek = () => {  // Go to the previous week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek - 1 }));
+        let currentWeek = this.state.currentWeek;
+        // if it is the current week view modify the date range to start on sunday
+        if (currentWeek.startDate.getDay() != 0 || currentWeek.endDate == null) {
+            const offset = currentWeek.startDate.getDay();
+            // why is the day reading wrong here?
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - offset - 1);
+            currentWeek.endDate = new Date(currentWeek.startDate);
+            currentWeek.endDate.setDate(currentWeek.startDate.getDate() + 7);
+            currentWeek.endDate.setHours(-4);
+            currentWeek.startDate.setHours(-4);
+            this.setState(() => ({currentWeek: currentWeek}));
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
+            // TODO: can add in code to change the text on the chart here.
+        }
+        else {
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7);
+            currentWeek.endDate.setDate(currentWeek.endDate.getDate() - 7);
+            this.setState(() => ({currentWeek: currentWeek}));
+            this.compileChart(currentWeek.startDate, currentWeek.endDate,1);
+            // TODO: can add in code to change the text on the chart here.
+        }
     }
 
     nextWeek = () => {  // Go to the next week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek + 1 }));
+        let currentWeek = this.state.currentWeek;
+        //increase the currentWeek by one week;
+        currentWeek.startDate.setDate(currentWeek.startDate.getDate() + 7);
+        if (currentWeek.endDate != null) {
+            currentWeek.endDate.setDate(currentWeek.endDate.getDate() + 7);
+        }
+        //check to see if we will push the date forward past today's date
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        if (today <= currentWeek.endDate || currentWeek.endDate == null) {
+            currentWeek.endDate = null;
+            currentWeek.startDate.setDate(today.getDate() - 7);
+            this.compileChart(currentWeek.startDate, currentWeek.endDate,0);
+            // TODO: can add in code to change the text on the chart here.
+        }
+        else {
+            this.compileChart(currentWeek.startDate, currentWeek.endDate,1);
+            // TODO: can add in code to change the text on the chart here.
+        }
+        this.setState(() => ({currentWeek: currentWeek}));
     }
 
     handleToggleExpand = () => {
         this.setState(prevState => ({ expanded: !prevState.expanded }));
     };
 
-    //function to create the chart data for the last 7 days
-    compileChartData = (user) => {
-        let data = {};
-        // get the current day and construct list of last 7 days ***********************************
-        data['labels'] = ['7','6','5','4','3','2','1'];
-        //iterate over all of the transactions and add them into the appropriate days***************
-        data['datasets'] = [{ data: [10, 20, 30, 20, 50, 60, 70]}];
-        return data;
-    }
-
-
     // function to return chart data.
     // mode 0 is chart data for the last 7 days.
+    // mode 1 is chart data for a specified week
     // create new modes as needed.
     compileChart = (startDate = null, endDate = null, mode = 0) => {
         const data = {};
         data['labels'] = []
         data['datasets'] = [{data: []}];
         const transList = [];
-        const dayList = ['Sun', 'Mon', 'Tue', 'Wed','Thu','Fri','Sat'];
+        let dayList = ['Sun', 'Mon', 'Tue', 'Wed','Thu','Fri','Sat'];
         // mode for the last seven days of transactions.
         if(mode == 0) {
             const today = new Date();
             // iterate over days going backwards from today to create labels for chart
             const offset = 6 - today.getDay();
             for (let i = 0; i < dayList.length; i++){
-                let day = today.getDay() - 1 - i;
+                let day = today.getDay() - i;
                 if (day < 0) {
                     day = day + 7;
                 }
@@ -141,27 +125,41 @@ class DashboardScreen extends React.Component {
             const threshold = new Date(today);
             threshold.setDate(threshold.getDate() - 7);
             threshold.setHours(0,0,0,0);
-            //const transactionList = this.props.userStore.getAllTransactions(threshold, today);
             const transactionList = getAllTransactions(this.props.userStore, threshold, today);
             for(const transaction of transactionList) {
                 const date = new Date(transaction.date);
                 if (threshold < date){
-                    let index = offset + date.getDay();
+                    let index = offset + date.getDay() + 1;
                     if (index > 6) {
                         index -= 7;
                     }
                     data['datasets'][0]['data'][index] += Number(transaction.amount);
                 }
             }
+            this.setState(() => ({currentWeek: {startDate: threshold, endDate: null}}))
         }
-        return data;
+        //mode for standard weekly chart Sunday to Saturday. Requires Two date objects.
+        if (mode == 1) {
+            data['labels'] = dayList;
+            const transactionList = getAllTransactions(this.props.userStore, startDate, endDate);
+            for (let i = 0; i < dayList.length; i++){
+                data['datasets'][0]['data'][i] = 0;
+            }
+            for (const transaction of transactionList) {
+                const date = new Date(transaction.date);
+                let index = date.getDay() + 1;
+                if (index > 6) {
+                    index -= 7;
+                }
+                data['datasets'][0]['data'][index] += Number(transaction.amount);
+            }
+        }
+        this.setState(() => ({chartData: data}));
     }
 
     render() {
-        const { currentWeek, weeklyData, expanded } = this.state;
+        const { chartData, currentWeek, weeklyData, expanded } = this.state;
         const user = this.props.userStore;
-        this.compileChart();
-        let chartData = weeklyData[currentWeek] || this.compileChart();
         const transactions = [
             {
                 name: 'Netflix',
@@ -225,11 +223,13 @@ class DashboardScreen extends React.Component {
 
                     <View style={styles.lineChartContainer}>
                         <View style={styles.summaryHeader}>
-                            <Text style={styles.lineChartTitle}>Transactions This Week:</Text>
+                            <Text style={styles.lineChartTitle}>Transactions by Week:</Text>
                         </View>
 
                         <View style={styles.weeklyView}>
-                            <TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {this.prevWeek()}}
+                            >
                                 <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
 
@@ -237,7 +237,9 @@ class DashboardScreen extends React.Component {
                                 <Text style={styles.weeklyViewText}>This Week</Text>
                             </View>
 
-                            <TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {this.nextWeek()}}
+                            >
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
@@ -258,6 +260,7 @@ class DashboardScreen extends React.Component {
                                 style: {
                                     borderRadius: 16,
                                 },
+                                barPercentage: 0.85,
                             }}
                             style={{
                                 marginVertical: 8,
