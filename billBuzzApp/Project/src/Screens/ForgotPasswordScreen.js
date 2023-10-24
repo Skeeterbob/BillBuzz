@@ -22,7 +22,8 @@ class ForgotPasswordScreen extends React.Component {
         }),
       });
       if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
+        //throw new Error('Network response was not ok ' + response.statusText);
+        console.log(response)
       }
       const data = await response.json();
       Alert.alert(data.message);
