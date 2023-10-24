@@ -65,51 +65,71 @@ loginRouter.post('/verify/sms', async (req, res) => {
 loginRouter.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
 
-    const user = await dbHandler.getUser(email);
-    if (!user) {
-        return res.status(400).json({ error: 'User with this email does not exist.' });
+    if (!email) {
+        return res.status(400).send({ "error": 'Email field is required' });
     }
 
-    // Create token
-    const token = crypto.randomBytes(20).toString('hex');
-    user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    await dbHandler.updateUser(email, user);
+    try {
+        const user = await dbHandler.getUser(email);
+        if (!user) {
+            return res.status(404).send({ "error": 'User not found' });
+        }
 
-    // Send email
-    const mailOptions = {
-        to: user.email,
-        from: 'ihatejunkmail42@gmail.com',
-        subject: 'Password Reset',
-        text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
-             Please click on the following link, or paste this into your browser to complete the process:\n\n
-             http://${req.headers.host}/login/reset-password/${token}\n\n
-             If you did not request this, please ignore this email and your password will remain unchanged.\n`
-    };
+        // Generate a reset token
+        const token = crypto.randomBytes(20).toString('hex');
+        user.resetPasswordToken = token;
+        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
-    transporter.sendMail(mailOptions, (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: 'An email has been sent to ' + user.email + ' with further instructions.' });
-    });
+        await dbHandler.updateUser(user);
+
+        // Send an email to the user with the reset link
+        const mailOptions = {
+            from: 'your-email@gmail.com',
+            to: user.email,
+            subject: 'Password Reset',
+            text: `Click the following link to reset your password: http://your-app.com/reset-password/${token}`,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+                return res.status(500).send({ "error": 'Error sending email' });
+            }
+            console.log('Email sent: ' + info.response);
+            res.status(200).send({ "message": 'Reset email sent' });
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ "error": 'Internal server error' });
+    }
 });
 
-// Reset the password
+// Route to handle the password reset
 loginRouter.post('/reset-password/:token', async (req, res) => {
-    const { password } = req.body;
     const { token } = req.params;
+    const { password } = req.body;
 
-    const user = await dbHandler.getUserByResetToken(token);
-    if (!user || user.resetPasswordExpires < Date.now()) {
-        return res.status(400).json({ error: 'Password reset token is invalid or has expired.' });
+    if (!token || !password) {
+        return res.status(400).send({ "error": 'Token and password fields are required' });
     }
 
-    // Update password
-    user.password = password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpires = undefined;
-    await dbHandler.updateUser(user.getEmail(), user);
+    try {
+        const user = await dbHandler.getUserByToken(token);
+        if (!user || user.resetPasswordExpires < Date.now()) {
+            return res.status(404).send({ "error": 'Token is invalid or has expired' });
+        }
 
-    res.json({ message: 'Password has been updated.' });
+        user.password = password;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+
+        await dbHandler.updateUser(user);
+
+        res.status(200).send({ "message": 'Password successfully reset' });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ "error": 'Internal server error' });
+    }
 });
 
 export { loginRouter };
