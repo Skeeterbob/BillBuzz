@@ -50,28 +50,22 @@ class DashboardScreen extends React.Component {
     };
     prevWeek = () => {  // Go to the previous week
         let currentWeek = this.state.currentWeek;
-        console.log(currentWeek);
         // if it is the current week view modify the date range to start on sunday
         if (currentWeek.startDate.getDay() != 0 || currentWeek.endDate == null) {
             const offset = currentWeek.startDate.getDay();
             // why is the day reading wrong here?
-            console.log(currentWeek.startDate.getDay(),currentWeek.startDate);
             currentWeek.startDate.setDate(currentWeek.startDate.getDate() - offset - 1);
             currentWeek.endDate = new Date(currentWeek.startDate);
             currentWeek.endDate.setDate(currentWeek.startDate.getDate() + 7);
             currentWeek.endDate.setHours(-4);
             currentWeek.startDate.setHours(-4);
-            console.log('if',currentWeek.startDate, currentWeek.endDate);
             this.setState(() => ({currentWeek: currentWeek}));
-            console.log('state', this.state.currentWeek);
             this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
             // TODO: can add in code to change the text on the chart here.
         }
         else {
             currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7);
             currentWeek.endDate.setDate(currentWeek.endDate.getDate() - 7);
-            console.log(currentWeek.startDate, currentWeek.endDate);
-            console.log('state', this.state.currentWeek);
             this.setState(() => ({currentWeek: currentWeek}));
             this.compileChart(currentWeek.startDate, currentWeek.endDate,1);
             // TODO: can add in code to change the text on the chart here.
@@ -79,9 +73,7 @@ class DashboardScreen extends React.Component {
     }
 
     nextWeek = () => {  // Go to the next week
-        console.log('in nextWeek');
         let currentWeek = this.state.currentWeek;
-        console.log(currentWeek);
         //increase the currentWeek by one week;
         currentWeek.startDate.setDate(currentWeek.startDate.getDate() + 7);
         if (currentWeek.endDate != null) {
@@ -91,7 +83,6 @@ class DashboardScreen extends React.Component {
         const today = new Date();
         today.setHours(0,0,0,0);
         if (today <= currentWeek.endDate || currentWeek.endDate == null) {
-            console.log('need to modify date to show most recent 7 days and set endDate to null');
             currentWeek.endDate = null;
             currentWeek.startDate.setDate(today.getDate() - 7);
             this.compileChart(currentWeek.startDate, currentWeek.endDate,0);
@@ -145,31 +136,23 @@ class DashboardScreen extends React.Component {
                     data['datasets'][0]['data'][index] += Number(transaction.amount);
                 }
             }
-            console.log(transactionList);
-            console.log(data['datasets'][0]['data']);
             this.setState(() => ({currentWeek: {startDate: threshold, endDate: null}}))
         }
         //mode for standard weekly chart Sunday to Saturday. Requires Two date objects.
         if (mode == 1) {
             data['labels'] = dayList;
             const transactionList = getAllTransactions(this.props.userStore, startDate, endDate);
-            console.log(transactionList);
             for (let i = 0; i < dayList.length; i++){
                 data['datasets'][0]['data'][i] = 0;
             }
-            console.log(data['datasets'][0]['data']);
             for (const transaction of transactionList) {
-                console.log(transaction);
                 const date = new Date(transaction.date);
                 let index = date.getDay() + 1;
                 if (index > 6) {
                     index -= 7;
                 }
-                console.log(date.getDay());
                 data['datasets'][0]['data'][index] += Number(transaction.amount);
-                console.log(data['datasets'][0]['data']);
             }
-            console.log('mode 1');
         }
         this.setState(() => ({chartData: data}));
     }
