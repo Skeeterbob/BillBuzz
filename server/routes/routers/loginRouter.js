@@ -65,7 +65,7 @@ loginRouter.post('/verify/sms', async (req, res) => {
 loginRouter.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
 
-    const user = await dbHandler.getUserByEmail(email);
+    const user = await dbHandler.getUser(email);
     if (!user) {
         return res.status(400).json({ error: 'User with this email does not exist.' });
     }
@@ -79,7 +79,7 @@ loginRouter.post('/forgot-password', async (req, res) => {
     // Send email
     const mailOptions = {
         to: user.email,
-        from: 'your-email@example.com',
+        from: 'ihatejunkmail42@gmail.com',
         subject: 'Password Reset',
         text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
              Please click on the following link, or paste this into your browser to complete the process:\n\n
