@@ -63,19 +63,24 @@ class DBHandler {
     }
 
     //Update user information
-    async updateUser(user) {
+    //Take in an email too in case the user updates their email, we will have the original
+    async updateUser(email, user) {
         try {
             //Get key from email in user class
-            let id = await this.#getKeyId(user.getEmail());
+            let id = await this.#getKeyId(email);
             id = id['key'];
 
             if (id == null) {
                 console.log('User does not exist');
                 return false;
             } else {
-                const encryptedEmail = await this.#encryption.encryptString(user.getEmail(),id);
+                const encryptedEmail = await this.#encryption.encryptString(email,id);
                 //Encrypt new user data
                 const encryptedUser = await this.#encryption.encryptUser(user, id);
+
+                if (user.getEmail() !== email) {
+                    await this.#encryption.updateKeyId(user.getEmail(), id);
+                }
 
                 return await this.#usersCollection.updateOne(
                     {email: encryptedEmail},
@@ -145,6 +150,11 @@ class DBHandler {
         let result = await this.#idCollection.insertOne({"email": email, "key":id});
         return id;
     };
+
+    async updateKeyId(email, keyId) {
+        await this.#idCollection.insertOne({"email": email, "key":keyId});
+        return keyId;
+    }
     //This functioni returns a schema to identify fields to be encrypted.
     //Will be useful if we setup autoencryption later.
     /*#getUserEncryptSchema (id) {

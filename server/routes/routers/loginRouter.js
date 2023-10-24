@@ -74,7 +74,7 @@ loginRouter.post('/forgot-password', async (req, res) => {
     const token = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-    await dbHandler.updateUser(user);
+    await dbHandler.updateUser(email, user);
 
     // Send email
     const mailOptions = {
@@ -107,7 +107,7 @@ loginRouter.post('/reset-password/:token', async (req, res) => {
     user.password = password;
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
-    await dbHandler.updateUser(user);
+    await dbHandler.updateUser(user.getEmail(), user);
 
     res.json({ message: 'Password has been updated.' });
 });

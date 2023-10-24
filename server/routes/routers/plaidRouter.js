@@ -82,7 +82,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
             newUserData.accountList.push(newAccount);
         }
 
-        await dbHandler.updateUser(new User(newUserData))
+        await dbHandler.updateUser(newUserData.email, new User(newUserData))
         res.status(200).json({status: 'success', user: newUserData});
     }
     catch (error) {

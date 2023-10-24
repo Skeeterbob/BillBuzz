@@ -154,7 +154,7 @@ class Account {
     #balance;
     #transactionList;
     #accessToken;
-    #variableList = ['id', 'name', 'balance', 'transactionList'];
+    #variableList = ['id', 'name', 'balance', 'transactionList', 'accessToken'];
 
     constructor(data) {
         if (Array.isArray(data)){
