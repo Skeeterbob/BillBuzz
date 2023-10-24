@@ -7,6 +7,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
+import {getAllTransactions} from "../utils/Utils";
 
 const upcomingOverdrafts = [
     {
@@ -140,7 +141,8 @@ class DashboardScreen extends React.Component {
             const threshold = new Date(today);
             threshold.setDate(threshold.getDate() - 7);
             threshold.setHours(0,0,0,0);
-            const transactionList = this.props.userStore.getAllTransactions(threshold, today);
+            //const transactionList = this.props.userStore.getAllTransactions(threshold, today);
+            const transactionList = getAllTransactions(this.props.userStore, threshold, today);
             for(const transaction of transactionList) {
                 const date = new Date(transaction.date);
                 if (threshold < date){
