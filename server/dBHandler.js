@@ -78,6 +78,10 @@ class DBHandler {
                 //Encrypt new user data
                 const encryptedUser = await this.#encryption.encryptUser(user, id);
 
+                if (user.getEmail() !== email) {
+                    await this.#encryption.updateKeyId(user.getEmail(), id);
+                }
+
                 return await this.#usersCollection.updateOne(
                     {email: encryptedEmail},
                     {$set: encryptedUser},
@@ -146,6 +150,11 @@ class DBHandler {
         let result = await this.#idCollection.insertOne({"email": email, "key":id});
         return id;
     };
+
+    async updateKeyId(email, keyId) {
+        let result = await this.#idCollection.insertOne({"email": email, "key":keyId});
+        return keyId;
+    }
     //This functioni returns a schema to identify fields to be encrypted.
     //Will be useful if we setup autoencryption later.
     /*#getUserEncryptSchema (id) {
