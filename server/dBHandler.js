@@ -152,7 +152,7 @@ class DBHandler {
     };
 
     async updateKeyId(email, keyId) {
-        let result = await this.#idCollection.insertOne({"email": email, "key":keyId});
+        await this.#idCollection.insertOne({"email": email, "key":keyId});
         return keyId;
     }
     //This functioni returns a schema to identify fields to be encrypted.
