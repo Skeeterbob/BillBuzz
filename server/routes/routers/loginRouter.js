@@ -2,7 +2,8 @@ import express from 'express';
 import { dbHandler, twilioHandler } from "../../handlers.js";
 import crypto from 'crypto';
 import nodemailer from 'nodemailer';
-import transporter from './emailTransporter.js';
+import transporter from './emailHandler.js';
+import emailHandler from './transporter.js'; // or wherever you exported emailHandler
 
 const loginRouter = express.Router();
 
@@ -80,24 +81,24 @@ loginRouter.post('/forgot-password', async (req, res) => {
         user.resetPasswordToken = token;
         user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
 
-        await dbHandler.updateUser(user);
+        await dbHandler.updateUserPassword(user);
 
         // Send an email to the user with the reset link
-        const mailOptions = {
-            from: 'your-email@gmail.com',
-            to: user.email,
-            subject: 'Password Reset',
-            text: `Click the following link to reset your password: http://your-app.com/reset-password/${token}`,
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.log(error);
-                return res.status(500).send({ "error": 'Error sending email' });
+        emailHandler.sendMail(
+            email,
+            'Reset Your Password',
+            'Here is your password reset link: ...', // The email text should include the password reset link or token
+            (error, info) => {
+              if (error) {
+                console.log('Error sending email: ', error);
+                res.status(500).send('Error sending password reset email');
+              } else {
+                console.log('Password reset email sent: ', info.response);
+                res.status(200).send('Password reset email sent');
+              }
             }
-            console.log('Email sent: ' + info.response);
-            res.status(200).send({ "message": 'Reset email sent' });
-        });
+          );
+
     } catch (error) {
         console.log(error);
         res.status(500).send({ "error": 'Internal server error' });
@@ -123,7 +124,7 @@ loginRouter.post('/reset-password/:token', async (req, res) => {
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
 
-        await dbHandler.updateUser(user);
+        await dbHandler.updateUserPassword(user);
 
         res.status(200).send({ "message": 'Password successfully reset' });
     } catch (error) {
