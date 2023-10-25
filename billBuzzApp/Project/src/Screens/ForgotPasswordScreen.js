@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SERVER_ENDPOINT } from "@env";
 
+
 class ForgotPasswordScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -23,7 +24,7 @@ class ForgotPasswordScreen extends React.Component {
       });
       if (!response.ok) {
         //throw new Error('Network response was not ok ' + response.statusText);
-        console.log(response)
+        console.log(response.status, response.statusText);
       }
       const data = await response.json();
       Alert.alert(data.message);
