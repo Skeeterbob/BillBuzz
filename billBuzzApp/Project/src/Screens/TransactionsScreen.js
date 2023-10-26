@@ -88,6 +88,10 @@ class TransactionScreen extends React.Component {
     }
 }
 
+const truncateText = (text) => {
+    return text.length > 25 ? text.slice(0, 25) + '...' : text;
+};
+
 const TransactionComponent = (transaction) => {
     console.log(JSON.stringify(transaction));
 
@@ -100,7 +104,7 @@ const TransactionComponent = (transaction) => {
             </View> */}
 
             <View style={styles.transactionData}>
-                <Text style={{ color: '#f3a111' }}>{transaction.transaction.subscriptionName}</Text>
+                <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
             </View>
             <View style={styles.transactionDate}>

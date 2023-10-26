@@ -25,19 +25,20 @@ const upcomingOverdrafts = [
 ];
 
 class DashboardScreen extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            // ... other state properties
-            weeklyData: [],
-            currentWeek: {},
-            data: [],  // added for transactions
-            chartData: {
-                labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                datasets: [{ data: [12, 20, 30, 40, 50, 60, 70] }]
-            },
-        };
-    }
+
+    state = {
+        // ... other state properties
+        weeklyData: [],
+        currentWeek: {},
+        data: [],  // added for transactions
+        chartData: {
+            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            datasets: [{ data: [12, 20, 30, 40, 50, 60, 70] }]
+        },
+        filterText: '',
+        sortBy: 'default'
+    };
+
     componentDidMount() {
         this.compileChart();
     }
@@ -159,11 +160,6 @@ class DashboardScreen extends React.Component {
     }
 
     render() {
-        state = {
-            filterText: '',
-            sortBy: 'default'
-        };
-
         const { chartData} = this.state;
         const user = this.props.userStore;
         const { sortBy } = this.state;
@@ -192,20 +188,7 @@ class DashboardScreen extends React.Component {
             default:
                 break;
         }
-        // const transactions = [
-        //     {
-        //         name: 'Netflix',
-        //         amount: 17.99
-        //     },
-        //     {
-        //         name: 'Starbucks',
-        //         amount: 8.54
-        //     },
-        //     {
-        //         name: 'Hulu',
-        //         amount: 12.99
-        //     }
-        // ];
+
         const creditCard = user.accountList[0] ?? { name: 'TEst Data', balance: 0 };
 
         user.accountList.forEach(account => {
@@ -306,38 +289,23 @@ class DashboardScreen extends React.Component {
 
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
-                            <Text style={styles.summaryText}>Summary</Text>
+                            <Text style={styles.summaryText}>Recent Transactions</Text>
                         </View>
 
-                        <View style={styles.summaryDetails}>
-                            <Text style={styles.detailsText}>Total Bank Balance: <Text
-                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
-                            <Text style={styles.detailsText}>Total Available Credit: <Text
-                                style={styles.detailsInfoText}>${user.availableCredit}</Text></Text>
-                            {/*TODO: Figure out what total credit balance is*/}
-                            <Text style={styles.detailsText}>Total Credit Balance: <Text
-                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
+                        <View style={styles.summaryCards}>
+                            {filteredTransactions.length === 0 ? (
+                                <View style={styles.noTransactionsText}>
+                                    <Text>No transactions found.</Text>
+                                </View>
+                            ) : (
+                                filteredTransactions.slice(0, 3).map((transaction, index) =>
+                                    <TransactionComponent
+                                        key={transaction.name + '-' + Math.random()}
+                                        transaction={transaction}
+                                    />
+                                )
+                            )}
                         </View>
-
-
-                        <View style={styles.container}>
-                            <Text style={styles.recentTransactionsText}>Recent Transactions</Text>
-                            <View style={styles.summaryCards}>
-                                {filteredTransactions.length === 0 ? (
-                                    <View style={styles.noTransactionsText}>
-                                        <Text>No transactions found.</Text>
-                                    </View>
-                                ) : (
-                                    filteredTransactions.slice(0, 3).map((transaction, index) =>
-                                        <TransactionComponent
-                                            key={transaction.name + '-' + Math.random()}
-                                            transaction={transaction}
-                                        />
-                                    )
-                                )}
-                            </View>
-                        </View>
-
 
                         <TouchableOpacity
                             style={styles.summaryButton}
@@ -384,6 +352,11 @@ class DashboardScreen extends React.Component {
 
     }
 }
+
+const truncateText = (text) => {
+    return text.length > 25 ? text.slice(0, 25) + '...' : text;
+};
+
 const TransactionComponent = (transaction) => {
     console.log(JSON.stringify(transaction));
 
@@ -396,7 +369,7 @@ const TransactionComponent = (transaction) => {
             </View> */}
 
             <View style={styles.transactionData}>
-                <Text style={{ color: '#f3a111' }}>{transaction.transaction.subscriptionName}</Text>
+                <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
             </View>
             <View style={styles.transactionDate}>
@@ -646,8 +619,6 @@ const styles = StyleSheet.create({
     summaryCards: {
         width: '100%',
         height: 'auto',
-        borderColor: '#FFFFFF',
-        borderTopWidth: 2,
         marginTop: 4,
         alignItems: 'center',
     },
