@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
+import {View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Platform, StatusBar} from 'react-native';
 import { Picker } from "@react-native-picker/picker";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import { inject, observer } from "mobx-react";
+import Icon from "react-native-vector-icons/Ionicons";
 
 class TransactionScreen extends React.Component {
 
@@ -50,7 +51,14 @@ class TransactionScreen extends React.Component {
                 style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
 
-                <ScrollView contentContainerStyle={{ width: '100%', display: 'flex', alignItems: 'center' }}>
+                <ScrollView contentContainerStyle={{ width: '100%', display: 'flex', alignItems: 'center', paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
+                    <View style={styles.pageHeader}>
+                        <TouchableOpacity style={styles.headerButton} onPress={() => this.props.navigation.goBack(null)}>
+                            <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                            <Text style={styles.backText}>Back</Text>
+                        </TouchableOpacity>
+                    </View>
+
                     <View style={styles.summaryHeader}>
                         <Text style={styles.lineChartTitle}>Recent Transactions</Text>
                     </View>
@@ -157,7 +165,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderColor: '#FFFFFF',
         borderBottomWidth: 2,
-        paddingTop: 40,
     },
     debit: {
         color: 'red',
@@ -213,7 +220,32 @@ const styles = StyleSheet.create({
         backgroundColor: '#eca239',
         color: '#FFFFFF',
         marginLeft: 8
-    }
+    },
+    pageHeader: {
+        width: '100%',
+        height: 'auto',
+        paddingLeft: 16,
+        paddingRight: 16,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
+    },
+    headerButton: {
+        width: 'auto',
+        height: 40,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: '#F4CE82',
+        borderRadius: 25
+    },
+    backText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold'
+    },
 });
 
 export default inject('userStore')(observer(TransactionScreen));
