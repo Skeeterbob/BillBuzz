@@ -164,9 +164,9 @@ class DashboardScreen extends React.Component {
             sortBy: 'default'
         };
 
-        const { chartData, currentWeek, weeklyData, expanded } = this.state;
+        const { chartData} = this.state;
         const user = this.props.userStore;
-        const { filterText, sortBy } = this.state;
+        const { sortBy } = this.state;
         let transactions = [];
         for (const account of user.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
@@ -175,6 +175,12 @@ class DashboardScreen extends React.Component {
         let filteredTransactions = transactions.filter(transaction =>
             transaction.subscriptionName.toLowerCase()
         );
+
+        filteredTransactions.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA;
+        });
 
         switch (sortBy) {
             case 'cost':
@@ -383,16 +389,18 @@ const TransactionComponent = (transaction) => {
 
     return (
         <View style={styles.transaction}>
-            <View style={styles.transactionHeader}>
+            {/* <View style={styles.transactionHeader}>
                 <Text style={{ color: '#FFFFFF' }}>Merchant</Text>
                 <Text style={{ color: '#FFFFFF' }}>Amount</Text>
                 <Text style={{ color: '#FFFFFF' }}>Date</Text>
-            </View>
+            </View> */}
 
             <View style={styles.transactionData}>
                 <Text style={{ color: '#f3a111' }}>{transaction.transaction.subscriptionName}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
-                <Text style={{ color: '#f3a111' }}>{formatDate(transaction.transaction.date)}</Text>
+            </View>
+            <View style={styles.transactionDate}>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic'}}>{formatDate(transaction.transaction.date)}</Text>
             </View>
         </View>
     );
@@ -420,6 +428,10 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 1,
         padding: 5,
+    },
+    transactionDate: {
+        alignSelf: 'flex-end',
+        fontStyle: 'italic',
     },
     transaction: {
         width: '90%',

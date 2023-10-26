@@ -12,6 +12,10 @@ const getAllTransactions = (user, endDate = null, startDate = null) => {
             if (endDate != null && new Date(transaction.date) < endDate){
                 continue;
             }
+            if(transaction.amount.includes('-')){
+                continue;
+            }
+
             const transactionDate = new Date(transaction.date);
             if (newList.length > 0) {
                 for (let i = 0; i < newList.length; i++) {

@@ -1,8 +1,8 @@
 import React from 'react';
-import {View, Text, StyleSheet, ScrollView, TextInput} from 'react-native';
-import {Picker} from "@react-native-picker/picker";
+import { View, Text, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { Picker } from "@react-native-picker/picker";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
-import {inject, observer} from "mobx-react";
+import { inject, observer } from "mobx-react";
 
 class TransactionScreen extends React.Component {
 
@@ -12,9 +12,10 @@ class TransactionScreen extends React.Component {
     };
 
     render() {
-        const {filterText, sortBy} = this.state;
+        const { filterText, sortBy } = this.state;
         const user = this.props.userStore;
         let transactions = [];
+
         for (const account of user.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
@@ -23,7 +24,13 @@ class TransactionScreen extends React.Component {
             transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase())
         );
 
-        switch(sortBy) {
+        filteredTransactions.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA;
+        });
+
+        switch (sortBy) {
             case 'cost':
                 filteredTransactions.sort((a, b) => b.amount - a.amount);
                 break;
@@ -43,7 +50,7 @@ class TransactionScreen extends React.Component {
                 style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
 
-                <ScrollView contentContainerStyle={{width: '100%', display: 'flex', alignItems: 'center'}}>
+                <ScrollView contentContainerStyle={{ width: '100%', display: 'flex', alignItems: 'center' }}>
                     <View style={styles.summaryHeader}>
                         <Text style={styles.lineChartTitle}>Recent Transactions</Text>
                     </View>
@@ -53,7 +60,7 @@ class TransactionScreen extends React.Component {
                             style={styles.filterInput}
                             placeholder="Filter by keyword..."
                             value={this.state.filterText}
-                            onChangeText={(text) => this.setState({filterText: text})}
+                            onChangeText={(text) => this.setState({ filterText: text })}
                             placeholderTextColor={'#FFFFFF'}
                         />
 
@@ -61,7 +68,7 @@ class TransactionScreen extends React.Component {
                             selectedValue={sortBy}
                             style={styles.filterPicker}
                             onValueChange={(itemValue, itemIndex) =>
-                                this.setState({sortBy: itemValue})
+                                this.setState({ sortBy: itemValue })
                             }>
                             <Picker.Item label="Default" value="default" />
                             <Picker.Item label="Highest to Lowest Cost" value="cost" />
@@ -86,17 +93,20 @@ const TransactionComponent = (transaction) => {
 
     return (
         <View style={styles.transaction}>
-            <View style={styles.transactionHeader}>
+            {/* <View style={styles.transactionHeader}>
                 <Text style={{color: '#FFFFFF'}}>Merchant</Text>
                 <Text style={{color: '#FFFFFF'}}>Amount</Text>
                 <Text style={{color: '#FFFFFF'}}>Date</Text>
-            </View>
+            </View> */}
 
             <View style={styles.transactionData}>
-                <Text style={{color: '#f3a111'}}>{transaction.transaction.subscriptionName}</Text>
-                <Text style={{color: '#f3a111'}}>${transaction.transaction.amount}</Text>
-                <Text style={{color: '#f3a111'}}>{formatDate(transaction.transaction.date)}</Text>
+                <Text style={{ color: '#f3a111' }}>{transaction.transaction.subscriptionName}</Text>
+                <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
             </View>
+            <View style={styles.transactionDate}>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{formatDate(transaction.transaction.date)}</Text>
+            </View>
+
         </View>
     );
 }
@@ -112,11 +122,15 @@ function formatDate(dateString) {
 }
 
 const styles = StyleSheet.create({
-    
+
     transactionItem: {
         padding: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
+    },
+    transactionDate: {
+        alignSelf: 'flex-end',
+
     },
     lineChartTitle: {
         fontSize: 18,
