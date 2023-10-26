@@ -160,7 +160,8 @@ class DashboardScreen extends React.Component {
     }
 
     render() {
-        const { chartData} = this.state;
+        const { chartData, currentWeek} = this.state;
+        const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
         const { sortBy } = this.state;
         let transactions = [];
@@ -249,7 +250,7 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>This Week</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth()+"/"+weekDate.getDay()+"/"+weekDate.getFullYear()}</Text>
                             </View>
 
                             <TouchableOpacity
