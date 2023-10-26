@@ -7,7 +7,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
-import {getAllTransactions} from "../utils/Utils";
+import { getAllTransactions } from "../utils/Utils";
 import { toJS } from "mobx";
 
 const upcomingOverdrafts = [
@@ -25,20 +25,22 @@ const upcomingOverdrafts = [
 ];
 
 class DashboardScreen extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            // ... other state properties
-            weeklyData: [],
-            currentWeek: {},
-            data: [],  // added for transactions
-            chartData: {labels: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
-                datasets: [{data: [12,20,30,40,50,60,70]}]
-            },
-        };
-    }
+
+    state = {
+        // ... other state properties
+        weeklyData: [],
+        currentWeek: {},
+        data: [],  // added for transactions
+        chartData: {
+            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            datasets: [{ data: [12, 20, 30, 40, 50, 60, 70] }]
+        },
+        filterText: '',
+        sortBy: 'default'
+    };
+
     componentDidMount() {
-       this.compileChart();
+        this.compileChart();
     }
 
     toggleTransactions = () => {
@@ -59,15 +61,15 @@ class DashboardScreen extends React.Component {
             currentWeek.endDate.setDate(currentWeek.startDate.getDate() + 7);
             currentWeek.endDate.setHours(-4);
             currentWeek.startDate.setHours(-4);
-            this.setState(() => ({currentWeek: currentWeek}));
+            this.setState(() => ({ currentWeek: currentWeek }));
             this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
             // TODO: can add in code to change the text on the chart here.
         }
         else {
             currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7);
             currentWeek.endDate.setDate(currentWeek.endDate.getDate() - 7);
-            this.setState(() => ({currentWeek: currentWeek}));
-            this.compileChart(currentWeek.startDate, currentWeek.endDate,1);
+            this.setState(() => ({ currentWeek: currentWeek }));
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
             // TODO: can add in code to change the text on the chart here.
         }
     }
@@ -81,18 +83,18 @@ class DashboardScreen extends React.Component {
         }
         //check to see if we will push the date forward past today's date
         const today = new Date();
-        today.setHours(0,0,0,0);
+        today.setHours(0, 0, 0, 0);
         if (today <= currentWeek.endDate || currentWeek.endDate == null) {
             currentWeek.endDate = null;
             currentWeek.startDate.setDate(today.getDate() - 7);
-            this.compileChart(currentWeek.startDate, currentWeek.endDate,0);
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 0);
             // TODO: can add in code to change the text on the chart here.
         }
         else {
-            this.compileChart(currentWeek.startDate, currentWeek.endDate,1);
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
             // TODO: can add in code to change the text on the chart here.
         }
-        this.setState(() => ({currentWeek: currentWeek}));
+        this.setState(() => ({ currentWeek: currentWeek }));
     }
 
     handleToggleExpand = () => {
@@ -106,29 +108,29 @@ class DashboardScreen extends React.Component {
     compileChart = (startDate = null, endDate = null, mode = 0) => {
         const data = {};
         data['labels'] = []
-        data['datasets'] = [{data: []}];
+        data['datasets'] = [{ data: [] }];
         const transList = [];
-        let dayList = ['Sun', 'Mon', 'Tue', 'Wed','Thu','Fri','Sat'];
+        let dayList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         // mode for the last seven days of transactions.
-        if(mode == 0) {
+        if (mode == 0) {
             const today = new Date();
             // iterate over days going backwards from today to create labels for chart
             const offset = 6 - today.getDay();
-            for (let i = 0; i < dayList.length; i++){
+            for (let i = 0; i < dayList.length; i++) {
                 let day = today.getDay() - i;
                 if (day < 0) {
                     day = day + 7;
                 }
-                data['labels'][6-i] = dayList[day];
+                data['labels'][6 - i] = dayList[day];
                 data['datasets'][0]['data'][i] = 0;
             }
             const threshold = new Date(today);
             threshold.setDate(threshold.getDate() - 7);
-            threshold.setHours(0,0,0,0);
+            threshold.setHours(0, 0, 0, 0);
             const transactionList = getAllTransactions(this.props.userStore, threshold, today);
-            for(const transaction of transactionList) {
+            for (const transaction of transactionList) {
                 const date = new Date(transaction.date);
-                if (threshold < date){
+                if (threshold < date) {
                     let index = offset + date.getDay() + 1;
                     if (index > 6) {
                         index -= 7;
@@ -136,13 +138,13 @@ class DashboardScreen extends React.Component {
                     data['datasets'][0]['data'][index] += Number(transaction.amount);
                 }
             }
-            this.setState(() => ({currentWeek: {startDate: threshold, endDate: null}}))
+            this.setState(() => ({ currentWeek: { startDate: threshold, endDate: null } }))
         }
         //mode for standard weekly chart Sunday to Saturday. Requires Two date objects.
         if (mode == 1) {
             data['labels'] = dayList;
             const transactionList = getAllTransactions(this.props.userStore, startDate, endDate);
-            for (let i = 0; i < dayList.length; i++){
+            for (let i = 0; i < dayList.length; i++) {
                 data['datasets'][0]['data'][i] = 0;
             }
             for (const transaction of transactionList) {
@@ -154,26 +156,40 @@ class DashboardScreen extends React.Component {
                 data['datasets'][0]['data'][index] += Number(transaction.amount);
             }
         }
-        this.setState(() => ({chartData: data}));
+        this.setState(() => ({ chartData: data }));
     }
 
     render() {
-        const { chartData, currentWeek, weeklyData, expanded } = this.state;
+        const { chartData, currentWeek} = this.state;
+        const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
-        const transactions = [
-            {
-                name: 'Netflix',
-                amount: 17.99
-            },
-            {
-                name: 'Starbucks',
-                amount: 8.54
-            },
-            {
-                name: 'Hulu',
-                amount: 12.99
-            }
-        ];
+        const { sortBy } = this.state;
+        let transactions = [];
+        for (const account of user.accountList) {
+            account.transactionList.transactionList.forEach(value => transactions.push(value))
+        }
+
+        let filteredTransactions = transactions.filter(transaction =>
+            transaction.subscriptionName.toLowerCase()
+        );
+
+        filteredTransactions.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA;
+        });
+
+        switch (sortBy) {
+            case 'cost':
+                filteredTransactions.sort((a, b) => b.amount - a.amount);
+                break;
+            case 'alpha':
+                filteredTransactions.sort((a, b) => a.subscriptionName.localeCompare(b.subscriptionName));
+                break;
+            default:
+                break;
+        }
+
         const creditCard = user.accountList[0] ?? { name: 'TEst Data', balance: 0 };
 
         user.accountList.forEach(account => {
@@ -228,17 +244,17 @@ class DashboardScreen extends React.Component {
 
                         <View style={styles.weeklyView}>
                             <TouchableOpacity
-                                onPress={() => {this.prevWeek()}}
+                                onPress={() => { this.prevWeek() }}
                             >
                                 <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>This Week</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth()+"/"+weekDate.getDay()+"/"+weekDate.getFullYear()}</Text>
                             </View>
 
                             <TouchableOpacity
-                                onPress={() => {this.nextWeek()}}
+                                onPress={() => { this.nextWeek() }}
                             >
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
@@ -274,41 +290,23 @@ class DashboardScreen extends React.Component {
 
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
-                            <Text style={styles.summaryText}>Summary</Text>
+                            <Text style={styles.summaryText}>Recent Transactions</Text>
                         </View>
 
-                        <View style={styles.summaryDetails}>
-                            <Text style={styles.detailsText}>Total Bank Balance: <Text
-                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
-                            <Text style={styles.detailsText}>Total Available Credit: <Text
-                                style={styles.detailsInfoText}>${user.availableCredit}</Text></Text>
-                            {/*TODO: Figure out what total credit balance is*/}
-                            <Text style={styles.detailsText}>Total Credit Balance: <Text
-                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
+                        <View style={styles.summaryCards}>
+                            {filteredTransactions.length === 0 ? (
+                                <View style={styles.noTransactionsText}>
+                                    <Text>No transactions found.</Text>
+                                </View>
+                            ) : (
+                                filteredTransactions.slice(0, 3).map((transaction, index) =>
+                                    <TransactionComponent
+                                        key={transaction.name + '-' + Math.random()}
+                                        transaction={transaction}
+                                    />
+                                )
+                            )}
                         </View>
-
-                        
-                        <View style={styles.container}>
-                            <Text style={styles.recentTransactionsText}>Recent Transactions</Text>
-                            <View style={styles.summaryCards}>
-                                {this.state.data.length > 0 ? (
-                                    data.map(section => (
-                                        section.data.map(transaction => (
-                                            <View
-                                                key={transaction.name + '-' + transaction.amount}
-                                                style={styles.summaryCard}
-                                            >
-                                                <Text style={styles.creditCardText}>{transaction.name}</Text>
-                                                <Text style={styles.creditCardText}>${transaction.amount}</Text>
-                                            </View>
-                                        ))
-                                    ))
-                                ) : (
-                                    <Text style={styles.noTransactionsText}>No recent transactions.</Text>
-                                )}
-                            </View>
-                        </View>
-
 
                         <TouchableOpacity
                             style={styles.summaryButton}
@@ -356,6 +354,44 @@ class DashboardScreen extends React.Component {
     }
 }
 
+const truncateText = (text) => {
+    return text.length > 25 ? text.slice(0, 25) + '...' : text;
+};
+
+const TransactionComponent = (transaction) => {
+    console.log(JSON.stringify(transaction));
+
+    return (
+        <View style={styles.transaction}>
+            {/* <View style={styles.transactionHeader}>
+                <Text style={{ color: '#FFFFFF' }}>Merchant</Text>
+                <Text style={{ color: '#FFFFFF' }}>Amount</Text>
+                <Text style={{ color: '#FFFFFF' }}>Date</Text>
+            </View> */}
+
+            <View style={styles.transactionData}>
+                <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
+                <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
+            </View>
+            <View style={styles.transactionDate}>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic'}}>{formatDate(transaction.transaction.date)}</Text>
+            </View>
+        </View>
+    );
+}
+
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${month}/${day}/${year}`;
+}
+
+
 const styles = StyleSheet.create({
     Text: {
         color: '#FFFFFF',
@@ -366,6 +402,35 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 1,
         padding: 5,
+    },
+    transactionDate: {
+        alignSelf: 'flex-end',
+        fontStyle: 'italic',
+    },
+    transaction: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        backgroundColor: '#212121',
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: 12,
+        padding: 8
+    },
+    transactionHeader: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    transactionData: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 4
     },
     upcomingOverdrafts: {
         width: '90%',
@@ -555,9 +620,8 @@ const styles = StyleSheet.create({
     summaryCards: {
         width: '100%',
         height: 'auto',
-        borderColor: '#FFFFFF',
-        borderTopWidth: 2,
-        marginTop: 4
+        marginTop: 4,
+        alignItems: 'center',
     },
     recentTransactionsText: {
         fontWeight: 'bold',
@@ -565,7 +629,8 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginTop: 8,
         marginLeft: 'auto',
-        marginRight: 'auto'
+        marginRight: 'auto',
+
     },
     summardCard: {
         width: '100%',

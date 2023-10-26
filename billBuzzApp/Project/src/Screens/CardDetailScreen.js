@@ -33,7 +33,7 @@ class CardDetailScreen extends React.Component {
                 end={{ x: 1, y: 1 }}
                 style={styles.body}
             >
-                <SafeAreaView style={{flex: 1, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0}}>
+                <SafeAreaView style={{ flex: 1, paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0 }}>
                     <View style={styles.pageHeader}>
                         <TouchableOpacity style={styles.backButton} onPress={() => this.props.navigation.goBack(null)}>
                             <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
@@ -66,8 +66,11 @@ class CardDetailScreen extends React.Component {
         );
     }
 }
+const truncateText = (text) => {
+    return text.length > 25 ? text.slice(0, 25) + '...' : text;
+};
 
-const TransactionCardComponent = ({name, date, amount}) => {
+const TransactionCardComponent = ({ name, date, amount }) => {
     const formattedDate = formatDate(date);
 
     return (
@@ -79,22 +82,19 @@ const TransactionCardComponent = ({name, date, amount}) => {
 
             style={styles.transactionCard}
         >
-            <View>
-                <Text style={{color: '#F4CE82', fontSize: 14}}>Merchant</Text>
-                <Text style={{color: '#eca239', fontSize: 14, fontWeight: 'bold'}}>{name}</Text>
+            <View styles={styles.transaction}>
+
+                <Text style={{ color: '#eca239', fontSize: 16, fontWeight: 'bold' }}>{truncateText(name)}</Text>
+                
+            </View>
+            <View style={styles.transactionDate}>
+                <Text style={{ color: '#eca239', fontSize: 16, fontWeight: 'bold' }}>${amount}</Text>
+                <Text style={{ color: '#ffffff', fontSize: 16, fontWeight: 'bold' }}>{formattedDate}</Text>
             </View>
 
-            <View>
-                <Text style={{color: '#F4CE82', fontSize: 14}}>Amount</Text>
-                <Text style={{color: '#eca239', fontSize: 18, fontWeight: 'bold'}}>${amount}</Text>
-            </View>
 
-            <View>
-                <Text style={{color: '#F4CE82', fontSize: 14}}>Date</Text>
-                <Text style={{color: '#eca239', fontSize: 18, fontWeight: 'bold'}}>{formattedDate}</Text>
-            </View>
         </LinearGradient>
-    )
+    );
 };
 
 function formatDate(dateString) {
@@ -112,6 +112,28 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         backgroundColor: '#0B0D10'
+    },
+    transaction: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        backgroundColor: '#212121',
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: 12,
+        padding: 8
+    },
+    transactionData: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 4
+    },
+    transactionDate: {
+        alignSelf: 'flex-end',
+
     },
     scrollViewContent: {
         width: '100%',

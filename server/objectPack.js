@@ -61,7 +61,14 @@ class User {
             console.log(err);
         }
     }
-
+    toObject() {
+        return {
+          // map each property of the User instance to a key in the returned object
+          property1: this.property1,
+          property2: this.property2,
+          // ... (and so on for all properties of the User class)
+        };
+      }
     //function to add an account to the account list
     /*addAccount(account) { 
         need to make sure that it is of class account and add it to the 

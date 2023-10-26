@@ -14,12 +14,11 @@ import {
 import {inject, observer} from "mobx-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/Ionicons";
+import Logo from '../../assets/images/bee_logo.png';
 
 import {SERVER_ENDPOINT} from "@env";
 import Toast from "react-native-toast-message";
 import {TextInputMask} from "react-native-masked-text";
-
-const profilePicture = 'https://i.pinimg.com/736x/03/4b/de/034bde783ea726b922100c86547831e8.jpg';
 
 const PHONE_NUMBER_REGEX = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
@@ -143,7 +142,7 @@ class ProfileScreen extends React.Component {
                     </View>
 
                     <View style={styles.profileIntro}>
-                        <Image style={styles.profileImage} source={{uri: profilePicture}} resizeMode={"cover"}/>
+                        <Image style={styles.profileImage} source={Logo} resizeMode={"cover"}/>
                         <Text style={styles.nameHeading}>
                             {`${user.firstName} ${user.lastName}`}
                         </Text>
