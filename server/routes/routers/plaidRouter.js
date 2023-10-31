@@ -109,16 +109,43 @@ plaidRouter.post('/getTransactions', async (req,res) => {
 
 plaidRouter.post('/getrecurringTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
+    if (!accessToken) {
+        return res.status(400).send({error: 'Access token required!'});
+    }
+
     try {
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString().split('T')[0];
         const response = await plaidHandler.getRecurringTransactions(accessToken, startDate, endDate);
-        res.json(response);
+        const transactions = response.transactions;
+
+        //Group transactions by their name
+        const groupedByName = transactions.reduce((acc, transaction) => {
+            (acc[transaction.name] = acc[transaction.name] || []).push(transaction);
+            return acc;
+        }, {});
+
+        //Minimum number of times this transaction has to show to be considered 'recurring'
+        const minOccurrences = 4;
+        const potentialRecurring = Object.values(groupedByName).filter(
+            transactions => transactions.length >= minOccurrences
+        );
+
+        const recurringTransactions = potentialRecurring.map(transactionsOfSameName => {
+            let transaction = transactionsOfSameName[0];
+            return {
+                amount: transaction.amount,
+                name: transaction.name,
+                vendorName: transaction.merchant_name
+            };
+        });
+
+        res.status(200).json({transactions: recurringTransactions});
     }
     catch (error) {
         // handle error for getRecurringTransactions
-        console.error('Retreving Recurring Transactions error:', error);
-        throw error;
+        console.error('Retrieving Recurring Transactions error:', error);
+        return res.status(500).send({error: 'Unknown error!'});
     }
 });
 

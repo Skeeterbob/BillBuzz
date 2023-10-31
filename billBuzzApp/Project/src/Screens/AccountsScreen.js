@@ -142,6 +142,7 @@ class AccountsScreen extends React.Component {
                                 amountDue={0}
                                 dueDate={'N/A'}
                                 transactions={account.transactionList.transactionList}
+                                token={account.accessToken}
                                 navigation={this.navigation}
                             />
                         ))}
@@ -152,7 +153,7 @@ class AccountsScreen extends React.Component {
     };
 }
 
-const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, navigation}) => (
+const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, token, navigation}) => (
     <TouchableOpacity style={styles.creditCard} onPress={() => {
         navigation.navigate({
             name: 'CardDetails',
@@ -162,7 +163,8 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, n
                     balance,
                     amountDue,
                     dueDate,
-                    transactions
+                    transactions,
+                    accessToken: token
                 }
             }
         })

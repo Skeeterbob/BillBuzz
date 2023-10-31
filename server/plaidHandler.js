@@ -121,9 +121,7 @@ class PlaidHandler {
             const response = await this.#client.transactionsGet({
                 access_token: accessToken,
                 start_date: startDate,
-                end_date: endDate,
-                count: 500,
-                offset: 0,
+                end_date: endDate
             });
             return response.data;
         }

@@ -13,6 +13,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import CreditCardImage from '../../assets/images/credit_card.png';
 import Icon from "react-native-vector-icons/Ionicons";
+import {inject, observer} from "mobx-react";
 
 class CardDetailScreen extends React.Component {
 
@@ -24,7 +25,6 @@ class CardDetailScreen extends React.Component {
     }
 
     render() {
-
         return (
             <LinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
@@ -50,6 +50,17 @@ class CardDetailScreen extends React.Component {
                             <View style={styles.transactionsHeader}>
                                 <Text style={styles.transactionsTitle}>Transactions</Text>
                             </View>
+
+                            <TouchableOpacity style={styles.recurringBtn} onPress={() => {
+                                this.props.navigation.navigate({
+                                    name: 'RecurringTransactions',
+                                    params: {
+                                        accessToken: this.props.route.params.cardData.accessToken
+                                    }
+                                })
+                            }}>
+                                <Text style={styles.recurringBtnText}>Show Recurring Transactions</Text>
+                            </TouchableOpacity>
 
                             {this.cardData.transactions.map(transaction => (
                                 <TransactionCardComponent
@@ -224,7 +235,31 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         fontSize: 16,
         fontWeight: 'bold'
+    },
+    recurringBtn: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        padding: 12,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#eca239',
+        marginBottom: 16,
+        shadowColor: '#232323',
+        shadowOffset: {
+            width: 2,
+            height: 2,
+        },
+        shadowOpacity: 0,
+        shadowRadius: 10,
+        elevation: 4,
+    },
+    recurringBtnText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000000'
     }
 });
 
-export default CardDetailScreen;
+export default inject('userStore')(observer(CardDetailScreen));
