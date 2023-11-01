@@ -51,7 +51,7 @@ class PlaidHandler {
             if(!userId){
             throw new Error('Must enter Access Token or institution ID ');
             }
-
+            console.log(process.env.WEBHOOK_URL);
             //Create link token by providing a unique user id
             const linkAccountResponse = await this.#client.linkTokenCreate({
                 user:{
@@ -61,6 +61,7 @@ class PlaidHandler {
                 products:['auth', 'transactions'],
                 country_codes:['US'],
                 language: 'en',
+                webhook: process.env.WEBHOOK_URL,
             });
 
             return linkAccountResponse.data;

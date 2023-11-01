@@ -13,12 +13,39 @@ test('retrieve a link token from plaidhandler.linkAccount', async () =>{
     console.log(response);
 })
 
-test('create a test access token and retrieve data', async () => {
+test('create a test access token, retrieve data, and trigger webhook', async () => {
     const publicToken = await testTokenCreate();
     const accessToken = await plaidHandler.completeLink(publicToken);
-    console.log(accessToken);
     const accounts = await plaidHandler.getAccounts(accessToken.accessToken);
+    const webhookRes = await triggerTransactionWebhook(accessToken.accessToken);
+    console.log(await webhookRes.data);
 })
+
+async function triggerTransactionWebhook (accessToken) {
+     // create a test access token with the sandbox public token
+        const configuration = new Configuration({
+            basePath: PlaidEnvironments.sandbox,
+            baseOptions: {
+                headers: {
+                    'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
+                    'PLAID-SECRET': process.env.PLAID_SECRET,
+                }
+            }
+        });
+
+        const client = new PlaidApi(configuration);
+    // Fire a DEFAULT_UPDATE webhook for an Item
+    const request = {
+      access_token: accessToken,
+      webhook_code: 'SYNC_UPDATES_AVAILABLE',
+    };
+    try {
+      const response = await client.sandboxItemFireWebhook(request);
+      return response;
+    } catch (error) {
+      console.log(error.response.data);
+    }
+}
 
 async function testTokenCreate () {
     // create a test access token with the sandbox public token
@@ -37,8 +64,10 @@ async function testTokenCreate () {
     // Request to create the sandbox public token
     const publicTokenRequest = {
         institution_id: 'ins_109508',
-        initial_products: ['auth'],
+        initial_products: ['auth', 'transactions'],
+        options: {webhook: process.env.WEBHOOK_URL},
     };
+    console.log(publicTokenRequest);
 
     // perform request
     try {
