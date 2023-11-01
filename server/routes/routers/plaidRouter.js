@@ -139,12 +139,9 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
     }
 });
 
-plaidRouter.get('/webhookListener', async (req,res) => {
-    console.log('Webhook received: ', req);
-});
-
 plaidRouter.post('/webhookListener', async (req,res) => {
     console.log('Webhook received: ', req);
+    res.send({data:'worked post'});
 });
 
 export {plaidRouter};
