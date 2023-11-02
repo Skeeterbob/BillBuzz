@@ -1,19 +1,77 @@
 import React from 'react';
-import {View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Platform, StatusBar} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Platform, StatusBar, DatePickerAndroid, Modal } from 'react-native';
 import { Picker } from "@react-native-picker/picker";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import { inject, observer } from "mobx-react";
 import Icon from "react-native-vector-icons/Ionicons";
+import { Calendar } from 'react-native-calendars';
+
 
 class TransactionScreen extends React.Component {
 
     state = {
         filterText: '',
-        sortBy: 'default'
+        sortBy: 'default',
+        open: false,
+        startDate: null,
+        endDate: null,
+        selected: null,
+    };
+    clearDates = () => {
+        this.setState({
+            startDate: null,
+            endDate: null,
+            selected: null,
+        });
+    }
+    setOpen = () => {
+        this.setState(prevState => ({ open: !prevState.open })); // Toggle the open state
+
+    };
+    onDayPress = day => {
+        if (!this.state.startDate || (this.state.startDate && this.state.endDate)) {
+            this.setState({
+                startDate: day.dateString,
+                endDate: null,
+                selected: { [day.dateString]: { startingDay: true, color: 'blue', textColor: 'white' } }
+            });
+        } else if (!this.state.endDate) {
+            const newSelected = this.state.startDate
+                ? this.getDatesList(this.state.startDate, day.dateString)
+                : {};
+            this.setState({
+                endDate: day.dateString,
+                selected: { ...this.state.selected, ...newSelected, [day.dateString]: { endingDay: true, color: 'blue', textColor: 'white' } }
+            });
+        }
+    };
+    getDatesList = (startDate, endDate) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        let date = start;
+        const dateList = {};
+
+        while (date <= end) {
+            const dateString = date.toISOString().split('T')[0];
+            if (dateString === startDate) {
+                dateList[dateString] = { startingDay: true, color: 'blue', textColor: 'white' };
+            } else if (dateString === endDate) {
+                dateList[dateString] = { endingDay: true, color: 'blue', textColor: 'white' };
+            } else {
+                dateList[dateString] = { color: 'blue', textColor: 'white' };
+            }
+
+            date = new Date(date.setDate(date.getDate() + 1));
+        }
+
+        return dateList;
     };
 
     render() {
-        const { filterText, sortBy } = this.state;
+
+
+        const { filterText, sortBy, open } = this.state;
+
         const user = this.props.userStore;
         let transactions = [];
 
@@ -21,9 +79,22 @@ class TransactionScreen extends React.Component {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
 
-        let filteredTransactions = transactions.filter(transaction =>
-            transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase())
-        );
+        // let filteredTransactions = transactions.filter(transaction =>
+        //     transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase())
+
+        // );
+
+        let filteredTransactions = transactions.filter(transaction => {
+            const transactionDate = new Date(transaction.date);
+            const start = this.state.startDate ? new Date(this.state.startDate) : null;
+            const end = this.state.endDate ? new Date(this.state.endDate) : null;
+
+            // Check if transaction date is within the range
+            const isWithinRange = (!start || transactionDate >= start) && (!end || transactionDate <= end);
+            return transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase()) && isWithinRange;
+        });
+
+
 
         filteredTransactions.sort((a, b) => {
             const dateA = new Date(a.date);
@@ -64,6 +135,7 @@ class TransactionScreen extends React.Component {
                     </View>
 
                     <View style={styles.filterContainer}>
+                        <TouchableOpacity onPress={this.setOpen}><Text>📅</Text></TouchableOpacity>
                         <TextInput
                             style={styles.filterInput}
                             placeholder="Filter by keyword..."
@@ -83,6 +155,29 @@ class TransactionScreen extends React.Component {
                             <Picker.Item label="Alphabetical" value="alpha" />
                         </Picker>
                     </View>
+                    <Modal
+                        animationType='slide'
+                        transparent={true}
+                        visible={open}
+                    >
+                        <View style={styles.centeredView}>
+                            <View style={styles.modalView}>
+                                <View style={styles.inputButtonWrapper}>
+                                    <TouchableOpacity onPress={this.setOpen}>
+                                        <Text >Close</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={this.clearDates}>
+                                        <Text>Clear</Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <Calendar
+                                    markingType={'period'}
+                                    markedDates={this.state.selected}
+                                    onDayPress={this.onDayPress}
+                                />
+                            </View>
+                        </View>
+                    </Modal>
 
                     {filteredTransactions.map(transaction =>
                         <TransactionComponent
@@ -139,6 +234,28 @@ const styles = StyleSheet.create({
         padding: 10,
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 22,  // changing margin to marginTop so only top spacing is affected
+    },
+
+    modalView: {
+        width: '90%',  // set width to 90% of parent view
+        backgroundColor: 'white',
+        borderRadius: 20,
+        padding: 10,  // reduce padding to ensure more space for the calendar
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5,
     },
     transactionDate: {
         alignSelf: 'flex-end',
