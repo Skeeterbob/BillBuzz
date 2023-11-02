@@ -38,6 +38,15 @@ class DashboardScreen extends React.Component {
         sortBy: 'default'
     };
 
+   
+    //cardData = null;
+    constructor(props) {
+        
+        super(props);
+        console.log(props);
+        this.cardData = this.props.route.cardData;
+    }
+
     componentDidMount() {
         this.compileChart();
     }
@@ -164,7 +173,7 @@ class DashboardScreen extends React.Component {
     }
 
     render() {
-        const { chartData, currentWeek} = this.state;
+        const { chartData, currentWeek } = this.state;
         const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
         const { sortBy } = this.state;
@@ -254,7 +263,7 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>{weekDate.getMonth()+"/"+weekDate.getDay()+"/"+weekDate.getFullYear()}</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + "/" + weekDate.getDay() + "/" + weekDate.getFullYear()}</Text>
                             </View>
 
                             <TouchableOpacity
@@ -321,7 +330,16 @@ class DashboardScreen extends React.Component {
                             <Text style={styles.summaryButtonText}>View all transactions</Text>
                         </TouchableOpacity>
                     </View>
-
+                    <TouchableOpacity style={styles.recurringBtn} onPress={() => {
+                        this.props.navigation.navigate({
+                            name: 'RecurringTransactions',
+                            params: {
+                                accessToken: this.props.route.cardData
+                            }
+                        })
+                    }}>
+                        <Text style={styles.recurringBtnText}>Show Recurring Transactions</Text>
+                    </TouchableOpacity>
                     <View style={styles.upcomingOverdrafts}>
                         <View style={styles.upcomingOverdraftsHeader}>
                             <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
@@ -378,7 +396,7 @@ const TransactionComponent = (transaction) => {
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
             </View>
             <View style={styles.transactionDate}>
-                <Text style={{ color: '#ffffff', fontStyle: 'italic'}}>{formatDate(transaction.transaction.date)}</Text>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{formatDate(transaction.transaction.date)}</Text>
             </View>
         </View>
     );
@@ -397,6 +415,30 @@ function formatDate(dateString) {
 
 
 const styles = StyleSheet.create({
+    recurringBtn: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        padding: 12,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#eca239',
+        marginBottom: 16,
+        shadowColor: '#232323',
+        shadowOffset: {
+            width: 2,
+            height: 2,
+        },
+        shadowOpacity: 0,
+        shadowRadius: 10,
+        elevation: 4,
+    },
+    recurringBtnText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000000'
+    },
     Text: {
         color: '#FFFFFF',
         fontSize: 16,
