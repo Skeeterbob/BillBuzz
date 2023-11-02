@@ -12,7 +12,7 @@ const getAllTransactions = (user, endDate = null, startDate = null) => {
             if (endDate != null && new Date(transaction.date) < endDate){
                 continue;
             }
-            if(transaction.amount.includes('-')){
+            if(transaction.amount && transaction.amount instanceof String && transaction.amount.includes('-')){
                 continue;
             }
 

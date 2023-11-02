@@ -8,7 +8,6 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
-import { toJS } from "mobx";
 
 const upcomingOverdrafts = [
     {
@@ -159,13 +158,18 @@ class DashboardScreen extends React.Component {
         this.setState(() => ({ chartData: data }));
     }
 
+    plaidSuccessUpdate = () => {
+        //Refresh the page when plaid is done updating so we get the new user data
+        this.forceUpdate();
+    }
+
     render() {
         const { chartData, currentWeek} = this.state;
         const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
         const { sortBy } = this.state;
         let transactions = [];
-        for (const account of user.accountList) {
+        for (const account of this.props.userStore.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
 
@@ -190,7 +194,7 @@ class DashboardScreen extends React.Component {
                 break;
         }
 
-        const creditCard = user.accountList[0] ?? { name: 'TEst Data', balance: 0 };
+        const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
 
         user.accountList.forEach(account => {
             account.transactionList.transactionList.forEach(transaction => {
@@ -210,7 +214,7 @@ class DashboardScreen extends React.Component {
                 style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
 
-                <PlaidComponent />
+                <PlaidComponent successUpdate={this.plaidSuccessUpdate} />
 
                 <View style={styles.dashboardButton}>
                     <TouchableOpacity

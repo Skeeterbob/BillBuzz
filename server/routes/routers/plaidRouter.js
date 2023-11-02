@@ -32,7 +32,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
     const publicToken = req.body.publicToken;
     const email = req.body.email;
     if (!publicToken || !email) {
-        return res.status(400).send({"error":'email and publicToken fields are required'});
+        return res.status(400).send({"error": 'email and publicToken fields are required', success: false});
     }
 
     try {
@@ -83,11 +83,11 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         }
 
         await dbHandler.updateUser(newUserData.email, new User(newUserData))
-        res.status(200).json({status: 'success', user: newUserData});
+        res.status(200).json({success: true, user: newUserData});
     }
     catch (error) {
         // handle error
-        res.status(500).json({status: 'failure'});
+        res.status(500).json({success: false});
         console.log(error);
     }
 });
@@ -163,6 +163,35 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
         // handle error for syncTransactions
         console.error('Syncing Transactions error:', error);
         throw error;
+    }
+});
+
+plaidRouter.post('/removeAccount', async (req, res) => {
+    const accessToken = req.body.accessToken;
+    const email = req.body.email;
+
+    if (!accessToken) {
+        return res.status(400).json({error: 'Access token is required'});
+    }
+
+    if (!email) {
+        return res.status(400).json({error: 'User email is required'});
+    }
+
+    try {
+        const user = await dbHandler.getUser(email);
+        const response = await plaidHandler.deleteAccount(accessToken);
+        if (response.data.request_id) {
+            let newUserData = JSON.parse(user.toJSONString());
+            newUserData.accountList = newUserData.accountList.filter(account => account.accessToken !== accessToken);
+
+            await dbHandler.updateUser(newUserData.email, new User(newUserData))
+            res.status(200).json({removed: true, user: newUserData});
+        }else {
+            res.status(500).json({error: 'Failed to unlink account', removed: false});
+        }
+    } catch (error) {
+        res.status(500).json({error: 'Unknown error while unlinking account', removed: false});
     }
 });
 

@@ -134,6 +134,8 @@ class AccountsScreen extends React.Component {
                     </View>
 
                     <View style={styles.creditCardView}>
+                        {this.props.userStore.accountList.length <= 0 ? <Text style={styles.noAccountsText}>No accounts linked!</Text> : null}
+
                         {this.props.userStore.accountList.map(account => (
                             <CreditCardComponent
                                 key={account.id}
@@ -230,6 +232,11 @@ const styles = StyleSheet.create({
         borderBottomColor: '#19191B',
         borderBottomWidth: 4,
         borderStyle: 'solid'
+    },
+    noAccountsText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF'
     },
     creditCardNameText: {
         color: '#0B0D10',

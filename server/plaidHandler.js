@@ -151,10 +151,9 @@ class PlaidHandler {
 //Method to delete the plaid account
     async deleteAccount(accessToken){
         try{
-            const response = await this.#client.itemRemove({
+            return await this.#client.itemRemove({
                 access_token: accessToken,
             });
-            return response.data;
         }
         catch(error){
             console.error('Plaid deleteAccount error:', error);
