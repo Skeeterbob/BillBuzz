@@ -79,11 +79,6 @@ class TransactionScreen extends React.Component {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
 
-        // let filteredTransactions = transactions.filter(transaction =>
-        //     transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase())
-
-        // );
-
         let filteredTransactions = transactions.filter(transaction => {
             const transactionDate = new Date(transaction.date);
             const start = this.state.startDate ? new Date(this.state.startDate) : null;
@@ -200,12 +195,7 @@ const TransactionComponent = (transaction) => {
 
     return (
         <View style={styles.transaction}>
-            {/* <View style={styles.transactionHeader}>
-                <Text style={{color: '#FFFFFF'}}>Merchant</Text>
-                <Text style={{color: '#FFFFFF'}}>Amount</Text>
-                <Text style={{color: '#FFFFFF'}}>Date</Text>
-            </View> */}
-
+       
             <View style={styles.transactionData}>
                 <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
