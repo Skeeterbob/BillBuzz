@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 dotenv.config();
 
+//Test case authored by Bryan Hodgins
+
 // create PlaidHandler object and initialize
 const plaidHandler = new PlaidHandler();
 plaidHandler.init();

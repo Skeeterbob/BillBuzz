@@ -12,6 +12,7 @@ class PlaidHandler {
     }
 
     // Function to instantiate the plaid client
+    // init  function authored by Raigene Cook
     async init(){
         try{
         //create the endpoints for authentication
@@ -38,6 +39,7 @@ class PlaidHandler {
    //Method to generate a link token to be used on the front end to 
    //authenticate the Plaid account link interface
    //needs a user id (mongoDB id)
+   // Authored by Raigene Cook, Modified by Bryan Hodgins
     async linkAccount(userId){
         try {
 
@@ -53,6 +55,7 @@ class PlaidHandler {
             }
 
             //Create link token by providing a unique user id
+            // Bryan Hodgins modified the next section (9 lines) as part of debugging.
             const linkAccountResponse = await this.#client.linkTokenCreate({
                 user:{
                     client_user_id: userId,
@@ -70,7 +73,7 @@ class PlaidHandler {
             throw error;
         }
     }
-
+    // Bryan Hodgins authored the completeLink function
     async completeLink(publicToken){
         try {
             const response = await this.#client.itemPublicTokenExchange({
@@ -116,6 +119,7 @@ class PlaidHandler {
     }
 
 //Method to get recurring transactions from plaids API
+// TODO: This does not seem functional. 
     async getRecurringTransactions(accessToken, startDate, endDate){
         try{
             const response = await this.#client.transactionsGet({
@@ -133,6 +137,7 @@ class PlaidHandler {
     }
 
     //a method to sync transactions from plaid to the database
+    // This also does not seem functional in its current state.
     async syncTransactions(userId, startDate, endDate, accessToken){
         try{
             //get transactions from plaid
