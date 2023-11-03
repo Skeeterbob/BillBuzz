@@ -9,6 +9,7 @@ loginRouter.post('/', async (req, res) => {
 });
 
 // Raigene cook originally authored this, and Bryan Hodgins made some minor debugging tweaks.
+//Lines 12-27 by Raigene (Commit #1dadd9a)
 loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -20,7 +21,7 @@ loginRouter.post('/verify', async (req, res) => {
     const result = await dbHandler.verifyUser(email, password);
 
     if (result) {
-        await twilioHandler.sendSMS('+1' + result.phoneNumber);
+        await twilioHandler.sendSMS('+1' + result.phoneNumber);//Modified by Bryan 
         return res.status(200).send(JSON.stringify(result));
     } else {
         return res.status(401).send('Incorrect Email/Password provided!');
@@ -45,6 +46,7 @@ loginRouter.post('/getUser', async (req, res) => {
 });
 
 // Bryan Hodgins originally authored this route. I believe Raigene Cook did error handling.
+//Lines 51-69 by Raigene (commit #2234138)
 loginRouter.post('/verify/sms', async (req, res) => {
     try {
         const phNum = req.body.phNum;

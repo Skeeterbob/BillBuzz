@@ -1,7 +1,7 @@
 import express from 'express';
 const dBRouter = express.Router();
 
-
+//Lines 5-41 by Raigene (commit #4ced5d6)
 dBRouter.get('/getUser', async (req, res) => {
   try{
     const data = await DBHandler.getUser();
