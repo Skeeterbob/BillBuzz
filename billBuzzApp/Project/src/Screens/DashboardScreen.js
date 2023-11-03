@@ -39,13 +39,7 @@ class DashboardScreen extends React.Component {
     };
 
    
-    //cardData = null;
-    constructor(props) {
-        
-        super(props);
-        console.log(props);
-        this.cardData = this.props.route.cardData;
-    }
+   
 
     componentDidMount() {
         this.compileChart();
@@ -330,16 +324,7 @@ class DashboardScreen extends React.Component {
                             <Text style={styles.summaryButtonText}>View all transactions</Text>
                         </TouchableOpacity>
                     </View>
-                    <TouchableOpacity style={styles.recurringBtn} onPress={() => {
-                        this.props.navigation.navigate({
-                            name: 'RecurringTransactions',
-                            params: {
-                                accessToken: this.props.route.cardData
-                            }
-                        })
-                    }}>
-                        <Text style={styles.recurringBtnText}>Show Recurring Transactions</Text>
-                    </TouchableOpacity>
+                 
                     <View style={styles.upcomingOverdrafts}>
                         <View style={styles.upcomingOverdraftsHeader}>
                             <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
