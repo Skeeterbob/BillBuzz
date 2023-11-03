@@ -1,6 +1,6 @@
 const {TwilioHandler} = require('.twilioHandler.js');
 const readline = require('readline')
-
+// written by bryan hodgins. commented out to reduce calls to twilio API while testing other sections.
 //load environment variables from .env
 require('dotenv').config();
 

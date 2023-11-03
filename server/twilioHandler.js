@@ -12,30 +12,30 @@ const client = Twilio(accountSid, authToken);
 // Need to call and await init after instantiating object.
 class TwilioHandler {
     #serviceSid;
+    // init function authored by Raigene Cook
     init () {
         return new Promise((resolve, reject) => {
             client.verify.v2.services
             .create({friendlyName: 'BillBuzz service'})
             .then(service => {this.#serviceSid = service.sid; 
-                //console.log(this.#serviceSid);
                 resolve();
             });
         })
     }
+    // sendSMS function authored by Bryan Hodgins
     sendSMS (phNum) {
         return new Promise((resolve, reject) => {
-            console.log(this.#serviceSid, 'inSMS')
             client.verify.v2.services(this.#serviceSid)
                 .verifications
                 .create({to: phNum, channel: 'sms'})
                 .then(async verification => {
-                    console.log(verification.status);
                     resolve(verification);
                 });     
         })             
     }
     //function to return true for a positive validation of the SMS code
     //or false for an invalid sms code entry
+    // validate SMSCode authored by Bryan Hodgins
     validateSMSCode (phNum, code) {
         return new Promise((resolve, reject) => {
             client.verify.v2.services(this.#serviceSid)
