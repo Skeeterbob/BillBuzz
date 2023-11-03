@@ -125,9 +125,7 @@ class PlaidHandler {
             const response = await this.#client.transactionsGet({
                 access_token: accessToken,
                 start_date: startDate,
-                end_date: endDate,
-                count: 500,
-                offset: 0,
+                end_date: endDate
             });
             return response.data;
         }
@@ -158,10 +156,9 @@ class PlaidHandler {
 //Method to delete the plaid account
     async deleteAccount(accessToken){
         try{
-            const response = await this.#client.itemRemove({
+            return await this.#client.itemRemove({
                 access_token: accessToken,
             });
-            return response.data;
         }
         catch(error){
             console.error('Plaid deleteAccount error:', error);

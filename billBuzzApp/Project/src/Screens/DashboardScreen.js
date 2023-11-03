@@ -8,7 +8,6 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
-import { toJS } from "mobx";
 
 const upcomingOverdrafts = [
     {
@@ -38,6 +37,9 @@ class DashboardScreen extends React.Component {
         filterText: '',
         sortBy: 'default'
     };
+
+   
+   
 
     componentDidMount() {
         this.compileChart();
@@ -161,13 +163,18 @@ class DashboardScreen extends React.Component {
         this.setState(() => ({ chartData: data }));
     }
 
+    plaidSuccessUpdate = () => {
+        //Refresh the page when plaid is done updating so we get the new user data
+        this.forceUpdate();
+    }
+
     render() {
-        const { chartData, currentWeek} = this.state;
+        const { chartData, currentWeek } = this.state;
         const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
         const { sortBy } = this.state;
         let transactions = [];
-        for (const account of user.accountList) {
+        for (const account of this.props.userStore.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
 
@@ -192,7 +199,7 @@ class DashboardScreen extends React.Component {
                 break;
         }
 
-        const creditCard = user.accountList[0] ?? { name: 'TEst Data', balance: 0 };
+        const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
 
         user.accountList.forEach(account => {
             account.transactionList.transactionList.forEach(transaction => {
@@ -212,7 +219,7 @@ class DashboardScreen extends React.Component {
                 style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
 
-                <PlaidComponent />
+                <PlaidComponent successUpdate={this.plaidSuccessUpdate} />
 
                 <View style={styles.dashboardButton}>
                     <TouchableOpacity
@@ -252,7 +259,7 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>{weekDate.getMonth()+"/"+weekDate.getDay()+"/"+weekDate.getFullYear()}</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + "/" + weekDate.getDay() + "/" + weekDate.getFullYear()}</Text>
                             </View>
 
                             <TouchableOpacity
@@ -319,7 +326,7 @@ class DashboardScreen extends React.Component {
                             <Text style={styles.summaryButtonText}>View all transactions</Text>
                         </TouchableOpacity>
                     </View>
-
+                 
                     <View style={styles.upcomingOverdrafts}>
                         <View style={styles.upcomingOverdraftsHeader}>
                             <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
@@ -376,7 +383,7 @@ const TransactionComponent = (transaction) => {
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
             </View>
             <View style={styles.transactionDate}>
-                <Text style={{ color: '#ffffff', fontStyle: 'italic'}}>{formatDate(transaction.transaction.date)}</Text>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{formatDate(transaction.transaction.date)}</Text>
             </View>
         </View>
     );
@@ -395,6 +402,30 @@ function formatDate(dateString) {
 
 
 const styles = StyleSheet.create({
+    recurringBtn: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        padding: 12,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#eca239',
+        marginBottom: 16,
+        shadowColor: '#232323',
+        shadowOffset: {
+            width: 2,
+            height: 2,
+        },
+        shadowOpacity: 0,
+        shadowRadius: 10,
+        elevation: 4,
+    },
+    recurringBtnText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000000'
+    },
     Text: {
         color: '#FFFFFF',
         fontSize: 16,

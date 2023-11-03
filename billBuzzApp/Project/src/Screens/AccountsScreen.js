@@ -134,35 +134,43 @@ class AccountsScreen extends React.Component {
                     </View>
 
                     <View style={styles.creditCardView}>
+                        {this.props.userStore.accountList.length <= 0 ? <Text style={styles.noAccountsText}>No accounts linked!</Text> : null}
+                        
                         {this.props.userStore.accountList.map(account => (
-                            <CreditCardComponent
+                            <CreditCardComponent 
+                                names={account.names}
                                 key={account.id}
                                 name={account.name}
                                 balance={account.balance}
                                 amountDue={0}
                                 dueDate={'N/A'}
                                 transactions={account.transactionList.transactionList}
+                                token={account.accessToken}
                                 navigation={this.navigation}
                             />
                         ))}
                     </View>
+                    
                 </ScrollView>
             </RNLinearGradient>
         );
     };
 }
 
-const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, navigation}) => (
+const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transactions, token, navigation}) => (
+    
     <TouchableOpacity style={styles.creditCard} onPress={() => {
         navigation.navigate({
             name: 'CardDetails',
             params: {
                 cardData: {
+                    names,
                     name,
                     balance,
                     amountDue,
                     dueDate,
-                    transactions
+                    transactions,
+                    accessToken: token
                 }
             }
         })
@@ -173,8 +181,11 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, n
             start={{x: 0, y: 0}}
             end={{x: 1, y: 1}}
         >
+            
             <View style={styles.creditCardTop}>
                 <Text style={styles.creditCardNameText}>{name}</Text>
+                <Text style={styles.creditCardNameText}>{names}</Text>
+                
             </View>
 
             <RNLinearGradient
@@ -185,6 +196,7 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, n
             />
 
             <View style={styles.creditCardBottom}>
+                <Text style={styles.cardDataTitleText}></Text>
                 <View style={{alignItems: 'center'}}>
                     <Text style={styles.cardDataTitleText}>Payment Date</Text>
                     <Text style={styles.cardDataText}>{dueDate}</Text>
@@ -200,8 +212,10 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, n
                     <Text style={styles.cardDataText}>${amountDue}</Text>
                 </View>
             </View>
+          
         </RNLinearGradient>
     </TouchableOpacity>
+       
 );
 
 const styles = StyleSheet.create({
@@ -211,11 +225,22 @@ const styles = StyleSheet.create({
         height: '100%'
     },
     body: {
+        
         width: '100%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column'
     },
+    cardContainer: {
+        borderWidth: 3,
+        borderColor: '#696969', // changed border color to darker gray
+        borderRadius: 10,
+        overflow: 'hidden',
+        backgroundColor: '#696969', // changed background color to darker gray
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginBottom: 10,
+      },
     dashboardTop: {
         width: '100%',
         height: 'auto',
@@ -228,6 +253,11 @@ const styles = StyleSheet.create({
         borderBottomColor: '#19191B',
         borderBottomWidth: 4,
         borderStyle: 'solid'
+    },
+    noAccountsText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF'
     },
     creditCardNameText: {
         color: '#0B0D10',
