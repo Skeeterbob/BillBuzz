@@ -90,7 +90,7 @@ class DBHandler {
             //Get key from email in user class
             let id = await this.#getKeyId(email); //Bryan Hodgins
             id = id['key']; //Bryan Hodgins
-
+    //Lines 94-96 by Raigene (commit #9bc0383)
             if (id == null) {
                 console.log('User does not exist');
                 return false;
@@ -109,6 +109,7 @@ class DBHandler {
                     { upsert: true }
                 );
             }
+            //Lines 113-115 by Raigene (commit #9bc0383)
         } catch (error) {
             console.error("Error updating user in database:", error);
             throw error;
