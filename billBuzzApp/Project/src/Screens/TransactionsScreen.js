@@ -5,6 +5,7 @@ import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient
 import { inject, observer } from "mobx-react";
 import Icon from "react-native-vector-icons/Ionicons";
 import { Calendar } from 'react-native-calendars';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 
 class TransactionScreen extends React.Component {
@@ -16,6 +17,11 @@ class TransactionScreen extends React.Component {
         startDate: null,
         endDate: null,
         selected: null,
+        isDropdownOpen: false,
+
+    };
+    toggleDropdown = (isOpen) => {
+        this.setState({ isDropdownOpen: isOpen });
     };
     clearDates = () => {
         this.setState({
@@ -89,8 +95,6 @@ class TransactionScreen extends React.Component {
             return transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase()) && isWithinRange;
         });
 
-
-
         filteredTransactions.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
@@ -139,7 +143,7 @@ class TransactionScreen extends React.Component {
                             placeholderTextColor={'#FFFFFF'}
                         />
 
-                        <Picker
+                        {/* <Picker
                             selectedValue={sortBy}
                             style={styles.filterPicker}
                             onValueChange={(itemValue, itemIndex) =>
@@ -148,7 +152,28 @@ class TransactionScreen extends React.Component {
                             <Picker.Item label="Default" value="default" />
                             <Picker.Item label="Highest to Lowest Cost" value="cost" />
                             <Picker.Item label="Alphabetical" value="alpha" />
-                        </Picker>
+                        </Picker> */}
+                        <DropDownPicker
+                            items={[
+                                { label: 'Default', value: 'default' },
+                                { label: 'Highest to Lowest Cost', value: 'cost' },
+                                { label: 'Alphabetical', value: 'alpha' },
+                            ]}
+                            defaultValue={this.state.sortBy}
+                            open={this.state.isDropdownOpen}
+                            setOpen={this.toggleDropdown}
+                            value={this.state.sortBy}
+                            setValue={(callback) => this.setState(state => ({ sortBy: callback(state.sortBy) }))}
+                            containerStyle={{ height: 40 }}
+                            style={styles.filterPicker}
+                            itemStyle={{
+                                justifyContent: 'flex-start',
+                            }}
+                            dropDownStyle={{ backgroundColor: '#212121' }}
+                            onChangeItem={(item) => this.setState({ sortBy: item.value })}
+                        />
+
+
                     </View>
                     <Modal
                         animationType='slide'
@@ -195,7 +220,7 @@ const TransactionComponent = (transaction) => {
 
     return (
         <View style={styles.transaction}>
-       
+
             <View style={styles.transactionData}>
                 <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
