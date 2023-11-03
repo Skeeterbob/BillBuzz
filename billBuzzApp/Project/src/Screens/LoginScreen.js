@@ -17,7 +17,7 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
 
 import {SERVER_ENDPOINT} from "@env";
-
+//hwinczner most of the page
 class LoginScreen extends React.Component {
 
     
@@ -40,6 +40,7 @@ class LoginScreen extends React.Component {
             this.showError('Please enter a valid password.');
             return;
         }
+      
         this.setState({ loading: true });
         console.log(SERVER_ENDPOINT + '/login/verify');
         fetch(SERVER_ENDPOINT + '/login/verify', {

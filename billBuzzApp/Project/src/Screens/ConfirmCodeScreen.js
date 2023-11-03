@@ -22,7 +22,7 @@ class ConfirmCodeScreen extends React.Component {
         code: '',
         loading: false
     };
-
+    //hwinczner
     verifyCode = () => {
         const {code} = this.state;
         console.log(SERVER_ENDPOINT + '/login/verify/sms');

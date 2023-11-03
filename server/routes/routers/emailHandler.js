@@ -1,3 +1,4 @@
+//hwinczner
 class EmailHandler {
   constructor(transporter) {
     this.transporter = transporter;

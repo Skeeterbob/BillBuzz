@@ -8,7 +8,7 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
-
+//hwinczner 
 const upcomingOverdrafts = [
     {
         name: 'Utility Bill',
@@ -24,7 +24,7 @@ const upcomingOverdrafts = [
 ];
 
 class DashboardScreen extends React.Component {
-
+    //hwinczner 
     state = {
         // ... other state properties
         weeklyData: [],
@@ -40,7 +40,7 @@ class DashboardScreen extends React.Component {
 
    
    
-
+    //hwinczner 
     componentDidMount() {
         this.compileChart();
     }
@@ -268,6 +268,7 @@ class DashboardScreen extends React.Component {
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
+                        {/* hwinczner */}
                         <BarChart
                             data={chartData}
                             width={Dimensions.get('window').width - 50} // from react-native
@@ -296,7 +297,7 @@ class DashboardScreen extends React.Component {
                         />
 
                     </View>
-
+                    {/* hwinczner */}
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
                             <Text style={styles.summaryText}>Recent Transactions</Text>
@@ -316,7 +317,7 @@ class DashboardScreen extends React.Component {
                                 )
                             )}
                         </View>
-
+                                {/* hwinczner */}
                         <TouchableOpacity
                             style={styles.summaryButton}
                             onPress={() => {
@@ -362,7 +363,7 @@ class DashboardScreen extends React.Component {
 
     }
 }
-
+{/* hwinczner */}
 const truncateText = (text) => {
     return text.length > 25 ? text.slice(0, 25) + '...' : text;
 };
@@ -372,12 +373,8 @@ const TransactionComponent = (transaction) => {
 
     return (
         <View style={styles.transaction}>
-            {/* <View style={styles.transactionHeader}>
-                <Text style={{ color: '#FFFFFF' }}>Merchant</Text>
-                <Text style={{ color: '#FFFFFF' }}>Amount</Text>
-                <Text style={{ color: '#FFFFFF' }}>Date</Text>
-            </View> */}
-
+           
+            {/* hwinczner */}
             <View style={styles.transactionData}>
                 <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>

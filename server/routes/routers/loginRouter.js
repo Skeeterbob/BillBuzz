@@ -65,6 +65,7 @@ loginRouter.post('/verify/sms', async (req, res) => {
     }
 
 });
+//hwinczner
 loginRouter.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
 
@@ -108,6 +109,7 @@ loginRouter.post('/forgot-password', async (req, res) => {
 });
 
 // Route to handle the password reset
+//hwinczner
 loginRouter.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
