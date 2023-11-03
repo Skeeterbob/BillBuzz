@@ -8,6 +8,7 @@ const loginRouter = express.Router();
 loginRouter.post('/', async (req, res) => {
 });
 
+// Raigene cook originally authored this, and Bryan Hodgins made some minor debugging tweaks.
 loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -26,6 +27,8 @@ loginRouter.post('/verify', async (req, res) => {
     }
 });
 
+// Bryan Hodgins originally authored this before it was moved from incorrect location in the register router.
+// There seems to be some minor changes to it though.
 loginRouter.post('/getUser', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -41,6 +44,7 @@ loginRouter.post('/getUser', async (req, res) => {
     return res.status(200).json(JSON.parse(result.toJSONString()));
 });
 
+// Bryan Hodgins originally authored this route. I believe Raigene Cook did error handling.
 loginRouter.post('/verify/sms', async (req, res) => {
     try {
         const phNum = req.body.phNum;

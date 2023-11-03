@@ -4,6 +4,7 @@ import {dbHandler, twilioHandler} from "../../handlers.js";
 
 const registerRouter = express.Router();
 
+// createUser route originally authored by Bryan Hodgins. Seems to have been slightly modified.
 registerRouter.post('/createUser', async (req, res) => {
     try {
         console.log('request',req.body.user);

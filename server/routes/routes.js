@@ -4,7 +4,7 @@ import {dBRouter} from './routers/dBRouter.js';
 import {loginRouter} from './routers/loginRouter.js';
 import {plaidRouter} from './routers/plaidRouter.js';
 import {registerRouter} from './routers/registerRouter.js';
-
+// originally authored by Bryan Hodgins
 
 const app = express();
 const port = process.env.PORT || 3000; 
