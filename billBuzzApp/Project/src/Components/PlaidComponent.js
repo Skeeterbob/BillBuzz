@@ -37,7 +37,7 @@ class PlaidComponent extends React.Component {
         const data = await response.json();
         return data.link_token;
     };
-
+    //hwinczner
     onPlaidSuccess = (success) => {
         const publicToken = success.publicToken;
 

@@ -131,11 +131,11 @@ class CardDetailScreen extends React.Component {
         );
     }
 }
-
+// hwinczner start 
 const truncateText = (text) => {
     return text.length > 25 ? text.slice(0, 25) + '...' : text;
-};
-
+}
+// hwinczner end
 const TransactionCardComponent = ({name, date, amount}) => {
     const formattedDate = formatDate(date);
 
@@ -148,6 +148,7 @@ const TransactionCardComponent = ({name, date, amount}) => {
 
             style={styles.transactionCard}
         >
+            
             <View styles={styles.transaction}>
 
                 <Text style={{color: '#eca239', fontSize: 16, fontWeight: 'bold'}}>{truncateText(name)}</Text>
@@ -157,7 +158,7 @@ const TransactionCardComponent = ({name, date, amount}) => {
                 <Text style={{color: '#eca239', fontSize: 16, fontWeight: 'bold'}}>${amount}</Text>
                 <Text style={{color: '#ffffff', fontSize: 16, fontWeight: 'bold'}}>{formattedDate}</Text>
             </View>
-
+            {/* hwinczner end */}
 
         </LinearGradient>
     );
@@ -179,6 +180,7 @@ const styles = StyleSheet.create({
         height: '100%',
         backgroundColor: '#0B0D10'
     },
+    //hwinczner start 
     transaction: {
         width: '90%',
         height: 'auto',
@@ -201,6 +203,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
 
     },
+    //hwinczner end
     scrollViewContent: {
         width: '100%',
         display: 'flex',

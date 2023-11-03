@@ -9,7 +9,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 
 
 class TransactionScreen extends React.Component {
-
+    //hwinczner
     state = {
         filterText: '',
         sortBy: 'default',
@@ -20,9 +20,11 @@ class TransactionScreen extends React.Component {
         isDropdownOpen: false,
 
     };
+    //hwinczner
     toggleDropdown = (isOpen) => {
         this.setState({ isDropdownOpen: isOpen });
     };
+    //hwinczner
     clearDates = () => {
         this.setState({
             startDate: null,
@@ -30,10 +32,12 @@ class TransactionScreen extends React.Component {
             selected: null,
         });
     }
+    //hwinczner
     setOpen = () => {
         this.setState(prevState => ({ open: !prevState.open })); // Toggle the open state
 
     };
+    //hwinczner
     onDayPress = day => {
         if (!this.state.startDate || (this.state.startDate && this.state.endDate)) {
             this.setState({
@@ -51,6 +55,7 @@ class TransactionScreen extends React.Component {
             });
         }
     };
+    //hwinczner
     getDatesList = (startDate, endDate) => {
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -84,7 +89,7 @@ class TransactionScreen extends React.Component {
         for (const account of user.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
-
+        //hwinczner
         let filteredTransactions = transactions.filter(transaction => {
             const transactionDate = new Date(transaction.date);
             const start = this.state.startDate ? new Date(this.state.startDate) : null;
@@ -94,7 +99,7 @@ class TransactionScreen extends React.Component {
             const isWithinRange = (!start || transactionDate >= start) && (!end || transactionDate <= end);
             return transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase()) && isWithinRange;
         });
-
+        //hwinczner
         filteredTransactions.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
@@ -132,7 +137,7 @@ class TransactionScreen extends React.Component {
                     <View style={styles.summaryHeader}>
                         <Text style={styles.lineChartTitle}>Recent Transactions</Text>
                     </View>
-
+                    {/* hwinczner */}
                     <View style={styles.filterContainer}>
                         <TouchableOpacity onPress={this.setOpen}><Text>📅</Text></TouchableOpacity>
                         <TextInput
@@ -142,17 +147,7 @@ class TransactionScreen extends React.Component {
                             onChangeText={(text) => this.setState({ filterText: text })}
                             placeholderTextColor={'#FFFFFF'}
                         />
-
-                        {/* <Picker
-                            selectedValue={sortBy}
-                            style={styles.filterPicker}
-                            onValueChange={(itemValue, itemIndex) =>
-                                this.setState({ sortBy: itemValue })
-                            }>
-                            <Picker.Item label="Default" value="default" />
-                            <Picker.Item label="Highest to Lowest Cost" value="cost" />
-                            <Picker.Item label="Alphabetical" value="alpha" />
-                        </Picker> */}
+                        {/* hwinczner */}
                         <DropDownPicker
                             items={[
                                 { label: 'Default', value: 'default' },
@@ -175,6 +170,7 @@ class TransactionScreen extends React.Component {
 
 
                     </View>
+                    {/* hwinczner */}
                     <Modal
                         animationType='slide'
                         transparent={true}
@@ -219,6 +215,7 @@ const TransactionComponent = (transaction) => {
     console.log(JSON.stringify(transaction));
 
     return (
+        //hwinczner
         <View style={styles.transaction}>
 
             <View style={styles.transactionData}>

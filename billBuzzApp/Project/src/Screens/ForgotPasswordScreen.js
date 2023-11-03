@@ -1,3 +1,4 @@
+//hwinczner whole page
 import React from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SERVER_ENDPOINT } from "@env";

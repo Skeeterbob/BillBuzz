@@ -194,7 +194,7 @@ const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transact
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 1}}
             />
-
+            {/* Hwinczner start*/}
             <View style={styles.creditCardBottom}>
                 <Text style={styles.cardDataTitleText}></Text>
                 <View style={{alignItems: 'center'}}>
@@ -212,7 +212,7 @@ const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transact
                     <Text style={styles.cardDataText}>${amountDue}</Text>
                 </View>
             </View>
-          
+          {/* Hwinczner end*/}
         </RNLinearGradient>
     </TouchableOpacity>
        
