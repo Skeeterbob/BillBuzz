@@ -50,6 +50,7 @@ class DashboardScreen extends React.Component {
     toggleOverdrafts = () => {
         this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
     };
+    // Bryan Hodgins authored the prevWeek() function
     prevWeek = () => {  // Go to the previous week
         let currentWeek = this.state.currentWeek;
         // if it is the current week view modify the date range to start on sunday
@@ -73,7 +74,7 @@ class DashboardScreen extends React.Component {
             // TODO: can add in code to change the text on the chart here.
         }
     }
-
+    // Bryan Hodgins authored the nextWeek function
     nextWeek = () => {  // Go to the next week
         let currentWeek = this.state.currentWeek;
         //increase the currentWeek by one week;
@@ -105,6 +106,7 @@ class DashboardScreen extends React.Component {
     // mode 0 is chart data for the last 7 days.
     // mode 1 is chart data for a specified week
     // create new modes as needed.
+    // Bryan Hodgins authored the compileChart function.
     compileChart = (startDate = null, endDate = null, mode = 0) => {
         const data = {};
         data['labels'] = []
