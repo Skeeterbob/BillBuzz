@@ -187,17 +187,16 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
     }
 });
 
+// endpoint to receive webhooks from plaid.
+// Authored by Bryan Hodgins
 plaidRouter.post('/webhookListener', async (req,res) => {
     console.log('Webhook received: ', req);
     res.send({data:'worked post'});
 
 })
+
+//endpoint to remove the account link from plaid when user deletes it.
 // Authored by Hadi Ghaddar from line(s) 196 - 227
-
-
-
-
-
 plaidRouter.post('/removeAccount', async (req, res) => {
     const accessToken = req.body.accessToken;
     const email = req.body.email;
