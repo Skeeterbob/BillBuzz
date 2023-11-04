@@ -18,6 +18,11 @@ import Toast from "react-native-toast-message";
 
 import {SERVER_ENDPOINT} from "@env";
 
+
+// Authored by Henry Winczner from line(s) 1 - 318
+
+
+
 class LoginScreen extends React.Component {
 
     
@@ -40,6 +45,7 @@ class LoginScreen extends React.Component {
             this.showError('Please enter a valid password.');
             return;
         }
+      
         this.setState({ loading: true });
         console.log(SERVER_ENDPOINT + '/login/verify');
         fetch(SERVER_ENDPOINT + '/login/verify', {

@@ -2,6 +2,10 @@ import Svg, {Defs, G, LinearGradient, Path, Stop} from "react-native-svg";
 import {StyleSheet, View} from "react-native";
 import React from "react";
 
+
+// Authored by Hadi Ghaddar from line(s) 1 - 78
+
+
 const HexagonComponent = (props) => {
     return (
         <Svg

@@ -15,6 +15,10 @@ import Logo from "../../assets/images/bee_logo.png";
 import {inject, observer} from "mobx-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+
+// Authored by Hadi Ghaddar from line(s) 1 - 28
+
+
 import {SERVER_ENDPOINT} from "@env";
 class ConfirmCodeScreen extends React.Component {
 
@@ -22,6 +26,10 @@ class ConfirmCodeScreen extends React.Component {
         code: '',
         loading: false
     };
+
+
+    // Authored by Henry Winczner from line(s) 34 - 220
+
 
     verifyCode = () => {
         const {code} = this.state;

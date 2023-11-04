@@ -5,79 +5,9 @@ import HexagonComponent from "../Components/HexagonComponent";
 import Icon from "react-native-vector-icons/Ionicons";
 import {inject, observer} from "mobx-react";
 
-const MOCK_TRANSACTIONS = [
-    {
-        name: 'Netflix',
-        date: '09/01/2023',
-        amount: '17.99'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/01/2023',
-        amount: '16.99'
-    },
-    {
-        name: 'Costco',
-        date: '09/02/2023',
-        amount: '148.23'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/03/2023',
-        amount: '5.13'
-    },
-    {
-        name: 'Walmart',
-        date: '09/03/2023',
-        amount: '284.20'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/04/2023',
-        amount: '8.59'
-    },
-    {
-        name: 'Discord',
-        date: '09/05/2023',
-        amount: '9.99'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/06/2023',
-        amount: '24.83'
-    },
-]
 
-const MOCK_CARDS_DATA = [
-    {
-        name: "American Express",
-        balance: 1000.84,
-        amountDue: 100,
-        dueDate: '09/24/2023',
-        transactions: MOCK_TRANSACTIONS
-    },
-    {
-        name: "Chase Sapphire Reserve",
-        balance: 2540,
-        amountDue: 324.27,
-        dueDate: '09/12/2023',
-        transactions: MOCK_TRANSACTIONS
-    },
-    {
-        name: "Discover IT Student",
-        balance: 3480.28,
-        amountDue: 124.86,
-        dueDate: '09/15/2023',
-        transactions: MOCK_TRANSACTIONS
-    },
-    {
-        name: "TJ Max Rewards",
-        balance: 524.12,
-        amountDue: 24.78,
-        dueDate: '09/20/2023',
-        transactions: MOCK_TRANSACTIONS
-    }
-];
+// Authored by Hadi Ghaddar from Line(s) 1 - 277
+
 
 class AccountsScreen extends React.Component {
 
@@ -134,35 +64,43 @@ class AccountsScreen extends React.Component {
                     </View>
 
                     <View style={styles.creditCardView}>
+                        {this.props.userStore.accountList.length <= 0 ? <Text style={styles.noAccountsText}>No accounts linked!</Text> : null}
+                        
                         {this.props.userStore.accountList.map(account => (
-                            <CreditCardComponent
+                            <CreditCardComponent 
+                                names={account.names}
                                 key={account.id}
                                 name={account.name}
                                 balance={account.balance}
                                 amountDue={0}
                                 dueDate={'N/A'}
                                 transactions={account.transactionList.transactionList}
+                                token={account.accessToken}
                                 navigation={this.navigation}
                             />
                         ))}
                     </View>
+                    
                 </ScrollView>
             </RNLinearGradient>
         );
     };
 }
 
-const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, navigation}) => (
+const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transactions, token, navigation}) => (
+    
     <TouchableOpacity style={styles.creditCard} onPress={() => {
         navigation.navigate({
             name: 'CardDetails',
             params: {
                 cardData: {
+                    names,
                     name,
                     balance,
                     amountDue,
                     dueDate,
-                    transactions
+                    transactions,
+                    accessToken: token
                 }
             }
         })
@@ -173,8 +111,11 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, n
             start={{x: 0, y: 0}}
             end={{x: 1, y: 1}}
         >
+            
             <View style={styles.creditCardTop}>
                 <Text style={styles.creditCardNameText}>{name}</Text>
+                <Text style={styles.creditCardNameText}>{names}</Text>
+                
             </View>
 
             <RNLinearGradient
@@ -183,8 +124,8 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, n
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 1}}
             />
-
             <View style={styles.creditCardBottom}>
+                <Text style={styles.cardDataTitleText}></Text>
                 <View style={{alignItems: 'center'}}>
                     <Text style={styles.cardDataTitleText}>Payment Date</Text>
                     <Text style={styles.cardDataText}>{dueDate}</Text>
@@ -202,6 +143,7 @@ const CreditCardComponent = ({name, balance, amountDue, dueDate, transactions, n
             </View>
         </RNLinearGradient>
     </TouchableOpacity>
+       
 );
 
 const styles = StyleSheet.create({
@@ -211,11 +153,22 @@ const styles = StyleSheet.create({
         height: '100%'
     },
     body: {
+        
         width: '100%',
         height: '100%',
         display: 'flex',
         flexDirection: 'column'
     },
+    cardContainer: {
+        borderWidth: 3,
+        borderColor: '#696969', // changed border color to darker gray
+        borderRadius: 10,
+        overflow: 'hidden',
+        backgroundColor: '#696969', // changed background color to darker gray
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        marginBottom: 10,
+      },
     dashboardTop: {
         width: '100%',
         height: 'auto',
@@ -228,6 +181,11 @@ const styles = StyleSheet.create({
         borderBottomColor: '#19191B',
         borderBottomWidth: 4,
         borderStyle: 'solid'
+    },
+    noAccountsText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#FFFFFF'
     },
     creditCardNameText: {
         color: '#0B0D10',

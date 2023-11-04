@@ -22,3 +22,4 @@ export {
     twilioHandler,
     plaidHandler
 }
+//Raigene added plaid to this page.(commit #6e93537)

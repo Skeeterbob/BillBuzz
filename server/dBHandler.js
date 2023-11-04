@@ -1,6 +1,7 @@
+// Authored by Hadi Ghaddar
 import dotenv from 'dotenv';
 import { MongoClient, ServerApiVersion, ClientEncryption } from 'mongodb';
-import { User } from "./objectPack.js";
+import { User } from "./objectPack.js"; // Added by Bryan Hodgins
 
 dotenv.config('../.env');
 const DATABASE_NAME = process.env.DATABASE_NAME;
@@ -17,14 +18,21 @@ class DBHandler {
     #encryption;
     #client;
     #db;
-    #usersCollection;
-    #idCollection;
+    #usersCollection; // Added by Bryan Hodgins
+    #idCollection;  // Addedd by Bryan Hodgins
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
     }
 
     // Method to update a user
+
+
+    // Authored by Henry Winczner from line(s) 36 - 51
+
+
+
+
     async updateUserPassword(user) {
         const updated = await this.#usersCollection.updateOne(
             { _id: user._id },
@@ -52,15 +60,16 @@ class DBHandler {
             }
         });
 
-        //Create our initial connection to MongoDB
-        await this.#client.connect();
-        this.#encryption = new Encryption(this.#client);
-        this.#db = this.#client.db(DATABASE_NAME);
-        this.#usersCollection = this.#db.collection(USERS_COLLECTION);
-        this.#idCollection = this.#db.collection('idcollection');
+        //Create our initial connection to MongoDB 
+        await this.#client.connect(); // Hadi Ghaddar
+        this.#encryption = new Encryption(this.#client); // Bryan Hodgins
+        this.#db = this.#client.db(DATABASE_NAME); //Bryan Hodgins
+        this.#usersCollection = this.#db.collection(USERS_COLLECTION);//Bryan Hodgins
+        this.#idCollection = this.#db.collection('idcollection');//Bryan Hodgins
     }
 
     //Insert a new encrypted user into the database
+    // insertUser function was authored by Bryan Hodgins
     async insertUser(user) {
         try {
             let id = await this.#getKeyId(user.getEmail());
@@ -82,22 +91,23 @@ class DBHandler {
 
     //Update user information
     //Take in an email too in case the user updates their email, we will have the original
+    // Authored by Bryan Hodgins and Hadi Ghaddar
     async updateUser(email, user) {
         try {
             //Get key from email in user class
-            let id = await this.#getKeyId(email);
-            id = id['key'];
-
+            let id = await this.#getKeyId(email); //Bryan Hodgins
+            id = id['key']; //Bryan Hodgins
+    //Lines 94-96 by Raigene (commit #9bc0383)
             if (id == null) {
                 console.log('User does not exist');
                 return false;
             } else {
-                const encryptedEmail = await this.#encryption.encryptString(email, id);
+                const encryptedEmail = await this.#encryption.encryptString(email, id); // Modified by Bryan Hodgins
                 //Encrypt new user data
-                const encryptedUser = await this.#encryption.encryptUser(user, id);
+                const encryptedUser = await this.#encryption.encryptUser(user, id); // Modified by Bryan Hodgins
 
                 if (user.getEmail() !== email) {
-                    await this.#encryption.updateKeyId(user.getEmail(), id);
+                    await this.#encryption.updateKeyId(user.getEmail(), id); // Modified by Bryan Hodgins
                 }
 
                 return await this.#usersCollection.updateOne(
@@ -106,6 +116,7 @@ class DBHandler {
                     { upsert: true }
                 );
             }
+            //Lines 113-115 by Raigene (commit #9bc0383)
         } catch (error) {
             console.error("Error updating user in database:", error);
             throw error;
@@ -113,17 +124,18 @@ class DBHandler {
     }
 
     //Get a user from the database by their email
+    // Authored by Hadi Ghaddar and modified by Bryan Hodgins
     async getUser(email) {
         try {
-            let id = await this.#getKeyId(email);
+            let id = await this.#getKeyId(email); // Added by Bryan Hodgins
             id = id['key'];
             if (id != null) {
                 //Encrypt the email so that we can search for it in the database
-                const encryptedEmail = await this.#encryption.encryptString(email, id);
+                const encryptedEmail = await this.#encryption.encryptString(email, id); // Modified by Bryan Hodgins
                 //Retrieve the user from the database, all the data would be encrypted
-                const encryptedUser = await this.#usersCollection.findOne({ 'email': encryptedEmail });
+                const encryptedUser = await this.#usersCollection.findOne({ 'email': encryptedEmail }); // Modified by Bryan Hodgins
                 //Return the user's properties decrypted so that we can actually read them
-                return await this.#encryption.decryptUser(encryptedUser, id);
+                return await this.#encryption.decryptUser(encryptedUser, id); // Modified by Bryan Hodgins
             }
             else {
                 console.log('user does not exist');
@@ -137,6 +149,7 @@ class DBHandler {
 
     //Verify if a user's profile already exists in the database by email
     //If the user exists we return true, false if no user is found
+    // verify user function authored by Bryan Hodgins
     async verifyUser(email, password) {
         let retVal = {};
         let id = await this.#getKeyId(email);
@@ -158,22 +171,27 @@ class DBHandler {
     }
 
     //private function to return the keyId for encryption from the other collection
+    // Authored by Bryan Hodgins
     async #getKeyId(email) {
         return await this.#idCollection.findOne({ "email": email });
     }
 
     //private functio to insert keyId into idCollection when account is created
+    // Authored by Bryan Hodgins
     async #insertKeyId(email) {
         let id = await this.#encryption.createNewKey()
         let result = await this.#idCollection.insertOne({ "email": email, "key": id });
         return id;
     };
 
+    // Authored by Bryan Hodgins
     async updateKeyId(email, keyId) {
         await this.#idCollection.insertOne({ "email": email, "key": keyId });
         return keyId;
     }
-    //This functioni returns a schema to identify fields to be encrypted.
+
+    // Authored by Bryan Hodgins for possible future use for encryption
+    //This function returns a schema to identify fields to be encrypted.
     //Will be useful if we setup autoencryption later.
     /*#getUserEncryptSchema (id) {
         const schema = {
@@ -227,6 +245,7 @@ class DBHandler {
 }
 
 //Base encryption class with MongoDB
+// Authored by Hadi Ghaddar inside of independent file. Relocated and modified by Bryan Hodgins
 class Encryption {
     //Our ClientEncryption instance and dataKey
     #encryption;
@@ -234,7 +253,7 @@ class Encryption {
     //Take in a mongo client parameter as it's required to create a ClientEncryption instance
     constructor(mongoClient) {
         //Our options for the ClientEncryption instance we create
-        const options = {
+        const options = { // modified by Bryan Hodgins 
             keyVaultNamespace: KEY_VAULT_NAMESPACE,
             kmsProviders: {
                 local: {
@@ -253,6 +272,7 @@ class Encryption {
     }
 
     //Encrypt a given user
+    // authored by Hadi Ghaddar, modified by bryan hodgins to use the id that is passed in.
     async encryptUser(user, id) {
         if (!user) {
             console.error("Invalid user provided to encrypt: " + user);
@@ -315,6 +335,7 @@ class Encryption {
     }
 
     //Decrypt a given user
+    // Authored by Hadi Ghaddar, modified by Bryan Hodgins to use the encryption id.
     async decryptUser(user, id) {
         if (!user) {
             console.error("Invalid user provided to decrypt: " + user);
@@ -377,6 +398,7 @@ class Encryption {
 
     // Encrypt a JSON object by interating over its keys and reconstructing with 
     // all values encrypted and keys intact.
+    // Authored by Bryan Hodgins
     async encryptJSON(data) {
         let keyList = Object.keys(data);
         let retJSON = {}
@@ -387,6 +409,8 @@ class Encryption {
     }
 
     //Encrypt a single string
+    // Authored by Hadi Ghaddar, Modified by Bryan Hodgins to modify options for client to
+    // allow for the encryption to continue to work accross multiple restarts of server.
     async encryptString(targetString, id) {
         let encryptionOptions = {
             algorithm: ENCRYPTION_ALGORITHM,
@@ -396,6 +420,8 @@ class Encryption {
     }
 
     //Decrypt a single string
+    // Authored by Hadi Ghaddar, Modified by Bryan Hodgins to modify options for client to
+    // allow for the encryption to continue to work accross multiple restarts of server.
     async decryptString(targetString, id) {
         let encryptionOptions = {
             algorithm: ENCRYPTION_ALGORITHM,
@@ -407,15 +433,6 @@ class Encryption {
                 }
             }
         };
-        /*let secureClient = new MongoClient(process.env.MONGO_CONNECTION,{
-            serverApi: {
-                version: ServerApiVersion.v1,
-                strict: true,
-                deprecationErrors: true
-            }
-        });*/
-        //let clientEncryption = new ClientEncryption(secureClient, encryptionOptions)
-        //return await clientEncryption.decrypt(targetString);
         return await this.#encryption.decrypt(targetString, encryptionOptions);
     }
 

@@ -8,6 +8,8 @@ const loginRouter = express.Router();
 loginRouter.post('/', async (req, res) => {
 });
 
+// Raigene cook originally authored this, and Bryan Hodgins made some minor debugging tweaks.
+//Lines 12-27 by Raigene (Commit #1dadd9a)
 loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -19,13 +21,15 @@ loginRouter.post('/verify', async (req, res) => {
     const result = await dbHandler.verifyUser(email, password);
 
     if (result) {
-        await twilioHandler.sendSMS('+1' + result.phoneNumber);
+        await twilioHandler.sendSMS('+1' + result.phoneNumber);//Modified by Bryan 
         return res.status(200).send(JSON.stringify(result));
     } else {
         return res.status(401).send('Incorrect Email/Password provided!');
     }
 });
 
+// Bryan Hodgins originally authored this before it was moved from incorrect location in the register router.
+// There seems to be some minor changes to it though.
 loginRouter.post('/getUser', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -41,6 +45,8 @@ loginRouter.post('/getUser', async (req, res) => {
     return res.status(200).json(JSON.parse(result.toJSONString()));
 });
 
+// Bryan Hodgins originally authored this route. I believe Raigene Cook did error handling.
+//Lines 51-69 by Raigene (commit #2234138)
 loginRouter.post('/verify/sms', async (req, res) => {
     try {
         const phNum = req.body.phNum;
@@ -61,6 +67,12 @@ loginRouter.post('/verify/sms', async (req, res) => {
     }
 
 });
+
+
+// Authored by Henry Winczner from line(s) 76 - 147
+
+
+
 loginRouter.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
 
@@ -104,6 +116,7 @@ loginRouter.post('/forgot-password', async (req, res) => {
 });
 
 // Route to handle the password reset
+//hwinczner
 loginRouter.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;

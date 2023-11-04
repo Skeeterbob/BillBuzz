@@ -4,6 +4,11 @@ import Icon from "react-native-vector-icons/Ionicons";
 import React from "react";
 import {SERVER_ENDPOINT} from "@env";
 import {inject, observer} from "mobx-react";
+import {makeObservable} from "mobx";
+
+
+// Authored by Hadi Ghaddar from line(s) 1 - 43
+
 
 class PlaidComponent extends React.Component {
 
@@ -18,30 +23,28 @@ class PlaidComponent extends React.Component {
     componentDidMount() {
         const userId = this.props.userStore.firstName + '-' + this.props.userStore.lastName;
         this.createToken(userId).then(response => {
-            this.setState({token: response});
+            this.setState({token: response});  // Authored by Bryan Hodgins
         })
     }
 
     createToken = async (userId) => {
-        response = await fetch(SERVER_ENDPOINT + '/plaid/getLinkToken', {
+        const response = await fetch(SERVER_ENDPOINT + '/plaid/getLinkToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                userId: userId,
+                userId: userId,  // Authored by Bryan Hodgins
             })
-        }).catch(console.error);
-        data = await response.json();
-        return data.link_token;
+        }).catch(console.error);  // Authored by Bryan Hodgins
+        const data = await response.json();
+        return data.link_token;  // Authored by Bryan Hodgins
     };
 
+    // Authored by Henry winczner from line(s) 46 - 68
     onPlaidSuccess = (success) => {
         const publicToken = success.publicToken;
-        const accounts = success.metadata.accounts;
-        const institution = success.metadata.institution;
-        const linkSessionId = success.metadata.linkSessionId;
 
         fetch(SERVER_ENDPOINT + '/plaid/getAccessToken', {
             method: 'POST',
@@ -56,13 +59,16 @@ class PlaidComponent extends React.Component {
         })
             .then(data => data.json())
             .then(response => {
-                if (response.success === "success") {
+                if (response.success) {
                     this.props.userStore.updateUser(response.user);
+                    this.props.successUpdate();
                 }
             })
             .catch(console.error)
     };
 
+
+    // Authored by Hadi Ghaddar from line(s) 72 - 125
     onPlaidExit = (exit) => {
 
     };

@@ -14,6 +14,8 @@
  }*/
 
 //class to store and manipulate user data
+
+// This complete file was authored by Bryan Hodgins
 class User {
     #email;
     #password;

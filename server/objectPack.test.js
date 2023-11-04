@@ -1,4 +1,4 @@
-
+// This Complete file was authored by Bryan Hodgins
 const {User} = require('./objectPack.js');
 
 const testTransactionString = '{"amount":1.11,"date":"' + new Date().toISOString() +

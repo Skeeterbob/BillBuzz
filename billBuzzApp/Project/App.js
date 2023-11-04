@@ -26,6 +26,14 @@ const MainStack = createNativeStackNavigator();
 
 import {SERVER_ENDPOINT} from "@env";
 import AnimatedSplashScreen from "./src/Components/AnimatedSplashScreen";
+import RecurringTransactionsScreen from "./src/Screens/RecurringTransactionsScreen";
+
+
+
+// Authored by Henry Winczner from line(s) 1 - 130
+
+
+
 
 class App extends React.Component {
 
@@ -121,6 +129,13 @@ class App extends React.Component {
     }
 }
 
+
+
+// Authored by Hadi Ghaddar from line(s) 139 - 191
+
+
+
+
 const AppMain = ({navigation, route}) => (
     <MainStack.Navigator initialRouteName='Dashboard'>
         <MainStack.Screen
@@ -153,7 +168,11 @@ const AppMain = ({navigation, route}) => (
             options={{headerShown: false}}
         />
 
-      
+        <MainStack.Screen
+            name={'RecurringTransactions'}
+            component={RecurringTransactionsScreen}
+            options={{headerShown: false}}
+        />
     </MainStack.Navigator>
 )
 
