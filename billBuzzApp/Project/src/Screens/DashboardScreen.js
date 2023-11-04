@@ -8,7 +8,10 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
-import { toJS } from "mobx";
+
+
+// Authored by Henry Winczner from line(s) 1 - 58
+
 
 const upcomingOverdrafts = [
     {
@@ -25,7 +28,7 @@ const upcomingOverdrafts = [
 ];
 
 class DashboardScreen extends React.Component {
-
+    //hwinczner 
     state = {
         // ... other state properties
         weeklyData: [],
@@ -39,6 +42,9 @@ class DashboardScreen extends React.Component {
         sortBy: 'default'
     };
 
+   
+   
+    //hwinczner 
     componentDidMount() {
         this.compileChart();
     }
@@ -50,6 +56,7 @@ class DashboardScreen extends React.Component {
     toggleOverdrafts = () => {
         this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
     };
+    // Bryan Hodgins authored the prevWeek() function
     prevWeek = () => {  // Go to the previous week
         let currentWeek = this.state.currentWeek;
         // if it is the current week view modify the date range to start on sunday
@@ -73,7 +80,7 @@ class DashboardScreen extends React.Component {
             // TODO: can add in code to change the text on the chart here.
         }
     }
-
+    // Bryan Hodgins authored the nextWeek function
     nextWeek = () => {  // Go to the next week
         let currentWeek = this.state.currentWeek;
         //increase the currentWeek by one week;
@@ -97,6 +104,10 @@ class DashboardScreen extends React.Component {
         this.setState(() => ({ currentWeek: currentWeek }));
     }
 
+
+
+    // Authored by Henry Winczner from line(s) 111 - 114
+
     handleToggleExpand = () => {
         this.setState(prevState => ({ expanded: !prevState.expanded }));
     };
@@ -105,6 +116,7 @@ class DashboardScreen extends React.Component {
     // mode 0 is chart data for the last 7 days.
     // mode 1 is chart data for a specified week
     // create new modes as needed.
+    // Bryan Hodgins authored the compileChart function.
     compileChart = (startDate = null, endDate = null, mode = 0) => {
         const data = {};
         data['labels'] = []
@@ -159,13 +171,23 @@ class DashboardScreen extends React.Component {
         this.setState(() => ({ chartData: data }));
     }
 
+
+
+    // Authored by Henry Winczner from line(s) 179 - 213
+
+
+    plaidSuccessUpdate = () => {
+        //Refresh the page when plaid is done updating so we get the new user data
+        this.forceUpdate();
+    }
+
     render() {
-        const { chartData, currentWeek} = this.state;
+        const { chartData, currentWeek } = this.state;
         const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
         const { sortBy } = this.state;
         let transactions = [];
-        for (const account of user.accountList) {
+        for (const account of this.props.userStore.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
 
@@ -190,7 +212,12 @@ class DashboardScreen extends React.Component {
                 break;
         }
 
-        const creditCard = user.accountList[0] ?? { name: 'TEst Data', balance: 0 };
+
+
+         // Authored by Hadi Ghaddar from line(s) 220 - 250
+
+
+        const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
 
         user.accountList.forEach(account => {
             account.transactionList.transactionList.forEach(transaction => {
@@ -210,7 +237,7 @@ class DashboardScreen extends React.Component {
                 style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
 
-                <PlaidComponent />
+                <PlaidComponent successUpdate={this.plaidSuccessUpdate} />
 
                 <View style={styles.dashboardButton}>
                     <TouchableOpacity
@@ -221,6 +248,13 @@ class DashboardScreen extends React.Component {
                         <Icon name={'card'} size={32} color={'#000000'} />
                     </TouchableOpacity>
                 </View>
+
+
+
+                 {/*Authored by Henry Winczner from line(s) 259 - 341*/}
+
+
+
 
                 <ScrollView contentContainerStyle={styles.body}>
                     <View style={styles.headerInfo}>
@@ -250,7 +284,7 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>{weekDate.getMonth()+"/"+weekDate.getDay()+"/"+weekDate.getFullYear()}</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + "/" + weekDate.getDay() + "/" + weekDate.getFullYear()}</Text>
                             </View>
 
                             <TouchableOpacity
@@ -287,7 +321,6 @@ class DashboardScreen extends React.Component {
                         />
 
                     </View>
-
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
                             <Text style={styles.summaryText}>Recent Transactions</Text>
@@ -306,8 +339,13 @@ class DashboardScreen extends React.Component {
                                     />
                                 )
                             )}
-                        </View>
 
+
+
+                            {/*Authored by Hadi Ghaddar from line(s) 348 - 393*/}
+
+
+                        </View>
                         <TouchableOpacity
                             style={styles.summaryButton}
                             onPress={() => {
@@ -317,7 +355,7 @@ class DashboardScreen extends React.Component {
                             <Text style={styles.summaryButtonText}>View all transactions</Text>
                         </TouchableOpacity>
                     </View>
-
+                 
                     <View style={styles.upcomingOverdrafts}>
                         <View style={styles.upcomingOverdraftsHeader}>
                             <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
@@ -354,6 +392,11 @@ class DashboardScreen extends React.Component {
     }
 }
 
+
+
+// Authored by Henry Winczner from line(s) 400 - 548
+
+
 const truncateText = (text) => {
     return text.length > 25 ? text.slice(0, 25) + '...' : text;
 };
@@ -361,18 +404,13 @@ const truncateText = (text) => {
 const TransactionComponent = (transaction) => {
     return (
         <View style={styles.transaction}>
-            {/* <View style={styles.transactionHeader}>
-                <Text style={{ color: '#FFFFFF' }}>Merchant</Text>
-                <Text style={{ color: '#FFFFFF' }}>Amount</Text>
-                <Text style={{ color: '#FFFFFF' }}>Date</Text>
-            </View> */}
-
+           
             <View style={styles.transactionData}>
                 <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
             </View>
             <View style={styles.transactionDate}>
-                <Text style={{ color: '#ffffff', fontStyle: 'italic'}}>{formatDate(transaction.transaction.date)}</Text>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{formatDate(transaction.transaction.date)}</Text>
             </View>
         </View>
     );
@@ -391,6 +429,30 @@ function formatDate(dateString) {
 
 
 const styles = StyleSheet.create({
+    recurringBtn: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        padding: 12,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#eca239',
+        marginBottom: 16,
+        shadowColor: '#232323',
+        shadowOffset: {
+            width: 2,
+            height: 2,
+        },
+        shadowOpacity: 0,
+        shadowRadius: 10,
+        elevation: 4,
+    },
+    recurringBtnText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000000'
+    },
     Text: {
         color: '#FFFFFF',
         fontSize: 16,
@@ -482,6 +544,14 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginBottom: 8,
     },
+
+
+
+
+    // Authored by Hadi Ghaddar from line(s) 557 - 796
+
+
+
     weeklyView: {
         width: '100%',
         height: 'auto',

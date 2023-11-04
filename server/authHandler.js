@@ -1,3 +1,4 @@
+// Authored by Bryan Hodgins
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 

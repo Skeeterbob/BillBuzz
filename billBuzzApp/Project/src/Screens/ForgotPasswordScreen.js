@@ -3,6 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { SERVER_ENDPOINT } from "@env";
 
 
+
+// Authored by Henry Winczner from line(s) 1 - 66
+
+
+
 class ForgotPasswordScreen extends React.Component {
   constructor(props) {
     super(props);

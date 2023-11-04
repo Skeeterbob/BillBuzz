@@ -1,6 +1,7 @@
 // function to return all transactions for a user in chronological order.
 // can pass two date objects to only retrieve transactions for a specified time frame
 // can also pass one date object to retrieve transaction from today back to a certain date.
+// This file was authored by Bryan Hodgins
 const getAllTransactions = (user, endDate = null, startDate = null) => {
     let newList = [];
     for (const account of user.accountList) {
@@ -12,7 +13,7 @@ const getAllTransactions = (user, endDate = null, startDate = null) => {
             if (endDate != null && new Date(transaction.date) < endDate){
                 continue;
             }
-            if(transaction.amount.includes('-')){
+            if(transaction.amount && transaction.amount instanceof String && transaction.amount.includes('-')){
                 continue;
             }
 

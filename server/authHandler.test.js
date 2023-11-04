@@ -1,3 +1,4 @@
+// Authored by Bryan Hodgins
 const {AuthHandler} = require('./authHandler.js');
 const authHandler = new AuthHandler();
 

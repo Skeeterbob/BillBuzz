@@ -1,3 +1,9 @@
+
+
+
+// Authored by Henry Winczner from line(s) 1 - 24
+
+
 class EmailHandler {
   constructor(transporter) {
     this.transporter = transporter;

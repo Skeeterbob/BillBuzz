@@ -17,6 +17,13 @@ import {TextInputMask} from "react-native-masked-text";
 
 import {SERVER_ENDPOINT} from "@env";
 
+
+
+// Authored by Hadi Ghaddar from line(s) 1 - 329
+
+
+
+
 class RegisterInfoScreen extends React.Component {
 
     state = {

@@ -12,6 +12,7 @@ class PlaidHandler {
     }
 
     // Function to instantiate the plaid client
+    // init  function authored by Raigene Cook
     async init(){
         try{
         //create the endpoints for authentication
@@ -38,6 +39,7 @@ class PlaidHandler {
    //Method to generate a link token to be used on the front end to 
    //authenticate the Plaid account link interface
    //needs a user id (mongoDB id)
+   // Authored by Raigene Cook, Modified by Bryan Hodgins
     async linkAccount(userId){
         try {
 
@@ -53,6 +55,7 @@ class PlaidHandler {
             }
             console.log(process.env.WEBHOOK_URL);
             //Create link token by providing a unique user id
+            // Bryan Hodgins modified the next section (9 lines) as part of debugging.
             const linkAccountResponse = await this.#client.linkTokenCreate({
                 user:{
                     client_user_id: userId,
@@ -71,7 +74,7 @@ class PlaidHandler {
             throw error;
         }
     }
-
+    // Bryan Hodgins authored the completeLink function
     async completeLink(publicToken){
         try {
             const response = await this.#client.itemPublicTokenExchange({
@@ -117,14 +120,13 @@ class PlaidHandler {
     }
 
 //Method to get recurring transactions from plaids API
+// TODO: This does not seem functional. 
     async getRecurringTransactions(accessToken, startDate, endDate){
         try{
             const response = await this.#client.transactionsGet({
                 access_token: accessToken,
                 start_date: startDate,
-                end_date: endDate,
-                count: 500,
-                offset: 0,
+                end_date: endDate
             });
             return response.data;
         }
@@ -136,6 +138,7 @@ class PlaidHandler {
     }
 
     //a method to sync transactions from plaid to the database
+    // This also does not seem functional in its current state.
     async syncTransactions(userId, startDate, endDate, accessToken){
         try{
             //get transactions from plaid
@@ -154,10 +157,9 @@ class PlaidHandler {
 //Method to delete the plaid account
     async deleteAccount(accessToken){
         try{
-            const response = await this.#client.itemRemove({
+            return await this.#client.itemRemove({
                 access_token: accessToken,
             });
-            return response.data;
         }
         catch(error){
             console.error('Plaid deleteAccount error:', error);
@@ -177,7 +179,95 @@ class PlaidHandler {
             //error handling
         }
     }
+
+    //Authored by Bryan Hodgins, Source: Plaid docs.
+    async handleItemWebhook(requestBody, io) {
+        const {
+          webhook_code: webhookCode,
+          item_id: plaidItemId,
+          error,
+        } = requestBody;
+      
+        const serverLogAndEmitSocket = (additionalInfo, itemId, errorCode) => {
+          console.log(
+            `WEBHOOK: ITEMS: ${webhookCode}: Plaid item id ${plaidItemId}: ${additionalInfo}`
+          );
+          // use websocket to notify the client that a webhook has been received and handled
+          if (webhookCode) io.emit(webhookCode, { itemId, errorCode });
+        };
+      
+        switch (webhookCode) {
+          case 'WEBHOOK_UPDATE_ACKNOWLEDGED':
+            serverLogAndEmitSocket('is updated', plaidItemId, error);
+            break;
+          case 'ERROR': {
+            itemErrorHandler(plaidItemId, error);
+            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
+            serverLogAndEmitSocket(
+              `ERROR: ${error.error_code}: ${error.error_message}`,
+              itemId,
+              error.error_code
+            );
+            break;
+          }
+          case 'PENDING_EXPIRATION': {
+            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
+            await updateItemStatus(itemId, 'bad');
+            serverLogAndEmitSocket(
+              `user needs to re-enter login credentials`,
+              itemId,
+              error
+            );
+            break;
+          }
+          default:
+            serverLogAndEmitSocket(
+              'unhandled webhook type received.',
+              plaidItemId,
+              error
+            );
+        }
+    };
+
+    //handleTransaction Webhook authored by Bryan Hodgins, source Plaid Docs.
+    async handleTransactionWebhook (requestBody, io) {
+        const {
+          webhook_code: webhookCode,
+          item_id: plaidItemId,
+        } = requestBody;
+      
+        const serverLogAndEmitSocket = (additionalInfo, itemId) => {
+          console.log(
+            `WEBHOOK: TRANSACTIONS: ${webhookCode}: Plaid_item_id ${plaidItemId}: ${additionalInfo}`
+          );
+          // use websocket to notify the client that a webhook has been received and handled
+          if (webhookCode) io.emit(webhookCode, { itemId });
+        };
+      
+        switch (webhookCode) {
+          case 'SYNC_UPDATES_AVAILABLE': {
+            // Fired when new transactions data becomes available.
+            const {
+              addedCount,
+              modifiedCount,
+              removedCount,
+            } = await updateTransactions(plaidItemId);
+            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
+            serverLogAndEmitSocket(`Transactions: ${addedCount} added, ${modifiedCount} modified, ${removedCount} removed`, itemId);
+            break;
+          }
+          case 'DEFAULT_UPDATE':
+          case 'INITIAL_UPDATE':
+          case 'HISTORICAL_UPDATE':
+            /* ignore - not needed if using sync endpoint + webhook */
+            break;
+          default:
+            serverLogAndEmitSocket(`unhandled webhook type received.`, plaidItemId);
+        }
+    };
 }
+
+
 
 export {PlaidHandler};
 

@@ -3,13 +3,15 @@ import dotenv from 'dotenv';
 import { Configuration, PlaidApi, PlaidEnvironments } from 'plaid';
 dotenv.config();
 
+//Test case authored by Bryan Hodgins
+
 // create PlaidHandler object and initialize
 const plaidHandler = new PlaidHandler();
 plaidHandler.init();
 
 
 test('retrieve a link token from plaidhandler.linkAccount', async () =>{
-    const response = await plaidHandler.linkAccount("1234567");
+    const response = await plaidHandler.linkAccount("12345678910");
     console.log(response);
 })
 
@@ -37,7 +39,7 @@ async function triggerTransactionWebhook (accessToken) {
     // Fire a DEFAULT_UPDATE webhook for an Item
     const request = {
       access_token: accessToken,
-      webhook_code: 'SYNC_UPDATES_AVAILABLE',
+      webhook_code: 'DEFAULT_UPDATE',
     };
     try {
       const response = await client.sandboxItemFireWebhook(request);

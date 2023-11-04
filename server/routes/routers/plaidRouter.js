@@ -32,12 +32,21 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
     const publicToken = req.body.publicToken;
     const email = req.body.email;
     if (!publicToken || !email) {
-        return res.status(400).send({"error":'email and publicToken fields are required'});
+        return res.status(400).send({"error": 'email and publicToken fields are required', success: false});
     }
 
     try {
         // send request to plaid API to get the accessToken associated with the
         // new account link.
+        // Bryan Hodgins wrote the fir 4 lines here. Everything else was added later.
+
+
+
+
+        // Authored by Hadi Ghaddar from line(s) 50 - 102
+
+
+
         const user = await dbHandler.getUser(email);
         const response = await plaidHandler.completeLink(publicToken);
         const accessToken = response.accessToken;
@@ -57,7 +66,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
                 balance: account['balances']['current'],
                 transactionList: {
                     transactionList: [],
-                    length: 1,
+                    length: 1,  // should be 0?
                     beginDate: startDate,
                     endDate: endDate
                 },
@@ -83,15 +92,17 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         }
 
         await dbHandler.updateUser(newUserData.email, new User(newUserData))
-        res.status(200).json({status: 'success', user: newUserData});
+        res.status(200).json({success: true, user: newUserData});
     }
     catch (error) {
         // handle error
-        res.status(500).json({status: 'failure'});
+        res.status(500).json({success: false});
         console.log(error);
     }
 });
 
+// Bryan Hodgins originally authored this endpoint (I think)
+// Authored by Raigene Cook from line(s) 106 - 119
 plaidRouter.post('/getTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;
     const startDate = req.body.startDate;
@@ -107,22 +118,59 @@ plaidRouter.post('/getTransactions', async (req,res) => {
     }
 });
 
+
+
+// Authored by Hadi Ghaddar from line(s) 129 - 169
+
+
+
+
+
+
 plaidRouter.post('/getrecurringTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
+    if (!accessToken) {
+        return res.status(400).send({error: 'Access token required!'});
+    }
+
     try {
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString().split('T')[0];
         const response = await plaidHandler.getRecurringTransactions(accessToken, startDate, endDate);
-        res.json(response);
+        const transactions = response.transactions;
+
+        //Group transactions by their name
+        const groupedByName = transactions.reduce((acc, transaction) => {
+            (acc[transaction.name] = acc[transaction.name] || []).push(transaction);
+            return acc;
+        }, {});
+
+        //Minimum number of times this transaction has to show to be considered 'recurring'
+        const minOccurrences = 4;
+        const potentialRecurring = Object.values(groupedByName).filter(
+            transactions => transactions.length >= minOccurrences
+        );
+
+        const recurringTransactions = potentialRecurring.map(transactionsOfSameName => {
+            let transaction = transactionsOfSameName[0];
+            return {
+                amount: transaction.amount,
+                name: transaction.name,
+                vendorName: transaction.merchant_name
+            };
+        });
+
+        res.status(200).json({transactions: recurringTransactions});
     }
     catch (error) {
         // handle error for getRecurringTransactions
-        console.error('Retreving Recurring Transactions error:', error);
-        throw error;
+        console.error('Retrieving Recurring Transactions error:', error);
+        return res.status(500).send({error: 'Unknown error!'});
     }
 });
 
 //method to get sync transactions from plaid to the database
+// Authored by Raigene Cook from line(s) 173 - 187
 plaidRouter.post('/syncTransactions', async (req,res) => {
     const userId = req.body.userId;
     const startDate = req.body.startDate;
@@ -139,12 +187,43 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
     }
 });
 
-plaidRouter.get('/webhookListener', async (req,res) => {
-    console.log('Webhook received: ', req);
-});
-
+// endpoint to receive webhooks from plaid.
+// Authored by Bryan Hodgins
 plaidRouter.post('/webhookListener', async (req,res) => {
     console.log('Webhook received: ', req);
+    res.send({data:'worked post'});
+
+})
+
+//endpoint to remove the account link from plaid when user deletes it.
+// Authored by Hadi Ghaddar from line(s) 196 - 227
+plaidRouter.post('/removeAccount', async (req, res) => {
+    const accessToken = req.body.accessToken;
+    const email = req.body.email;
+
+    if (!accessToken) {
+        return res.status(400).json({error: 'Access token is required'});
+    }
+
+    if (!email) {
+        return res.status(400).json({error: 'User email is required'});
+    }
+
+    try {
+        const user = await dbHandler.getUser(email);
+        const response = await plaidHandler.deleteAccount(accessToken);
+        if (response.data.request_id) {
+            let newUserData = JSON.parse(user.toJSONString());
+            newUserData.accountList = newUserData.accountList.filter(account => account.accessToken !== accessToken);
+
+            await dbHandler.updateUser(newUserData.email, new User(newUserData))
+            res.status(200).json({removed: true, user: newUserData});
+        }else {
+            res.status(500).json({error: 'Failed to unlink account', removed: false});
+        }
+    } catch (error) {
+        res.status(500).json({error: 'Unknown error while unlinking account', removed: false});
+    }
 });
 
 export {plaidRouter};

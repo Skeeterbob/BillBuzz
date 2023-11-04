@@ -22,6 +22,12 @@ const CAPITAL_REGEX = /[A-Z]/;
 const SYMBOL_REGEX = /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/;
 const PHONE_NUMBER_REGEX = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
 
+
+
+// Authored by Henry Winczner from line(s) 1 - 348
+
+
+
 class RegisterScreen extends React.Component {
 
     state = {
