@@ -28,6 +28,13 @@ import {SERVER_ENDPOINT} from "@env";
 import AnimatedSplashScreen from "./src/Components/AnimatedSplashScreen";
 import RecurringTransactionsScreen from "./src/Screens/RecurringTransactionsScreen";
 
+
+
+// Authored by Henry Winczner from line(s) 1 - 130
+
+
+
+
 class App extends React.Component {
 
     state = {
@@ -121,6 +128,13 @@ class App extends React.Component {
         );
     }
 }
+
+
+
+// Authored by Hadi Ghaddar from line(s) 139 - 191
+
+
+
 
 const AppMain = ({navigation, route}) => (
     <MainStack.Navigator initialRouteName='Dashboard'>

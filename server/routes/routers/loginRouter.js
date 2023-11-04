@@ -67,7 +67,12 @@ loginRouter.post('/verify/sms', async (req, res) => {
     }
 
 });
-//hwinczner
+
+
+// Authored by Henry Winczner from line(s) 76 - 147
+
+
+
 loginRouter.post('/forgot-password', async (req, res) => {
     const { email } = req.body;
 

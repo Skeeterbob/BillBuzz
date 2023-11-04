@@ -2,7 +2,7 @@
 import express from 'express';
 import {appInit} from './routes/routes.js';
 import pkg from 'body-parser'
-import {initHandlers} from "./handlers.js"; // Hadi Added this
+import {initHandlers} from "./handlers.js";
 const bodyParser = pkg;
 const port = process.env.PORT || 3000;
 const app = express();

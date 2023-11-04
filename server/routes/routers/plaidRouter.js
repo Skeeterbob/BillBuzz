@@ -39,6 +39,14 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         // send request to plaid API to get the accessToken associated with the
         // new account link.
         // Bryan Hodgins wrote the fir 4 lines here. Everything else was added later.
+
+
+
+
+        // Authored by Hadi Ghaddar from line(s) 50 - 102
+
+
+
         const user = await dbHandler.getUser(email);
         const response = await plaidHandler.completeLink(publicToken);
         const accessToken = response.accessToken;
@@ -94,6 +102,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
 });
 
 // Bryan Hodgins originally authored this endpoint (I think)
+// Authored by Raigene Cook from line(s) 106 - 119
 plaidRouter.post('/getTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;
     const startDate = req.body.startDate;
@@ -108,6 +117,15 @@ plaidRouter.post('/getTransactions', async (req,res) => {
         throw error;
     }
 });
+
+
+
+// Authored by Hadi Ghaddar from line(s) 129 - 169
+
+
+
+
+
 
 plaidRouter.post('/getrecurringTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;
@@ -152,6 +170,7 @@ plaidRouter.post('/getrecurringTransactions', async (req,res) => {
 });
 
 //method to get sync transactions from plaid to the database
+// Authored by Raigene Cook from line(s) 173 - 187
 plaidRouter.post('/syncTransactions', async (req,res) => {
     const userId = req.body.userId;
     const startDate = req.body.startDate;
@@ -167,6 +186,14 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
         throw error;
     }
 });
+
+
+
+// Authored by Hadi Ghaddar from line(s) 196 - 227
+
+
+
+
 
 plaidRouter.post('/removeAccount', async (req, res) => {
     const accessToken = req.body.accessToken;

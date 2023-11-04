@@ -17,7 +17,12 @@ import Icon from "react-native-vector-icons/Ionicons";
 import Toast from "react-native-toast-message";
 
 import {SERVER_ENDPOINT} from "@env";
-//hwinczner most of the page
+
+
+// Authored by Henry Winczner from line(s) 1 - 318
+
+
+
 class LoginScreen extends React.Component {
 
     

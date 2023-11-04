@@ -6,6 +6,10 @@ import {SERVER_ENDPOINT} from "@env";
 import {inject, observer} from "mobx-react";
 import {makeObservable} from "mobx";
 
+
+// Authored by Hadi Ghaddar from line(s) 1 - 43
+
+
 class PlaidComponent extends React.Component {
 
     state = {
@@ -19,7 +23,7 @@ class PlaidComponent extends React.Component {
     componentDidMount() {
         const userId = this.props.userStore.firstName + '-' + this.props.userStore.lastName;
         this.createToken(userId).then(response => {
-            this.setState({token: response});
+            this.setState({token: response});  // Authored by Bryan Hodgins
         })
     }
 
@@ -31,13 +35,14 @@ class PlaidComponent extends React.Component {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                userId: userId,
+                userId: userId,  // Authored by Bryan Hodgins
             })
-        }).catch(console.error);
+        }).catch(console.error);  // Authored by Bryan Hodgins
         const data = await response.json();
-        return data.link_token;
+        return data.link_token;  // Authored by Bryan Hodgins
     };
-    //hwinczner
+
+    // Authored by Henry winczner from line(s) 46 - 68
     onPlaidSuccess = (success) => {
         const publicToken = success.publicToken;
 
@@ -62,6 +67,8 @@ class PlaidComponent extends React.Component {
             .catch(console.error)
     };
 
+
+    // Authored by Hadi Ghaddar from line(s) 72 - 125
     onPlaidExit = (exit) => {
 
     };

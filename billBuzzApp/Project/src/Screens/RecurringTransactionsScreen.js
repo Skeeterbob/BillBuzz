@@ -14,6 +14,13 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import {SERVER_ENDPOINT} from "@env";
 
+
+
+// Authored by Hadi Ghaddar from line(s) 1 - 252
+
+
+
+
 class RecurringTransactionsScreen extends React.Component {
 
     state = {

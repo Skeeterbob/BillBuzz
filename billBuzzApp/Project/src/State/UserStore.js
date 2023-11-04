@@ -1,5 +1,11 @@
 import {makeObservable, observable, action} from "mobx";
 
+
+
+// Authored by Hadi Ghaddar from line(s) 1 - 65
+
+
+
 class UserStore {
     email = '';
     password = '';

@@ -5,79 +5,9 @@ import HexagonComponent from "../Components/HexagonComponent";
 import Icon from "react-native-vector-icons/Ionicons";
 import {inject, observer} from "mobx-react";
 
-const MOCK_TRANSACTIONS = [
-    {
-        name: 'Netflix',
-        date: '09/01/2023',
-        amount: '17.99'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/01/2023',
-        amount: '16.99'
-    },
-    {
-        name: 'Costco',
-        date: '09/02/2023',
-        amount: '148.23'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/03/2023',
-        amount: '5.13'
-    },
-    {
-        name: 'Walmart',
-        date: '09/03/2023',
-        amount: '284.20'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/04/2023',
-        amount: '8.59'
-    },
-    {
-        name: 'Discord',
-        date: '09/05/2023',
-        amount: '9.99'
-    },
-    {
-        name: 'Statbucks',
-        date: '09/06/2023',
-        amount: '24.83'
-    },
-]
 
-const MOCK_CARDS_DATA = [
-    {
-        name: "American Express",
-        balance: 1000.84,
-        amountDue: 100,
-        dueDate: '09/24/2023',
-        transactions: MOCK_TRANSACTIONS
-    },
-    {
-        name: "Chase Sapphire Reserve",
-        balance: 2540,
-        amountDue: 324.27,
-        dueDate: '09/12/2023',
-        transactions: MOCK_TRANSACTIONS
-    },
-    {
-        name: "Discover IT Student",
-        balance: 3480.28,
-        amountDue: 124.86,
-        dueDate: '09/15/2023',
-        transactions: MOCK_TRANSACTIONS
-    },
-    {
-        name: "TJ Max Rewards",
-        balance: 524.12,
-        amountDue: 24.78,
-        dueDate: '09/20/2023',
-        transactions: MOCK_TRANSACTIONS
-    }
-];
+// Authored by Hadi Ghaddar from Line(s) 1 - 277
+
 
 class AccountsScreen extends React.Component {
 
@@ -194,7 +124,6 @@ const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transact
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 1}}
             />
-            {/* Hwinczner start*/}
             <View style={styles.creditCardBottom}>
                 <Text style={styles.cardDataTitleText}></Text>
                 <View style={{alignItems: 'center'}}>
@@ -212,7 +141,6 @@ const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transact
                     <Text style={styles.cardDataText}>${amountDue}</Text>
                 </View>
             </View>
-          {/* Hwinczner end*/}
         </RNLinearGradient>
     </TouchableOpacity>
        

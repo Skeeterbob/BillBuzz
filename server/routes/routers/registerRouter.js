@@ -23,6 +23,12 @@ registerRouter.post('/createUser', async (req, res) => {
     }
 });
 
+
+
+// Authored by Hadi Ghaddar from line(s) 32 - 48
+
+
+
 registerRouter.post('/updateUser', async (req, res) => {
     try {
         let user = new User(req.body.user);

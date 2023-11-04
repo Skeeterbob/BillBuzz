@@ -2,6 +2,12 @@ import {DBHandler} from './dBHandler.js';
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {User} from "./objectPack.js";
 
+
+// Authored by Hadi Ghaddar from line(s) 1 - 105
+
+
+
+
 let mongod;
 let dbHandler;
 

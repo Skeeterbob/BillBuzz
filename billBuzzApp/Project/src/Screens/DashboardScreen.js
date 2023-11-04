@@ -8,7 +8,11 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
-//hwinczner 
+
+
+// Authored by Henry Winczner from line(s) 1 - 58
+
+
 const upcomingOverdrafts = [
     {
         name: 'Utility Bill',
@@ -100,6 +104,10 @@ class DashboardScreen extends React.Component {
         this.setState(() => ({ currentWeek: currentWeek }));
     }
 
+
+
+    // Authored by Henry Winczner from line(s) 111 - 114
+
     handleToggleExpand = () => {
         this.setState(prevState => ({ expanded: !prevState.expanded }));
     };
@@ -163,6 +171,11 @@ class DashboardScreen extends React.Component {
         this.setState(() => ({ chartData: data }));
     }
 
+
+
+    // Authored by Henry Winczner from line(s) 179 - 213
+
+
     plaidSuccessUpdate = () => {
         //Refresh the page when plaid is done updating so we get the new user data
         this.forceUpdate();
@@ -199,6 +212,11 @@ class DashboardScreen extends React.Component {
                 break;
         }
 
+
+
+         // Authored by Hadi Ghaddar from line(s) 220 - 250
+
+
         const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
 
         user.accountList.forEach(account => {
@@ -230,6 +248,13 @@ class DashboardScreen extends React.Component {
                         <Icon name={'card'} size={32} color={'#000000'} />
                     </TouchableOpacity>
                 </View>
+
+
+
+                 {/*Authored by Henry Winczner from line(s) 259 - 341*/}
+
+
+
 
                 <ScrollView contentContainerStyle={styles.body}>
                     <View style={styles.headerInfo}>
@@ -268,7 +293,6 @@ class DashboardScreen extends React.Component {
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
-                        {/* hwinczner */}
                         <BarChart
                             data={chartData}
                             width={Dimensions.get('window').width - 50} // from react-native
@@ -297,7 +321,6 @@ class DashboardScreen extends React.Component {
                         />
 
                     </View>
-                    {/* hwinczner */}
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
                             <Text style={styles.summaryText}>Recent Transactions</Text>
@@ -316,8 +339,13 @@ class DashboardScreen extends React.Component {
                                     />
                                 )
                             )}
+
+
+
+                            {/*Authored by Hadi Ghaddar from line(s) 348 - 393*/}
+
+
                         </View>
-                                {/* hwinczner */}
                         <TouchableOpacity
                             style={styles.summaryButton}
                             onPress={() => {
@@ -363,7 +391,12 @@ class DashboardScreen extends React.Component {
 
     }
 }
-{/* hwinczner */}
+
+
+
+// Authored by Henry Winczner from line(s) 400 - 548
+
+
 const truncateText = (text) => {
     return text.length > 25 ? text.slice(0, 25) + '...' : text;
 };
@@ -374,7 +407,6 @@ const TransactionComponent = (transaction) => {
     return (
         <View style={styles.transaction}>
            
-            {/* hwinczner */}
             <View style={styles.transactionData}>
                 <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
@@ -514,6 +546,14 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginBottom: 8,
     },
+
+
+
+
+    // Authored by Hadi Ghaddar from line(s) 557 - 796
+
+
+
     weeklyView: {
         width: '100%',
         height: 'auto',

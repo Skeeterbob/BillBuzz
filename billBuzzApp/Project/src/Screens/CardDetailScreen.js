@@ -17,6 +17,10 @@ import Icon from "react-native-vector-icons/Ionicons";
 import {inject, observer} from "mobx-react";
 import {SERVER_ENDPOINT} from "@env";
 
+
+// Authored by Hadi Ghaddar from line(s) 1 - 137
+
+
 class CardDetailScreen extends React.Component {
 
     cardData = null;
@@ -131,11 +135,15 @@ class CardDetailScreen extends React.Component {
         );
     }
 }
-// hwinczner start 
+
+
+// Authored by Henry Winczner from line(s) 143 - 338
+
+
 const truncateText = (text) => {
     return text.length > 25 ? text.slice(0, 25) + '...' : text;
 }
-// hwinczner end
+
 const TransactionCardComponent = ({name, date, amount}) => {
     const formattedDate = formatDate(date);
 
