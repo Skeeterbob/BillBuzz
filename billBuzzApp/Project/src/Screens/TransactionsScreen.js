@@ -8,8 +8,12 @@ import { Calendar } from 'react-native-calendars';
 import DropDownPicker from 'react-native-dropdown-picker';
 
 
+
+// Authored by Henry Winczner from line(s) 1 - 383
+
+
+
 class TransactionScreen extends React.Component {
-    //hwinczner
     state = {
         filterText: '',
         sortBy: 'default',
@@ -20,11 +24,9 @@ class TransactionScreen extends React.Component {
         isDropdownOpen: false,
 
     };
-    //hwinczner
     toggleDropdown = (isOpen) => {
         this.setState({ isDropdownOpen: isOpen });
     };
-    //hwinczner
     clearDates = () => {
         this.setState({
             startDate: null,
@@ -32,12 +34,12 @@ class TransactionScreen extends React.Component {
             selected: null,
         });
     }
-    //hwinczner
+
     setOpen = () => {
         this.setState(prevState => ({ open: !prevState.open })); // Toggle the open state
 
     };
-    //hwinczner
+
     onDayPress = day => {
         if (!this.state.startDate || (this.state.startDate && this.state.endDate)) {
             this.setState({
@@ -55,7 +57,7 @@ class TransactionScreen extends React.Component {
             });
         }
     };
-    //hwinczner
+
     getDatesList = (startDate, endDate) => {
         const start = new Date(startDate);
         const end = new Date(endDate);
@@ -89,7 +91,7 @@ class TransactionScreen extends React.Component {
         for (const account of user.accountList) {
             account.transactionList.transactionList.forEach(value => transactions.push(value))
         }
-        //hwinczner
+
         let filteredTransactions = transactions.filter(transaction => {
             const transactionDate = new Date(transaction.date);
             const start = this.state.startDate ? new Date(this.state.startDate) : null;
@@ -99,7 +101,7 @@ class TransactionScreen extends React.Component {
             const isWithinRange = (!start || transactionDate >= start) && (!end || transactionDate <= end);
             return transaction.subscriptionName.toLowerCase().includes(filterText.toLowerCase()) && isWithinRange;
         });
-        //hwinczner
+
         filteredTransactions.sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);
@@ -215,7 +217,7 @@ const TransactionComponent = (transaction) => {
     console.log(JSON.stringify(transaction));
 
     return (
-        //hwinczner
+
         <View style={styles.transaction}>
 
             <View style={styles.transactionData}>

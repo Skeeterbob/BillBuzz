@@ -26,7 +26,13 @@ class DBHandler {
     }
 
     // Method to update a user
-    //hwinczner
+
+
+    // Authored by Henry Winczner from line(s) 36 - 51
+
+
+
+
     async updateUserPassword(user) {
         const updated = await this.#usersCollection.updateOne(
             { _id: user._id },
@@ -36,7 +42,6 @@ class DBHandler {
     }
 
     // Method to get a user by reset token
-    //hwinczner
     async getUserByToken(token) {
         const userDoc = await this.#usersCollection.findOne({ resetPasswordToken: token });
         if (!userDoc) {
