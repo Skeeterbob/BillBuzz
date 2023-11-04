@@ -74,16 +74,13 @@ public class MainApplication extends Application implements ReactApplication {
       OneSignal.getNotifications().requestPermission(true, Continue.with(r -> {
           if (r.isSuccess()) {
               if (r.getData()) {
-                  console.log('successful notifications')
                   // `requestPermission` completed successfully and the user has accepted permission
               }
               else {
-                  console.log('rejected notifications')
                   // `requestPermission` completed successfully but the user has rejected permission
               }
           }
           else {
-              console.log('failed notifications');
               // `requestPermission` completed unsuccessfully, check `r.getThrowable()` for more info on the failure reason
           }
       }));
