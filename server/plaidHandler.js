@@ -180,10 +180,18 @@ class PlaidHandler {
             //error handling
         }
     }
-    async getAccountBalance(accessToken) {
+    async getAccountBalance(accessToken, accountIds = []) {
+        // Prepare the request object with access_token
         const request = {
             access_token: accessToken,
+            // Optionally add options if accountIds are provided
+            ...(accountIds.length > 0 && {
+                options: {
+                    account_ids: accountIds, // Array of account IDs you want the balances for
+                },
+            }),
         };
+    
         try {
             const response = await this.#client.accountsBalanceGet(request);
             // Check if the accounts array is not empty
@@ -191,6 +199,7 @@ class PlaidHandler {
                 throw new Error('No accounts found for this access token.');
             }
             // You can now return the accounts balance data
+            
             return response.data;
         } catch (error) {
             console.error('Error getting account balance:', error);
@@ -203,6 +212,8 @@ class PlaidHandler {
             }
         }
     }
+    
+    
   
 }
 

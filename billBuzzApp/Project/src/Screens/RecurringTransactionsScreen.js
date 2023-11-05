@@ -9,7 +9,8 @@ import {
     StyleSheet,
     Text,
     TouchableOpacity,
-    View
+    View,
+    TextInput
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { SERVER_ENDPOINT } from "@env";
@@ -26,51 +27,87 @@ class RecurringTransactionsScreen extends React.Component {
     state = {
         transactions: [],
         loaded: false,
-        isAtRiskOfOverdraft: false, // New state property
-        overdraftAmount: 0,         // New state property
+        overdraftAlertThreshold: 250,
     };
-
-    checkOverdraftRisk = async () => {
-        const token = this.props.route.params.accessToken;
-        if (!token) {
-            // Handle error, such as showing an alert or updating the state
-            console.log('Access token is required!');
-            return;
+    setOverdraftAlertThreshold = (value) => {
+        // Set the overdraft alert threshold
+        this.setState({ overdraftAlertThreshold: parseFloat(value) });
+        // You can also save this to the backend or device storage if needed
+    };
+    calcBalance = () => {
+        let balance = 0.0;
+        for (const account of this.props.userStore.accountList) {
+            balance += parseFloat(account.balance);
         }
 
-        try {
-            const response =  await fetch(SERVER_ENDPOINT + '/plaid/checkOverdraftRisk', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    accessToken: token,
-                }),
-            });
+        return Math.round(balance * 100) / 100;
+    }
 
-            const data = await response.json(); // This line is updated
-            if (response.ok) {
-                this.setState({
-                    isAtRiskOfOverdraft: data.isAtRisk,
-                    overdraftAmount: data.overdraftAmount,
-                });
-                if (data.isAtRisk) {
-                    alert(`Warning: You are at risk of overdrafting by $${data.overdraftAmount}!`);
-                }
-            } else {
-                throw new Error(data.error || 'An error occurred while checking for overdraft risk.');
+    // checkOverdraftRisk = async () => {
+    //     const token = this.props.route.params.accessToken;
+    //     if (!token) {
+    //         // Handle error, such as showing an alert or updating the state
+    //         console.log('Access token is required!');
+    //         return;
+    //     }
+
+    //     try {
+    //         const response = await fetch(SERVER_ENDPOINT + '/plaid/checkOverdraftRisk', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'Accept': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 accessToken: token,
+    //             }),
+    //         });
+
+    //         const data = await response.json(); // This line is updated
+    //         if (response.ok) {
+    //             this.setState({
+    //                 isAtRiskOfOverdraft: data.isAtRisk,
+    //                 overdraftAmount: data.overdraftAmount,
+    //             });
+    //             if (data.isAtRisk) {
+    //                 alert(`Warning: You are at risk of overdrafting by $${data.overdraftAmount}!`);
+    //             }
+    //         } else {
+    //             throw new Error(data.error || 'An error occurred while checking for overdraft risk.');
+    //         }
+    //     } catch (error) {
+    //         console.error(error);
+    //         // Handle error, such as showing an alert or updating the state
+    //     }
+    // };
+    calcProjectedBalance = () => {
+        const { transactions, overdraftAlertThreshold } = this.state;
+        let balance = this.calcBalance();
+        let projectedBalance = balance;
+
+        let sortedTransactions = [...transactions].sort(
+            (a, b) => new Date(a.nextDate) - new Date(b.nextDate)
+        );
+
+        for (const transaction of sortedTransactions) {
+            projectedBalance -= transactions.amount;
+            if (projectedBalance < overdraftAlertThreshold) {
+                // Overdraft is within the alert threshold
+                return {
+                    overdraft: true,
+                    date: transactions.nextDate,
+                    overdraftAmount: Math.abs(projectedBalance),
+                    withinThreshold: projectedBalance < 0
+                };
             }
-        } catch (error) {
-            console.error(error);
-            // Handle error, such as showing an alert or updating the state
         }
-    };
+        // No overdraft will occur
+        return { overdraft: false };
+    }
 
     componentDidMount() {
         const token = this.props.route.params.accessToken;
-        this.checkOverdraftRisk();
+        // this.checkOverdraftRisk();
         if (!token) {
             this.setState({ loaded: true });
             return;
@@ -95,10 +132,20 @@ class RecurringTransactionsScreen extends React.Component {
             .catch(console.error)
 
         this.setState({ loaded: true });
+        this.setState({ loaded: true }, () => {
+            const overdraftPrediction = this.calcProjectedBalance();
+            if (overdraftPrediction.overdraft) {
+                const message = overdraftPrediction.withinThreshold
+                    ? `Warning: Predicted overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
+                    : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
+                alert(message);
+            }
+        });
     }
 
     render() {
-        const { transactions, loaded, isAtRiskOfOverdraft, overdraftAmount } = this.state;
+        const { transactions, loaded, overdraftAlertThreshold } = this.state;
+
 
         return (
             <RNLinearGradient
@@ -123,6 +170,15 @@ class RecurringTransactionsScreen extends React.Component {
                     </View>
 
                     <View style={styles.summaryHeader}>
+                        <View style={styles.alertThresholdInput}>
+                            <Text style={{ color: '#FFFFFF' }}>Set Alert Threshold: $</Text>
+                            <TextInput
+                                style={styles.input}
+                                keyboardType="numeric"
+                                value={this.state.overdraftAlertThreshold.toString()}
+                                onChangeText={this.setOverdraftAlertThreshold}
+                            />
+                        </View>
                         <Text style={styles.lineChartTitle}>Recurring Transactions</Text>
                     </View>
 
@@ -136,13 +192,7 @@ class RecurringTransactionsScreen extends React.Component {
                             transaction={transaction}
                         />
                     )}
-                    {isAtRiskOfOverdraft && (
-                        <View style={styles.overdraftWarning}>
-                            <Text style={styles.overdraftWarningText}>
-                                Warning: You are at risk of overdrafting by ${overdraftAmount.toFixed(2)}!
-                            </Text>
-                        </View>
-                    )}
+
                 </ScrollView>
             </RNLinearGradient>
         );
@@ -179,15 +229,21 @@ function formatDate(dateString) {
 }
 
 const styles = StyleSheet.create({
-    overdraftWarning: {
-        padding: 10,
+    alertThresholdInput: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         margin: 10,
-        backgroundColor: 'red', // or any color indicating a warning
-        borderRadius: 5,
+        padding: 10,
+        // Add other styling as needed
     },
-    overdraftWarningText: {
-        color: 'white',
-        textAlign: 'center',
+    input: {
+        borderWidth: 1,
+        borderColor: '#FFFFFF',
+        color: '#FFFFFF',
+        padding: 8,
+        width: 100, // Adjust width as needed
+        // Add other styling as needed
     },
     transactionItem: {
         padding: 10,
