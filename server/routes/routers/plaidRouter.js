@@ -231,6 +231,7 @@ plaidRouter.post('/removeAccount', async (req, res) => {
         res.status(500).json({ error: 'Unknown error while unlinking account', removed: false });
     }
 });
+
 plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
     const accessToken = req.body.accessToken;
     if (!accessToken) {

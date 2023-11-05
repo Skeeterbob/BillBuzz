@@ -178,6 +178,29 @@ class PlaidHandler {
             //error handling
         }
     }
+    async getAccountBalance(accessToken) {
+        try {
+          // Retrieve account balances for an Item
+          
+          const response = await this.#client.accountsBalanceGet({
+            access_token: accessToken,
+          });
+    
+          // The response will contain an array of accounts - you will need to handle them as per your needs
+          // For this example, let's assume you want to return all accounts
+          return response.data.accounts;
+    
+        } catch (error) {
+          // Handle error appropriately
+          console.error('Error getting account balance:', error);
+          if (error.response != null) {
+            throw new Error(error.response.data);
+          } else {
+            throw new Error('Unable to connect to Plaid API.');
+          }
+        }
+    }
+    
 }
 
 export {PlaidHandler};
