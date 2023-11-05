@@ -14,6 +14,7 @@ import LinearGradient from "react-native-linear-gradient";
 import Logo from "../../assets/images/bee_logo.png";
 import Toast from "react-native-toast-message";
 import {TextInputMask} from "react-native-masked-text";
+import DatePicker from "react-native-date-picker";
 
 import {SERVER_ENDPOINT} from "@env";
 
@@ -29,12 +30,14 @@ class RegisterInfoScreen extends React.Component {
     state = {
         firstName: '',
         lastName: '',
-        birthday: '',
+        birthday: undefined,
         loading: false,
 
         email: '',
         password: '',
-        phoneNumber: ''
+        phoneNumber: '',
+
+        datePicker: false
     };
 
     componentDidMount() {
@@ -51,6 +54,7 @@ class RegisterInfoScreen extends React.Component {
         console.log('server endpoint:',SERVER_ENDPOINT)
         this.setState({loading: true});
         if (this.validateInputs()) {
+            const birthdayString = formatDate(birthday);
             //TODO: Register user on server here
             fetch(SERVER_ENDPOINT + '/register/createUser', {
                 method: 'POST',
@@ -64,7 +68,7 @@ class RegisterInfoScreen extends React.Component {
                         password,
                         firstName,
                         lastName,
-                        birthday,
+                        birthday: birthdayString,
                         phoneNumber,
                         bankBalance: 0,
                         availableCredit: 0,
@@ -98,7 +102,8 @@ class RegisterInfoScreen extends React.Component {
             return false;
         }
 
-        if (birthday.length < 10) {
+        const birthdayString = formatDate(birthday);
+        if (birthdayString.length < 10) {
             this.showError('Invalid birthday entered!');
             return false;
         }
@@ -121,7 +126,8 @@ class RegisterInfoScreen extends React.Component {
             firstName,
             lastName,
             birthday,
-            loading
+            loading,
+            datePicker
         } = this.state;
 
         return (
@@ -167,21 +173,41 @@ class RegisterInfoScreen extends React.Component {
                                 autoFocus={false}
                             />
 
-                            <TextInputMask
-                                type={'datetime'}
-                                options={{
-                                    format: 'MM/DD/YYYY'
+                            {/*<TextInputMask*/}
+                            {/*    type={'datetime'}*/}
+                            {/*    options={{*/}
+                            {/*        format: 'MM/DD/YYYY'*/}
+                            {/*    }}*/}
+                            {/*    style={styles.textInput}*/}
+                            {/*    placeholder={'Enter your birthday'}*/}
+                            {/*    placeholderTextColor={'#000000'}*/}
+                            {/*    onChangeText={text => this.setState({birthday: text})}*/}
+                            {/*    value={birthday}*/}
+                            {/*    autoCapitalize={'none'}*/}
+                            {/*    autoComplete={'birthdate-full'}*/}
+                            {/*    keyboardType={'number-pad'}*/}
+                            {/*    textContentType={'none'}*/}
+                            {/*    autoFocus={false}*/}
+                            {/*    onPressIn={() => {*/}
+                            {/*        this.setState({datePicker: true});*/}
+                            {/*    }}*/}
+                            {/*/>*/}
+
+                            <TouchableOpacity style={styles.birthdayInput} onPress={() => this.setState({datePicker: true})}>
+                                <Text style={styles.birthdayText}>{birthday ? formatDate(birthday) : 'Select your birthday'}</Text>
+                            </TouchableOpacity>
+
+                            <DatePicker
+                                modal={true}
+                                open={datePicker}
+                                date={birthday ? birthday : new Date()}
+                                mode="date"
+                                onConfirm={(date) => {
+                                    this.setState({datePicker: false, birthday: date});
                                 }}
-                                style={styles.textInput}
-                                placeholder={'Enter your birthday'}
-                                placeholderTextColor={'#000000'}
-                                onChangeText={text => this.setState({birthday: text})}
-                                value={birthday}
-                                autoCapitalize={'none'}
-                                autoComplete={'birthdate-full'}
-                                keyboardType={'number-pad'}
-                                textContentType={'none'}
-                                autoFocus={false}
+                                onCancel={() => {
+                                    this.setState({datePicker: false});
+                                }}
                             />
                         </View>
                     </View>
@@ -206,6 +232,14 @@ class RegisterInfoScreen extends React.Component {
             </LinearGradient>
         );
     }
+}
+
+const formatDate = (date) => {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+
+    return `${month}/${day}/${year}`;
 }
 
 const styles = StyleSheet.create({
@@ -290,6 +324,30 @@ const styles = StyleSheet.create({
         shadowRadius: 2.62,
         elevation: 2,
         overflow: 'hidden'
+    },
+    birthdayInput: {
+        width: '90%',
+        height: 60,
+        marginBottom: 24,
+        borderRadius: 16,
+        backgroundColor: '#eca239',
+        shadowColor: '#000000',
+        paddingLeft: 24,
+        shadowOffset: {
+            width: 0,
+            height: 1
+        },
+        shadowOpacity: 0.12,
+        shadowRadius: 2.62,
+        elevation: 2,
+        overflow: 'hidden',
+        display: 'flex',
+        justifyContent: 'center',
+    },
+    birthdayText: {
+        fontWeight: 'bold',
+        fontSize: 16,
+        color: '#000000'
     },
     passwordContainer: {
         width: '100%',
