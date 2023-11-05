@@ -191,14 +191,10 @@ class PlaidHandler {
                 throw new Error('No accounts found for this access token.');
             }
             // You can now return the accounts balance data
-            return response.data.accounts.map(account => ({
-                accounts: account,
-                accountId: account.account_id,
-                balances: account.balances,
-            }));
+            return response.data;
         } catch (error) {
             console.error('Error getting account balance:', error);
-            if (error.response != null) {
+            if (error.response) {
                 // Provide a more detailed error message based on Plaid's error code
                 throw new Error(error.response.data.error_message || 'An error occurred with Plaid API.');
             } else {
@@ -207,7 +203,7 @@ class PlaidHandler {
             }
         }
     }
-
+  
 }
 
 export { PlaidHandler };

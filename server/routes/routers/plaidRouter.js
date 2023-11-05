@@ -55,7 +55,7 @@ plaidRouter.post('/getAccessToken', async (req, res) => {
         for (const account of user.getAccountList()) {
             for (const plaidAccount of accounts) {
                 if (account.getName() === plaidAccount['name']) {
-                    return res.status(200).json({error: 'Account already exists', success: false});
+                    return res.status(200).json({ error: 'Account already exists', success: false });
                 }
             }
         }
@@ -244,11 +244,10 @@ plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
 
         // Get the current balance of the user's account
         const balanceResponse = await plaidHandler.getAccountBalance(accessToken);
-        
+
         console.log(balanceResponse);
 
-        const currentBalance = balanceResponse.accounts.balances.available;
-
+        const currentBalance = balanceResponse.accounts[0].balances.available;
 
         // Estimate upcoming transactions or calculate scheduled payments, etc.
         const endDate = new Date();
@@ -297,9 +296,20 @@ plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
             });
         }
     } catch (error) {
-        // Log the complete error
-        console.error('Error checking for overdraft risk:', error);
-        return res.status(500).send({ error: 'Unknown error occurred while checking overdraft.' });
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Error data:', error.response.data);
+            console.error('Status code:', error.response.status);
+            console.error('Headers:', error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('Error request:', error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error message:', error.message);
+        }
+        console.error('Error config:', error.config);
     }
 });
 
