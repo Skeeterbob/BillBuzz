@@ -34,12 +34,12 @@ class RecurringTransactionsScreen extends React.Component {
         const token = this.props.route.params.accessToken;
         if (!token) {
             // Handle error, such as showing an alert or updating the state
-            console.error('Access token is required!');
+            console.log('Access token is required!');
             return;
         }
 
         try {
-            const response = await fetch(`${SERVER_ENDPOINT}/checkOverdraftRisk`, {
+            const response =  await fetch(SERVER_ENDPOINT + '/plaid/checkOverdraftRisk', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -50,7 +50,7 @@ class RecurringTransactionsScreen extends React.Component {
                 }),
             });
 
-            const data = await response.json();
+            const data = await response.json(); // This line is updated
             if (response.ok) {
                 this.setState({
                     isAtRiskOfOverdraft: data.isAtRisk,

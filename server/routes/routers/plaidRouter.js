@@ -235,36 +235,55 @@ plaidRouter.post('/removeAccount', async (req, res) => {
 plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
     const accessToken = req.body.accessToken;
     if (!accessToken) {
-        return res.status(400).send({ error: 'Access token required!' });
+        return res.status(400).send({ error: 'Access token required' });
     }
 
     try {
+        // Log to see if we have the accessToken
+        console.log('Access token:', accessToken);
+
         // Get the current balance of the user's account
         const balanceResponse = await plaidHandler.getAccountBalance(accessToken);
-        const currentBalance = balanceResponse.accounts[0].balances.available;
+        
+        console.log(balanceResponse);
+
+        const currentBalance = balanceResponse.accounts.balances.available;
+
 
         // Estimate upcoming transactions or calculate scheduled payments, etc.
-        const endDate = new Date(); // Assuming we are checking for today
+        const endDate = new Date();
         const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 30); // Check past 30 days for pattern
+        startDate.setDate(startDate.getDate() - 30);
 
         // Get transactions for the last 30 days to predict upcoming transactions
         const response = await plaidHandler.getTransactions(accessToken, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+
+        // Log the transactions response
+        console.log('Transactions response:', response);
+
         const transactions = response.transactions;
+
+        // Log the transactions
+        console.log('Transactions:', transactions);
 
         // Predict upcoming transactions (simplified example)
         const predictedOutgoing = transactions.reduce((total, transaction) => {
-            // Consider only outgoing transactions (amounts that are negative)
+            // Log each transaction amount
+            console.log('Transaction amount:', transaction.amount);
             if (transaction.amount < 0) {
                 total += Math.abs(transaction.amount);
             }
             return total;
         }, 0);
 
-        // Calculate the predicted balance after upcoming transactions
+        // Log the predicted outgoing
+        console.log('Predicted outgoing:', predictedOutgoing);
+
         const predictedBalance = currentBalance - predictedOutgoing;
 
-        // If the predicted balance is below zero, the user is at risk of overdrafting
+        // Log the predicted balance
+        console.log('Predicted balance:', predictedBalance);
+
         if (predictedBalance < 0) {
             return res.status(200).json({
                 isAtRisk: true,
@@ -278,9 +297,61 @@ plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
             });
         }
     } catch (error) {
+        // Log the complete error
         console.error('Error checking for overdraft risk:', error);
-        return res.status(500).send({ error: 'Unknown error occurred while checking overdraft risk.' });
+        return res.status(500).send({ error: 'Unknown error occurred while checking overdraft.' });
     }
 });
+
+// plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
+//     const accessToken = req.body.accessToken;
+//     if (!accessToken) {
+//         return res.status(400).send({ error: 'Access token required!' });
+//     }
+
+//     try {
+//         // Get the current balance of the user's account
+//         const balanceResponse = await plaidHandler.getAccountBalance(accessToken);
+//         const currentBalance = balanceResponse.accounts[0].balances.available;
+
+//         // Estimate upcoming transactions or calculate scheduled payments, etc.
+//         const endDate = new Date(); // Assuming we are checking for today
+//         const startDate = new Date();
+//         startDate.setDate(startDate.getDate() - 30); // Check past 30 days for pattern
+
+//         // Get transactions for the last 30 days to predict upcoming transactions
+//         const response = await plaidHandler.getTransactions(accessToken, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+//         const transactions = response.transactions;
+
+//         // Predict upcoming transactions (simplified example)
+//         const predictedOutgoing = transactions.reduce((total, transaction) => {
+//             // Consider only outgoing transactions (amounts that are negative)
+//             if (transaction.amount < 0) {
+//                 total += Math.abs(transaction.amount);
+//             }
+//             return total;
+//         }, 0);
+
+//         // Calculate the predicted balance after upcoming transactions
+//         const predictedBalance = currentBalance - predictedOutgoing;
+
+//         // If the predicted balance is below zero, the user is at risk of overdrafting
+//         if (predictedBalance < 0) {
+//             return res.status(200).json({
+//                 isAtRisk: true,
+//                 overdraftAmount: Math.abs(predictedBalance),
+//                 message: 'You are at risk of overdrafting your account!'
+//             });
+//         } else {
+//             return res.status(200).json({
+//                 isAtRisk: false,
+//                 message: 'Your account is not at risk of overdraft.'
+//             });
+//         }
+//     } catch (error) {
+//         console.error('Error checking for overdraft risk:', error);
+//         return res.status(500).send({ error: 'Unknown error occurred while checking overdraft risk.' });
+//     }
+// });
 
 export { plaidRouter };
