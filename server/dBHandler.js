@@ -19,7 +19,7 @@ class DBHandler {
     #client;
     #db;
     #usersCollection; // Added by Bryan Hodgins
-    #idCollection;  // Addedd by Bryan Hodgins
+    #idCollection;  // Added by Bryan Hodgins
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
