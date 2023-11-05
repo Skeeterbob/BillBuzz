@@ -1,6 +1,6 @@
 import React from "react";
-import {inject, observer} from "mobx-react";
-import {LinearGradient as RNLinearGradient} from 'react-native-linear-gradient';
+import { inject, observer } from "mobx-react";
+import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import {
     ActivityIndicator,
     Platform,
@@ -12,7 +12,7 @@ import {
     View
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import {SERVER_ENDPOINT} from "@env";
+import { SERVER_ENDPOINT } from "@env";
 
 
 
@@ -25,13 +25,54 @@ class RecurringTransactionsScreen extends React.Component {
 
     state = {
         transactions: [],
-        loaded: false
+        loaded: false,
+        isAtRiskOfOverdraft: false, // New state property
+        overdraftAmount: 0,         // New state property
+    };
+
+    checkOverdraftRisk = async () => {
+        const token = this.props.route.params.accessToken;
+        if (!token) {
+            // Handle error, such as showing an alert or updating the state
+            console.error('Access token is required!');
+            return;
+        }
+
+        try {
+            const response = await fetch(`${SERVER_ENDPOINT}/checkOverdraftRisk`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    accessToken: token,
+                }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                this.setState({
+                    isAtRiskOfOverdraft: data.isAtRisk,
+                    overdraftAmount: data.overdraftAmount,
+                });
+                if (data.isAtRisk) {
+                    alert(`Warning: You are at risk of overdrafting by $${data.overdraftAmount}!`);
+                }
+            } else {
+                throw new Error(data.error || 'An error occurred while checking for overdraft risk.');
+            }
+        } catch (error) {
+            console.error(error);
+            // Handle error, such as showing an alert or updating the state
+        }
     };
 
     componentDidMount() {
         const token = this.props.route.params.accessToken;
+        this.checkOverdraftRisk();
         if (!token) {
-            this.setState({loaded: true});
+            this.setState({ loaded: true });
             return;
         }
 
@@ -48,24 +89,24 @@ class RecurringTransactionsScreen extends React.Component {
             .then(result => result.json())
             .then(data => {
                 if (!data.error) {
-                    this.setState({transactions: data.transactions})
+                    this.setState({ transactions: data.transactions })
                 }
             })
             .catch(console.error)
 
-        this.setState({loaded: true});
+        this.setState({ loaded: true });
     }
 
     render() {
-        const {transactions, loaded} = this.state;
+        const { transactions, loaded, isAtRiskOfOverdraft, overdraftAmount } = this.state;
 
         return (
             <RNLinearGradient
                 colors={['rgba(228, 156, 17, 0.4)', 'rgba(38, 44, 46, 0.8)', 'rgba(19, 24, 29, 1)', 'rgba(38, 44, 46, 0.8)', 'rgba(202, 128, 23, 0.4)']}
                 locations={[0, 0.2, 0.4, 0.8, 1]}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 1}}
-                style={{backgroundColor: '#0B0D10', width: '100%', height: '100%'}}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
                 <ScrollView contentContainerStyle={{
                     width: '100%',
@@ -75,8 +116,8 @@ class RecurringTransactionsScreen extends React.Component {
                 }}>
                     <View style={styles.pageHeader}>
                         <TouchableOpacity style={styles.headerButton}
-                                          onPress={() => this.props.navigation.goBack(null)}>
-                            <Icon name={'arrow-back'} size={32} color={'#FFFFFF'}/>
+                            onPress={() => this.props.navigation.goBack(null)}>
+                            <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
                             <Text style={styles.backText}>Back</Text>
                         </TouchableOpacity>
                     </View>
@@ -95,6 +136,13 @@ class RecurringTransactionsScreen extends React.Component {
                             transaction={transaction}
                         />
                     )}
+                    {isAtRiskOfOverdraft && (
+                        <View style={styles.overdraftWarning}>
+                            <Text style={styles.overdraftWarningText}>
+                                Warning: You are at risk of overdrafting by ${overdraftAmount.toFixed(2)}!
+                            </Text>
+                        </View>
+                    )}
                 </ScrollView>
             </RNLinearGradient>
         );
@@ -107,11 +155,11 @@ const TransactionComponent = (transaction) => {
     return (
         <View style={styles.transaction}>
             <View style={styles.transactionData}>
-                <Text style={{color: '#f3a111'}}>{transaction.transaction.name}</Text>
-                <Text style={{color: '#f3a111'}}>${transaction.transaction.amount}</Text>
+                <Text style={{ color: '#f3a111' }}>{transaction.transaction.name}</Text>
+                <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
             </View>
             <View style={styles.transactionDate}>
-                <Text style={{color: '#ffffff', fontStyle: 'italic'}}>{transaction.transaction.vendorName ? transaction.transaction.vendorName : 'N/A'}</Text>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{transaction.transaction.vendorName ? transaction.transaction.vendorName : 'N/A'}</Text>
             </View>
         </View>
     );
@@ -131,6 +179,16 @@ function formatDate(dateString) {
 }
 
 const styles = StyleSheet.create({
+    overdraftWarning: {
+        padding: 10,
+        margin: 10,
+        backgroundColor: 'red', // or any color indicating a warning
+        borderRadius: 5,
+    },
+    overdraftWarningText: {
+        color: 'white',
+        textAlign: 'center',
+    },
     transactionItem: {
         padding: 10,
         borderBottomWidth: 1,
