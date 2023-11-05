@@ -38,6 +38,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
     try {
         // send request to plaid API to get the accessToken associated with the
         // new account link.
+        // Bryan Hodgins wrote the fir 4 lines here. Everything else was added later.
         const user = await dbHandler.getUser(email);
         const response = await plaidHandler.completeLink(publicToken);
         const accessToken = response.accessToken;
@@ -57,7 +58,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
                 balance: account['balances']['current'],
                 transactionList: {
                     transactionList: [],
-                    length: 1,
+                    length: 1,  // should be 0?
                     beginDate: startDate,
                     endDate: endDate
                 },
@@ -82,7 +83,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
             newUserData.accountList.push(newAccount);
         }
 
-        await dbHandler.updateUser(new User(newUserData))
+        await dbHandler.updateUser(newUserData.email, new User(newUserData))
         res.status(200).json({status: 'success', user: newUserData});
     }
     catch (error) {
@@ -92,6 +93,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
     }
 });
 
+//Lines 98-145 by Raigene (commit #598eda7)
 plaidRouter.post('/getTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;
     const startDate = req.body.startDate;

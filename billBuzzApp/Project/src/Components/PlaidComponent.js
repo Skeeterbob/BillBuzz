@@ -36,6 +36,19 @@ class PlaidComponent extends React.Component {
         }).then(data => data.json()).catch(console.error);
     };
 
+    //fetch credit card info from plaid
+    fetchCreditCardInfo = async (accessToken) => {
+        return await fetch(SERVER_ENDPOINT + '/plaid/getCreditCardInfo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }, body: JSON.stringify({
+                accessToken
+            })
+        }).then(data => data.json()).catch(console.error);
+    };
+
     onPlaidSuccess = (success) => {
         const publicToken = success.publicToken;
         const accounts = success.metadata.accounts;
