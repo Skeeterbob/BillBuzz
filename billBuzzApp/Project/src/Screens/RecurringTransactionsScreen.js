@@ -29,10 +29,20 @@ class RecurringTransactionsScreen extends React.Component {
         loaded: false,
         overdraftAlertThreshold: 250,
     };
-    setOverdraftAlertThreshold = (value) => {
-        // Set the overdraft alert threshold
-        this.setState({ overdraftAlertThreshold: parseFloat(value) });
-        // You can also save this to the backend or device storage if needed
+    setOverdraftAlertThreshold = (newThreshold) => {
+        if (newThreshold.trim() === "") {
+            this.setState({ overdraftAlertThreshold: '' }); // Allow the user to clear the input
+            return;
+        }
+    
+        const numericThreshold = parseFloat(newThreshold);
+        if (!isNaN(numericThreshold) && numericThreshold >= 0) {
+            this.setState({ overdraftAlertThreshold: numericThreshold });
+            // Save to backend here if necessary
+            // For instance, if you have an API endpoint to update this value, make an API call here
+        } else {
+            alert('Please enter a valid number for the overdraft alert threshold.');
+        }
     };
     calcBalance = () => {
         let balance = 0.0;
@@ -42,44 +52,6 @@ class RecurringTransactionsScreen extends React.Component {
 
         return Math.round(balance * 100) / 100;
     }
-
-    // checkOverdraftRisk = async () => {
-    //     const token = this.props.route.params.accessToken;
-    //     if (!token) {
-    //         // Handle error, such as showing an alert or updating the state
-    //         console.log('Access token is required!');
-    //         return;
-    //     }
-
-    //     try {
-    //         const response = await fetch(SERVER_ENDPOINT + '/plaid/checkOverdraftRisk', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'Accept': 'application/json',
-    //             },
-    //             body: JSON.stringify({
-    //                 accessToken: token,
-    //             }),
-    //         });
-
-    //         const data = await response.json(); // This line is updated
-    //         if (response.ok) {
-    //             this.setState({
-    //                 isAtRiskOfOverdraft: data.isAtRisk,
-    //                 overdraftAmount: data.overdraftAmount,
-    //             });
-    //             if (data.isAtRisk) {
-    //                 alert(`Warning: You are at risk of overdrafting by $${data.overdraftAmount}!`);
-    //             }
-    //         } else {
-    //             throw new Error(data.error || 'An error occurred while checking for overdraft risk.');
-    //         }
-    //     } catch (error) {
-    //         console.error(error);
-    //         // Handle error, such as showing an alert or updating the state
-    //     }
-    // };
     calcProjectedBalance = () => {
         const { transactions, overdraftAlertThreshold } = this.state;
         let balance = this.calcBalance();
@@ -108,6 +80,7 @@ class RecurringTransactionsScreen extends React.Component {
     componentDidMount() {
         const token = this.props.route.params.accessToken;
         // this.checkOverdraftRisk();
+      
         if (!token) {
             this.setState({ loaded: true });
             return;
@@ -139,13 +112,17 @@ class RecurringTransactionsScreen extends React.Component {
                     ? `Warning: Predicted overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
                     : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
                 alert(message);
+                console.log("fuck");
+                console.log("fuck");
+                console.log("fuck");
+                console.log("fuck");
             }
         });
     }
 
     render() {
         const { transactions, loaded, overdraftAlertThreshold } = this.state;
-
+        
 
         return (
             <RNLinearGradient
@@ -173,10 +150,10 @@ class RecurringTransactionsScreen extends React.Component {
                         <View style={styles.alertThresholdInput}>
                             <Text style={{ color: '#FFFFFF' }}>Set Alert Threshold: $</Text>
                             <TextInput
-                                style={styles.input}
-                                keyboardType="numeric"
                                 value={this.state.overdraftAlertThreshold.toString()}
-                                onChangeText={this.setOverdraftAlertThreshold}
+                                onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
+                                keyboardType="numeric" // This prompts the user for a numeric input
+                            // ... other props ...
                             />
                         </View>
                         <Text style={styles.lineChartTitle}>Recurring Transactions</Text>

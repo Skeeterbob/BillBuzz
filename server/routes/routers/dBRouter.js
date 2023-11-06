@@ -1,10 +1,11 @@
 import express from 'express';
+
 const dBRouter = express.Router();
 
 //Lines 5-41 by Raigene (commit #4ced5d6)
 dBRouter.get('/getUser', async (req, res) => {
   try{
-    const data = await DBHandler.getUser();
+    const data = await dbHandler.getUser();
     res.json(data);
   }
   catch(error){
@@ -15,7 +16,7 @@ dBRouter.get('/getUser', async (req, res) => {
 
 dBRouter.post('/addUser', async(req,res)=>{
     try{
-        const insertUser = await DBHandler.insertUser();
+        const insertUser = await dbHandler.insertUser();
         res.status(200).json({message:'User added Successfully'});
 
     }
@@ -25,17 +26,7 @@ dBRouter.post('/addUser', async(req,res)=>{
     }
 });
 
-/*DBHandler.delete('/deleteUser/id', async (req, res)=>{
-    try{
-        const id = req.params.id;
-        await DBHandler.deleteUser(id);
-        res.status(200).json({message: 'User Deleted Successully'});
 
-    }
-    catch(error){
-        console.error(error);
-        res.status(400).json({error:'Server Error'});
-    }
-});*/
+
 
 export {dBRouter};

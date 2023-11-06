@@ -140,8 +140,9 @@ class TransactionScreen extends React.Component {
                         <Text style={styles.lineChartTitle}>Recent Transactions</Text>
                     </View>
                     {/* hwinczner */}
+                  
                     <View style={styles.filterContainer}>
-                        <TouchableOpacity onPress={this.setOpen}><Text>📅</Text></TouchableOpacity>
+                    <TouchableOpacity style={styles.calendarStyles} onPress={this.setOpen}><Text>📅</Text></TouchableOpacity>
                         <TextInput
                             style={styles.filterInput}
                             placeholder="Filter by keyword..."
@@ -150,7 +151,7 @@ class TransactionScreen extends React.Component {
                             placeholderTextColor={'#FFFFFF'}
                         />
                         {/* hwinczner */}
-                        <DropDownPicker
+                        <DropDownPicker 
                             items={[
                                 { label: 'Default', value: 'default' },
                                 { label: 'Highest to Lowest Cost', value: 'cost' },
@@ -243,7 +244,13 @@ function formatDate(dateString) {
 }
 
 const styles = StyleSheet.create({
+    calendarStyles: {
+        
+        alignItems: 'left',
+        justifyContent: 'space-between',
+        
 
+    },
     transactionItem: {
         padding: 10,
         borderBottomWidth: 1,
@@ -333,24 +340,31 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         width: '90%',
         alignItems: 'center',
-        marginTop: 16
+        marginTop: 16,
+       
     },
     filterInput: {
         width: '60%',
+        height: 'auto',
         padding: 10,
         borderRadius: 6,
         backgroundColor: '#212121',
-        color: '#FFFFFF'
+        color: '#FFFFFF',
+        
+        
     },
     pickerContainer: {
         borderRadius: 6,
         marginLeft: 6
     },
     filterPicker: {
+        width: '33%',
+        
         flex: 1,
         backgroundColor: '#eca239',
         color: '#FFFFFF',
-        marginLeft: 8
+        marginLeft: 8,
+        
     },
     pageHeader: {
         width: '100%',

@@ -30,8 +30,7 @@ class DBHandler {
 
     // Authored by Henry Winczner from line(s) 36 - 51
 
-
-
+ 
 
     async updateUserPassword(user) {
         const updated = await this.#usersCollection.updateOne(
@@ -97,7 +96,7 @@ class DBHandler {
             //Get key from email in user class
             let id = await this.#getKeyId(email); //Bryan Hodgins
             id = id['key']; //Bryan Hodgins
-    //Lines 94-96 by Raigene (commit #9bc0383)
+            //Lines 94-96 by Raigene (commit #9bc0383)
             if (id == null) {
                 console.log('User does not exist');
                 return false;
@@ -153,7 +152,7 @@ class DBHandler {
             id = id['key'];
             if (id != null) {
                 const encryptedEmail = await this.#encryption.encryptString(email, id);
-                return await this.#usersCollection.deleteOne({email: encryptedEmail});
+                return await this.#usersCollection.deleteOne({ email: encryptedEmail });
             } else {
                 console.log('user does not exist');
                 return null;
