@@ -27,14 +27,14 @@ class RecurringTransactionsScreen extends React.Component {
     state = {
         transactions: [],
         loaded: false,
-        overdraftAlertThreshold: 250,
+        overdraftAlertThreshold: '',
     };
     setOverdraftAlertThreshold = (newThreshold) => {
         if (newThreshold.trim() === "") {
             this.setState({ overdraftAlertThreshold: '' }); // Allow the user to clear the input
             return;
         }
-    
+
         const numericThreshold = parseFloat(newThreshold);
         if (!isNaN(numericThreshold) && numericThreshold >= 0) {
             this.setState({ overdraftAlertThreshold: numericThreshold });
@@ -80,7 +80,7 @@ class RecurringTransactionsScreen extends React.Component {
     componentDidMount() {
         const token = this.props.route.params.accessToken;
         // this.checkOverdraftRisk();
-      
+
         if (!token) {
             this.setState({ loaded: true });
             return;
@@ -122,7 +122,7 @@ class RecurringTransactionsScreen extends React.Component {
 
     render() {
         const { transactions, loaded, overdraftAlertThreshold } = this.state;
-        
+
 
         return (
             <RNLinearGradient
@@ -150,10 +150,11 @@ class RecurringTransactionsScreen extends React.Component {
                         <View style={styles.alertThresholdInput}>
                             <Text style={{ color: '#FFFFFF' }}>Set Alert Threshold: $</Text>
                             <TextInput
-                                value={this.state.overdraftAlertThreshold.toString()}
-                                onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
-                                keyboardType="numeric" // This prompts the user for a numeric input
-                            // ... other props ...
+                                // value={this.state.overdraftAlertThreshold.toString()}
+                                // onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
+                                 // This prompts the user for a numeric input
+                                value={overdraftAlertThreshold} onChangeText={text => this.setState({overdraftAlertThreshold: text})} 
+                                keyboardType="numeric"
                             />
                         </View>
                         <Text style={styles.lineChartTitle}>Recurring Transactions</Text>
