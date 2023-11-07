@@ -55,6 +55,7 @@ class RecurringTransactionsScreen extends React.Component {
             this.setState({ overdraftAlertThreshold: numericThreshold }, () => {
                 // State is updated, now we can check for overdraft
                 const overdraftPrediction = this.calcProjectedBalance();
+                this.checkAndAlertOverdraft(); 
                 // ... your logic for handling overdraft prediction
             });
         } else {
