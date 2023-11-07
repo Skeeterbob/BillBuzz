@@ -29,6 +29,11 @@ class RecurringTransactionsScreen extends React.Component {
         loaded: false,
         overdraftAlertThreshold: '',
     };
+    getNextMonthDate = (dateString) => {
+        const date = new Date(dateString);
+        const nextMonth = new Date(date.setMonth(date.getMonth() + 1));
+        return nextMonth.toISOString().split('T')[0]; // Format to YYYY-MM-DD
+    };
     handleTransactionInputChange = (text) => {
         // Here you would parse the text input into a transaction object
         // This example assumes the input text is a JSON representation of the transaction
@@ -75,19 +80,19 @@ class RecurringTransactionsScreen extends React.Component {
         const user = this.props.userStore;
         let transactions = [];
         
+        // Iterate over each account and their transaction list
         for (const account of user.accountList) {
-            account.transactionList.transactionList.forEach(transaction => {
-                // Here you would add logic to predict if this transaction will occur next month
-                // For simplicity, let's assume all transactions are monthly and will occur next month
+            for (const transaction of account.transactionList.transactionList) {
                 // Clone the transaction and set its date to the next month
                 let predictedTransaction = { ...transaction };
                 let transactionDate = new Date(transaction.date);
                 transactionDate.setMonth(transactionDate.getMonth() + 1); // Move to the next month
                 predictedTransaction.date = transactionDate.toISOString(); // Set new date
                 transactions.push(predictedTransaction);
-            });
+            }
         }
         
+        // Filter and sort the transactions
         let filteredTransactions = transactions.filter(transaction => {
             const transactionDate = new Date(transaction.date);
             const transactionAmount = parseFloat(transaction.amount);
@@ -105,6 +110,7 @@ class RecurringTransactionsScreen extends React.Component {
         });
         
         console.log('Filtered (non-negative) and Sorted Transactions:', filteredTransactions);
+        
         let balance = this.calcBalance(); // Ensure this method returns the current balance correctly
         let projectedBalance = balance;
         console.log(`Initial balance: ${balance}`);
@@ -113,11 +119,12 @@ class RecurringTransactionsScreen extends React.Component {
         for (const transaction of filteredTransactions) {
             projectedBalance -= parseFloat(transaction.amount);
             console.log(`after transaction on ${transaction.date}: $${projectedBalance}`);
+            
+            // Check for overdraft against the threshold
             if (projectedBalance < overdraftAlertThreshold) {
-                // Overdraft is within the alert threshold
                 return {
                     overdraft: true,
-                    date: transaction.date, // Ensure this is the correct date property
+                    date: transaction.date,
                     overdraftAmount: Math.abs(projectedBalance - overdraftAlertThreshold),
                     withinThreshold: projectedBalance < 0
                 };
@@ -252,18 +259,18 @@ const TransactionComponent = (transaction) => {
     );
 };
 
-const truncateText = (text) => {
-    return text.length > 25 ? text.slice(0, 25) + '...' : text;
-};
+// const truncateText = (text) => {
+//     return text.length > 25 ? text.slice(0, 25) + '...' : text;
+// };
 
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const year = date.getUTCFullYear();
+// function formatDate(dateString) {
+//     const date = new Date(dateString);
+//     const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+//     const day = String(date.getUTCDate()).padStart(2, '0');
+//     const year = date.getUTCFullYear();
 
-    return `${month}/${day}/${year}`;
-}
+//     return `${month}/${day}/${year}`;
+// }
 
 const styles = StyleSheet.create({
     alertThresholdInput: {
