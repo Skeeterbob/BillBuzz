@@ -76,7 +76,16 @@ class RecurringTransactionsScreen extends React.Component {
         let transactions = [];
         
         for (const account of user.accountList) {
-            account.transactionList.transactionList.forEach(value => transactions.push(value));
+            account.transactionList.transactionList.forEach(transaction => {
+                // Here you would add logic to predict if this transaction will occur next month
+                // For simplicity, let's assume all transactions are monthly and will occur next month
+                // Clone the transaction and set its date to the next month
+                let predictedTransaction = { ...transaction };
+                let transactionDate = new Date(transaction.date);
+                transactionDate.setMonth(transactionDate.getMonth() + 1); // Move to the next month
+                predictedTransaction.date = transactionDate.toISOString(); // Set new date
+                transactions.push(predictedTransaction);
+            });
         }
         
         let filteredTransactions = transactions.filter(transaction => {
