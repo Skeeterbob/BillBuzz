@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import { SERVER_ENDPOINT } from "@env";
-
+import moment from 'moment'
 
 
 // Authored by Hadi Ghaddar from line(s) 1 - 252
@@ -29,17 +29,34 @@ class RecurringTransactionsScreen extends React.Component {
         loaded: false,
         overdraftAlertThreshold: '',
     };
+    handleTransactionInputChange = (text) => {
+        // Here you would parse the text input into a transaction object
+        // This example assumes the input text is a JSON representation of the transaction
+        try {
+            let transaction = JSON.parse(text);
+            this.setState(prevState => ({
+                transactions: [...prevState.transactions, transaction]
+            }), () => {
+                // Now that the state is updated, you can check for overdraft
+                this.calcProjectedBalance();
+            });
+        } catch (e) {
+            console.error('Error parsing transaction input:', e);
+        }
+    };
     setOverdraftAlertThreshold = (newThreshold) => {
         if (newThreshold.trim() === "") {
             this.setState({ overdraftAlertThreshold: '' }); // Allow the user to clear the input
             return;
         }
-
+    
         const numericThreshold = parseFloat(newThreshold);
         if (!isNaN(numericThreshold) && numericThreshold >= 0) {
-            this.setState({ overdraftAlertThreshold: numericThreshold });
-            // Save to backend here if necessary
-            // For instance, if you have an API endpoint to update this value, make an API call here
+            this.setState({ overdraftAlertThreshold: numericThreshold }, () => {
+                // State is updated, now we can check for overdraft
+                const overdraftPrediction = this.calcProjectedBalance();
+                // ... your logic for handling overdraft prediction
+            });
         } else {
             alert('Please enter a valid number for the overdraft alert threshold.');
         }
@@ -53,39 +70,63 @@ class RecurringTransactionsScreen extends React.Component {
         return Math.round(balance * 100) / 100;
     }
     calcProjectedBalance = () => {
-        const { transactions, overdraftAlertThreshold } = this.state;
-        let balance = this.calcBalance();
+        const { overdraftAlertThreshold } = this.state;
+        const user = this.props.userStore;
+        let transactions = [];
+        
+        for (const account of user.accountList) {
+            account.transactionList.transactionList.forEach(value => transactions.push(value));
+        }
+        
+        let filteredTransactions = transactions.filter(transaction => {
+            const transactionDate = new Date(transaction.date);
+            const transactionAmount = parseFloat(transaction.amount);
+            const start = this.state.startDate ? new Date(this.state.startDate) : null;
+            const end = this.state.endDate ? new Date(this.state.endDate) : null;
+        
+            // Check if transaction date is within the range and amount is non-negative
+            return (!start || transactionDate >= start) && (!end || transactionDate <= end) && transactionAmount >= 0;
+        });
+        
+        filteredTransactions.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateA - dateB; // Sorting in ascending order by date
+        });
+        
+        console.log('Filtered (non-negative) and Sorted Transactions:', filteredTransactions);
+        let balance = this.calcBalance(); // Ensure this method returns the current balance correctly
         let projectedBalance = balance;
-
-        let sortedTransactions = [...transactions].sort(
-            (a, b) => new Date(a.nextDate) - new Date(b.nextDate)
-        );
-
-        for (const transaction of sortedTransactions) {
-            projectedBalance -= transactions.amount;
+        console.log(`Initial balance: ${balance}`);
+        
+        // Now use the filtered and sorted transactions for the projection
+        for (const transaction of filteredTransactions) {
+            projectedBalance -= parseFloat(transaction.amount);
+            console.log(`after transaction on ${transaction.date}: $${projectedBalance}`);
             if (projectedBalance < overdraftAlertThreshold) {
                 // Overdraft is within the alert threshold
                 return {
                     overdraft: true,
-                    date: transactions.nextDate,
-                    overdraftAmount: Math.abs(projectedBalance),
+                    date: transaction.date, // Ensure this is the correct date property
+                    overdraftAmount: Math.abs(projectedBalance - overdraftAlertThreshold),
                     withinThreshold: projectedBalance < 0
                 };
             }
         }
+        
+        console.log('No overdraft will occur');
         // No overdraft will occur
         return { overdraft: false };
     }
 
     componentDidMount() {
         const token = this.props.route.params.accessToken;
-        // this.checkOverdraftRisk();
-
+    
         if (!token) {
             this.setState({ loaded: true });
             return;
         }
-
+    
         fetch(SERVER_ENDPOINT + '/plaid/getrecurringTransactions', {
             method: 'POST',
             headers: {
@@ -96,27 +137,34 @@ class RecurringTransactionsScreen extends React.Component {
                 accessToken: token
             })
         })
-            .then(result => result.json())
-            .then(data => {
-                if (!data.error) {
-                    this.setState({ transactions: data.transactions })
-                }
-            })
-            .catch(console.error)
-
-        this.setState({ loaded: true });
-        this.setState({ loaded: true }, () => {
-            const overdraftPrediction = this.calcProjectedBalance();
-            if (overdraftPrediction.overdraft) {
-                const message = overdraftPrediction.withinThreshold
-                    ? `Warning: Predicted overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
-                    : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
-                alert(message);
-                console.log("fuck");
-                console.log("fuck");
-                console.log("fuck");
-                console.log("fuck");
+        .then(result => {
+            if (!result.ok) {
+                throw new Error('Network response was not ok');
             }
+            return result.json();
+        })
+        .then(data => {
+            if (!data.error) {
+                this.setState({ transactions: data.transactions }, () => {
+                    const overdraftPrediction = this.calcProjectedBalance();
+                    console.log('Overdraft Prediction:', overdraftPrediction);
+                    if (overdraftPrediction.overdraft) {
+                        const message = overdraftPrediction.withinThreshold
+                            ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
+                            : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
+                        alert(message);
+                    }
+                });
+            } else {
+                throw new Error(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching transactions:', error);
+            // Handle the error state here, maybe set some state to show an error message
+        })
+        .finally(() => {
+            this.setState({ loaded: true });
         });
     }
 
@@ -150,11 +198,9 @@ class RecurringTransactionsScreen extends React.Component {
                         <View style={styles.alertThresholdInput}>
                             <Text style={{ color: '#FFFFFF' }}>Set Alert Threshold: $</Text>
                             <TextInput
-                                // value={this.state.overdraftAlertThreshold.toString()}
-                                // onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
-                                 // This prompts the user for a numeric input
-                                value={overdraftAlertThreshold} onChangeText={text => this.setState({overdraftAlertThreshold: text})} 
-                                keyboardType="numeric"
+                              value={overdraftAlertThreshold.toString()}
+                              onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
+                              keyboardType="numeric"
                             />
                         </View>
                         <Text style={styles.lineChartTitle}>Recurring Transactions</Text>
