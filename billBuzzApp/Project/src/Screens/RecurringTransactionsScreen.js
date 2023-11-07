@@ -118,6 +118,18 @@ class RecurringTransactionsScreen extends React.Component {
         // No overdraft will occur
         return { overdraft: false };
     }
+    
+    checkAndAlertOverdraft = () => {
+        const overdraftPrediction = this.calcProjectedBalance();
+        console.log('Overdraft Prediction:', overdraftPrediction);
+        if (overdraftPrediction.overdraft) {
+            const message = overdraftPrediction.withinThreshold
+                ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
+                : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
+            alert(message);
+        }
+    };
+    
 
     componentDidMount() {
         const token = this.props.route.params.accessToken;
@@ -145,20 +157,11 @@ class RecurringTransactionsScreen extends React.Component {
         })
         .then(data => {
             if (!data.error) {
-                this.setState({ transactions: data.transactions }, () => {
-                    const overdraftPrediction = this.calcProjectedBalance();
-                    console.log('Overdraft Prediction:', overdraftPrediction);
-                    if (overdraftPrediction.overdraft) {
-                        const message = overdraftPrediction.withinThreshold
-                            ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
-                            : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
-                        alert(message);
-                    }
-                });
+                this.setState({ transactions: data.transactions }, this.checkAndAlertOverdraft);
             } else {
                 throw new Error(data.error);
             }
-        })
+        })        
         .catch(error => {
             console.error('Error fetching transactions:', error);
             // Handle the error state here, maybe set some state to show an error message
