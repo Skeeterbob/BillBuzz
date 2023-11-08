@@ -7,6 +7,7 @@ import {makeObservable, observable, action} from "mobx";
 
 
 class UserStore {
+    overdraftAlertThreshold = '';
     email = '';
     password = '';
     firstName = '';
@@ -20,6 +21,7 @@ class UserStore {
 
     constructor() {
         makeObservable(this, {
+            overdraftAlertThreshold: observable,
             email: observable,
             password: observable,
             firstName: observable,
@@ -36,6 +38,7 @@ class UserStore {
     }
 
     updateUser(user) {
+        this.overdraftAlertThreshold = user.overdraftAlertThreshold;
         this.email = user.email;
         this.password = user.password;
         this.firstName = user.firstName;
@@ -49,6 +52,7 @@ class UserStore {
     }
 
     clearUser() {
+        this.overdraftAlertThreshold = '';
         this.email = '';
         this.password = '';
         this.firstName = '';
