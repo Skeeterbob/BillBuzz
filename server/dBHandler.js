@@ -30,7 +30,21 @@ class DBHandler {
 
     // Authored by Henry Winczner from line(s) 36 - 51
 
- 
+
+    async updateThreshold(email, overdraftAlertThreshold) {
+        try {
+            // Update the overdraft alert threshold for the user with the given email
+            const result = await this.#usersCollection.updateOne(
+                { email: email }, // if email is encrypted, use encryptedEmail here
+                { $set: { overdraftAlertThreshold: overdraftAlertThreshold } }
+            );
+
+            return result;
+        } catch (error) {
+            console.error("Error updating overdraft alert threshold in database:", error);
+            throw error;
+        }
+    }
 
     async updateUserPassword(user) {
         const updated = await this.#usersCollection.updateOne(
