@@ -39,7 +39,7 @@ async function triggerTransactionWebhook (accessToken) {
     // Fire a DEFAULT_UPDATE webhook for an Item
     const request = {
       access_token: accessToken,
-      webhook_code: 'DEFAULT_UPDATE',
+      webhook_code: 'SYNC_UPDATES_AVAILABLE',
     };
     try {
       const response = await client.sandboxItemFireWebhook(request);

@@ -26,6 +26,7 @@ class User {
     #bankBalance;
     #availableCredit;
     #accountList = [];
+    #data = {};
     #variableList = ['email', 'password', 'firstName', 'lastName', 'birthday',
         'phoneNumber', 'bankBalance', 'availableCredit', 'accountList'];
 

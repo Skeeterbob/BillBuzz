@@ -229,7 +229,7 @@ class PlaidHandler {
         }
     };
 
-    //handleTransaction Webhook authored by Bryan Hodgins, source Plaid Docs.
+    //handleTransaction Webhook authored by Bryan Hodgins.
     async handleTransactionWebhook (requestBody, io) {
         const {
           webhook_code: webhookCode,
@@ -241,19 +241,40 @@ class PlaidHandler {
             `WEBHOOK: TRANSACTIONS: ${webhookCode}: Plaid_item_id ${plaidItemId}: ${additionalInfo}`
           );
           // use websocket to notify the client that a webhook has been received and handled
-          if (webhookCode) io.emit(webhookCode, { itemId });
+          //if (webhookCode) io.emit(webhookCode, { itemId });
         };
       
         switch (webhookCode) {
           case 'SYNC_UPDATES_AVAILABLE': {
             // Fired when new transactions data becomes available.
-            const {
-              addedCount,
-              modifiedCount,
-              removedCount,
-            } = await updateTransactions(plaidItemId);
-            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
-            serverLogAndEmitSocket(`Transactions: ${addedCount} added, ${modifiedCount} modified, ${removedCount} removed`, itemId);
+            // plaidItemId is used to access the plaid item to be updated.
+//            const {
+//              addedCount,
+//              modifiedCount,
+//              removedCount,
+//            } = await updateTransactions(plaidItemId);
+//            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
+            //serverLogAndEmitSocket(`Transactions: ${addedCount} added, ${modifiedCount} modified, ${removedCount} removed`, itemId);
+            const url = 'https://onesignal.com/api/v1/notifications';
+            const options = {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                Authorization: "Basic " + process.env.ONESIGNAL_API_KEY,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                included_segments: ['Total Subscriptions'],
+                app_id: process.env.ONESIGNAL_APP_ID,
+                contents: {en: 'English or Any Language Message', es: 'Spanish Message'},
+                name: 'Plaid Webhook Notification'
+              })
+            };
+
+            fetch(url, options)
+              .then(res => res.json())
+              .then(json => console.log('fetch response', json))
+              .catch(err => console.error('error:' + err));
             break;
           }
           case 'DEFAULT_UPDATE':

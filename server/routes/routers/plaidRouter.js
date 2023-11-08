@@ -190,7 +190,8 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
 // endpoint to receive webhooks from plaid.
 // Authored by Bryan Hodgins
 plaidRouter.post('/webhookListener', async (req,res) => {
-    console.log('Webhook received: ', req);
+    console.log('Webhook received: ', req.body);
+    plaidHandler.handleTransactionWebhook(req.body);
     res.send({data:'worked post'});
 
 })
