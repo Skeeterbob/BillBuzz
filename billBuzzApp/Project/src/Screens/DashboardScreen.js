@@ -370,6 +370,14 @@ class DashboardScreen extends React.Component {
                                 </View>
                             ))}
                         </View>
+                        <TouchableOpacity
+                            style={styles.summaryButton}
+                            onPress={() => {
+                                this.props.navigation.navigate('Overdrafts');
+                            }}
+                        >
+                            <Text style={styles.summaryButtonText}>View all Overdrafts</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {creditCard ? <View style={styles.upcomingPayment}>
