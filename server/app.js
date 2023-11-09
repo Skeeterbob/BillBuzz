@@ -3,6 +3,7 @@ import express from 'express';
 import {appInit} from './routes/routes.js';
 import pkg from 'body-parser'
 import {initHandlers} from "./handlers.js";
+import forever from 'forever-monitor';
 
 const bodyParser = pkg;
 const port = process.env.PORT || 3000;
@@ -13,6 +14,10 @@ app.use(bodyParser.json({limit: '50mb'}));
 
 await initHandlers(); //Hadi added this
 appInit(app);
+
+//spawn queue worker process to run as long as the server is up
+var child = new (forever.Monitor)('./queueWorker.js')
+child.start();
 
 app.post('/',(req, res)=>{
   res.send("You have connected")
