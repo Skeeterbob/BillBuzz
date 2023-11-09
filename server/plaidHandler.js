@@ -230,7 +230,7 @@ class PlaidHandler {
     };
 
     //handleTransaction Webhook authored by Bryan Hodgins.
-    async handleTransactionWebhook (requestBody, io) {
+    async handleTransactionWebhook (requestBody) {
         const {
           webhook_code: webhookCode,
           item_id: plaidItemId,

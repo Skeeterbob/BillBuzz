@@ -1,4 +1,5 @@
 import { Queue } from './queueHandler.js';
+import { PlaidHandler } from './plaidHandler.js';
 import dotenv from 'dotenv';
 
 if (!process.env.MONGO_CONNECTION){
@@ -6,12 +7,14 @@ if (!process.env.MONGO_CONNECTION){
 }
 
 const queue = new Queue();
+const plaidHandler = new PlaidHandler();
 
 class Worker {
     async processQueue () {
         while(await queue.count() > 0) {
-            const qItem = queue.receive();
+            const qItem = await queue.receive();
             console.log(qItem);
+            plaidHandler.handleTransactionWebhook(qItem);
         }
     }
 

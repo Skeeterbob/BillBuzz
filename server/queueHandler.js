@@ -70,9 +70,7 @@ class Queue {
                     sort: { queTime: 1 }
                 }
             );
-            const v = result && result.value;
-            // return qItem
-            return v ? { _id: result._id, sent: result._id.getTimestamp(), data: result.data } : null;
+            return result.data
         }
         catch(err) {
             console.log(`Queue.receive error:\n${ err }`);
