@@ -16,7 +16,10 @@ await initHandlers(); //Hadi added this
 appInit(app);
 
 //spawn queue worker process to run as long as the server is up
-var child = new (forever.Monitor)('./queueWorker.js')
+var child = new (forever.Monitor)('./queueWorker.js',{
+    minUptime: 2000,
+    spinSleepTime: 10000
+})
 child.start();
 
 app.post('/',(req, res)=>{

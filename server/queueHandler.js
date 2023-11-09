@@ -10,10 +10,9 @@ class Queue {
     #db;
     #queueCollection;
 
-    //initialize client, and point to appropriate database and collection.
+    //initialize client
     constructor (type = 'DEFAULT') {
         this.type = type;
-
         this.#client = new MongoClient(process.env.MONGO_CONNECTION, {
             serverApi: {
                 version: ServerApiVersion.v1,
@@ -21,10 +20,13 @@ class Queue {
                 deprecationErrors: true
             }
         });
+    }
 
-        this.#client.connect().then(() => {
+    async init(){
+        await this.#client.connect().then(() => {
             this.#db = this.#client.db(process.env.DATABASE_NAME);
             this.#queueCollection = this.#db.collection(process.env.QUEUE_COLLECTION)
+            return('done');
         })
     }
 
@@ -59,7 +61,7 @@ class Queue {
         try {
             // find and delete next item on queue
             const now = new Date()
-            const result = await queueCollection.findOneAndDelete(
+            const result = await this.#queueCollection.findOneAndDelete(
                 {
                     type: this.type,
                     queTime: { $lt: now }
@@ -80,7 +82,7 @@ class Queue {
 
     async count() {
         try {
-            return await this.#queueCollection.countDocuments({ type: this.type });
+            return await this.#queueCollection.count({type: this.type});
         }
         catch(err) {
             console.log(`Queue.count error:\n${ err }`);

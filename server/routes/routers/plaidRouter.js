@@ -5,6 +5,7 @@ import { Queue } from '../../queueHandler.js'
 
 const plaidRouter = express.Router();
 const queue = new Queue();
+queue.init();
 
 plaidRouter.get('/', (req, res)=>{
 
@@ -192,7 +193,6 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
 // endpoint to receive webhooks from plaid.
 // Authored by Bryan Hodgins
 plaidRouter.post('/webhookListener', async (req,res) => {
-    console.log('Webhook received: ', req.body);
     queue.send(req.body);
     res.send({data:'worked post'});
 })
