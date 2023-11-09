@@ -1,8 +1,10 @@
 import express from 'express';
 import { User } from '../../objectPack.js'
 import {dbHandler, plaidHandler} from "../../handlers.js";
+import { Queue } from '../../queueHandler.js'
 
 const plaidRouter = express.Router();
+const queue = new Queue();
 
 plaidRouter.get('/', (req, res)=>{
 
@@ -191,9 +193,8 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
 // Authored by Bryan Hodgins
 plaidRouter.post('/webhookListener', async (req,res) => {
     console.log('Webhook received: ', req.body);
-    plaidHandler.handleTransactionWebhook(req.body);
+    queue.send(req.body);
     res.send({data:'worked post'});
-
 })
 
 //endpoint to remove the account link from plaid when user deletes it.

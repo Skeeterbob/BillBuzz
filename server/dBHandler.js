@@ -26,13 +26,7 @@ class DBHandler {
     }
 
     // Method to update a user
-
-
-    // Authored by Henry Winczner from line(s) 36 - 51
-
-
-
-
+    // Authored by Henry Winczner from line(s) 36 - 45
     async updateUserPassword(user) {
         const updated = await this.#usersCollection.updateOne(
             { _id: user._id },
