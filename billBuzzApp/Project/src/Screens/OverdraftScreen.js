@@ -131,7 +131,7 @@ class OverdraftScreen extends React.Component {
         console.log('Filtered (non-negative) and Sorted Transactions:', filteredTransactions);
 
 
-        
+
         // Now use the filtered and sorted transactions for the projection
         for (const transaction of filteredTransactions) {
             projectedBalance -= parseFloat(transaction.amount);
@@ -147,7 +147,8 @@ class OverdraftScreen extends React.Component {
                     overdraft: true,
                     date: transaction.date,
                     overdraftAmount: Math.abs(projectedBalance - overdraftAlertThreshold),
-                    withinThreshold: projectedBalance < 0
+                    withinThreshold: projectedBalance < 0,
+                    balanceDetails: balanceDetails
                 };
             }
         }
@@ -162,12 +163,12 @@ class OverdraftScreen extends React.Component {
         const overdraftPrediction = this.calcProjectedBalance();
         console.log('Overdraft Prediction:', overdraftPrediction);
         this.setState({ projectionResult: overdraftPrediction });
-        if (overdraftPrediction.overdraft) {
-            const message = overdraftPrediction.withinThreshold
-                ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
-                : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
-            alert(message);
-        }
+        // if (overdraftPrediction.overdraft) {
+        //     const message = overdraftPrediction.withinThreshold
+        //         ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
+        //         : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
+        //     alert(message);
+        // }
 
     };
     renderProjectionResult = () => {
@@ -179,7 +180,7 @@ class OverdraftScreen extends React.Component {
         const balanceAfterEachTransaction = projectionResult.balanceDetails && projectionResult.balanceDetails.length > 0
             ? projectionResult.balanceDetails.map((detail, index) => (
                 <Text key={index} style={styles.transactionDetailText}>
-                    After transaction on {moment(detail.date).format('LL')}: ${detail.balance.toFixed(2)}
+                After transaction on {moment(detail.date).format('LL')}: ${detail.balance.toFixed(2)}
                 </Text>
             ))
             : null;
@@ -200,6 +201,7 @@ class OverdraftScreen extends React.Component {
                     {balanceAfterEachTransaction}
                 </View>
             </View>
+
         );
     };
 
