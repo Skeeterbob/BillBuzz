@@ -22,6 +22,7 @@ class TransactionScreen extends React.Component {
         endDate: null,
         selected: null,
         isDropdownOpen: false,
+        
 
     };
     toggleDropdown = (isOpen) => {

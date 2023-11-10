@@ -22,62 +22,48 @@ class OverdraftScreen extends React.Component {
         transactions: [],
         loaded: false,
         overdraftAlertThreshold: '',
+        projectionResult: { balanceDetails: [] },
     };
     saveOverdraftAlertThreshold = () => {
-        const { overdraftAlertThreshold } = this.state;
-        const { userStore } = this.props;
-        const { email } = userStore; // Assuming the email is used as a unique identifier for the user
-        
-        // Now using fetch to send the updated threshold to the server
-        fetch(SERVER_ENDPOINT + '/user/updateThreshold', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email, // Assuming this is how you identify the user whose threshold you are updating
-                overdraftAlertThreshold: overdraftAlertThreshold
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Threshold saved successfully!');
-                // Here, you might want to update your userStore with the new threshold
-                userStore.overdraftAlertThreshold = overdraftAlertThreshold;
-                // And perhaps call a method to show success to the user
-                this.showSuccess("Threshold updated successfully!");
-            } else {
-                throw new Error('Server returned an error when saving threshold.');
-            }
-        })
-        .catch(error => {
-            console.error('Failed to save threshold:', error);
-            // Handle any errors here, such as displaying an error message to the user
-            this.showError('Failed to save threshold.');
-        });
-        
+        // const { overdraftAlertThreshold } = this.state;
+        // const { userStore } = this.props;
+        // const { email } = userStore; // Assuming the email is used as a unique identifier for the user
+
+        // // Now using fetch to send the updated threshold to the server
+        // fetch(SERVER_ENDPOINT + '/user/updateThreshold', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json',
+        //         'Accept': 'application/json'
+        //     },
+        //     body: JSON.stringify({
+        //         email: email, // Assuming this is how you identify the user whose threshold you are updating
+        //         overdraftAlertThreshold: overdraftAlertThreshold
+        //     })
+        // })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         if (data.success) {
+        //             console.log('Threshold saved successfully!');
+        //             // Here, you might want to update your userStore with the new threshold
+        //             userStore.overdraftAlertThreshold = overdraftAlertThreshold;
+        //             // And perhaps call a method to show success to the user
+        //             this.showSuccess("Threshold updated successfully!");
+        //         } else {
+        //             throw new Error('Server returned an error when saving threshold.');
+        //         }
+        //     })
+        //     .catch(error => {
+        //         console.error('Failed to save threshold:', error);
+        //         // Handle any errors here, such as displaying an error message to the user
+        //         this.showError('Failed to save threshold.');
+        //     });
+
     };
     getNextMonthDate = (dateString) => {
         const date = new Date(dateString);
         const nextMonth = new Date(date.setMonth(date.getMonth() + 1));
         return nextMonth.toISOString().split('T')[0]; // Format to YYYY-MM-DD
-    };
-    handleTransactionInputChange = (text) => {
-        // Here you would parse the text input into a transaction object
-        // This example assumes the input text is a JSON representation of the transaction
-        try {
-            let transaction = JSON.parse(text);
-            this.setState(prevState => ({
-                transactions: [...prevState.transactions, transaction]
-            }), () => {
-                // Now that the state is updated, you can check for overdraft
-                this.calcProjectedBalance();
-            });
-        } catch (e) {
-            console.error('Error parsing transaction input:', e);
-        }
     };
     setOverdraftAlertThreshold = (newThreshold) => {
         if (newThreshold.trim() === "") {
@@ -110,6 +96,8 @@ class OverdraftScreen extends React.Component {
         const { overdraftAlertThreshold } = this.state;
         const user = this.props.userStore;
         let transactions = [];
+        let balanceDetails = []; // Array to store balance after each transaction
+        let projectedBalance = this.calcBalance(); // Start with the current balance
 
         // Iterate over each account and their transaction list
         for (const account of user.accountList) {
@@ -142,17 +130,19 @@ class OverdraftScreen extends React.Component {
 
         console.log('Filtered (non-negative) and Sorted Transactions:', filteredTransactions);
 
-        let balance = this.calcBalance(); // Ensure this method returns the current balance correctly
-        let projectedBalance = balance;
-        console.log(`Initial balance: ${balance}`);
 
+        
         // Now use the filtered and sorted transactions for the projection
         for (const transaction of filteredTransactions) {
             projectedBalance -= parseFloat(transaction.amount);
             console.log(`after transaction on ${transaction.date}: $${projectedBalance}`);
-
+            balanceDetails.push({
+                date: transaction.date,
+                balance: projectedBalance
+            });
             // Check for overdraft against the threshold
             if (projectedBalance < overdraftAlertThreshold) {
+
                 return {
                     overdraft: true,
                     date: transaction.date,
@@ -164,32 +154,69 @@ class OverdraftScreen extends React.Component {
 
         console.log('No overdraft will occur');
         // No overdraft will occur
-        return { overdraft: false };
+        //return { overdraft: false};
+        return { overdraft: false, transactions: filteredTransactions, balanceDetails };
     }
+
     checkAndAlertOverdraft = () => {
         const overdraftPrediction = this.calcProjectedBalance();
         console.log('Overdraft Prediction:', overdraftPrediction);
+        this.setState({ projectionResult: overdraftPrediction });
         if (overdraftPrediction.overdraft) {
             const message = overdraftPrediction.withinThreshold
                 ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
                 : `Alert: Your balance is projected to go below your set threshold of $${this.state.overdraftAlertThreshold} on ${moment(overdraftPrediction.date).format('LL')}.`;
             alert(message);
         }
+
     };
+    renderProjectionResult = () => {
+        const { projectionResult } = this.state;
+        if (!projectionResult) {
+            return null;
+        }
+        // Safely check if balanceDetails exists and has length before mapping over it
+        const balanceAfterEachTransaction = projectionResult.balanceDetails && projectionResult.balanceDetails.length > 0
+            ? projectionResult.balanceDetails.map((detail, index) => (
+                <Text key={index} style={styles.transactionDetailText}>
+                    After transaction on {moment(detail.date).format('LL')}: ${detail.balance.toFixed(2)}
+                </Text>
+            ))
+            : null;
+
+        return (
+            <View style={styles.projectionResult}>
+                {projectionResult.overdraft ? (
+                    <Text style={styles.warningText}>
+                        Projected Overdraft: ${projectionResult.overdraftAmount.toFixed(2)}
+                        on {moment(projectionResult.date).format('LL')}
+                    </Text>
+                ) : (
+                    <Text style={styles.noOverdraftText}>
+                        No projected overdraft. Balance is healthy!
+                    </Text>
+                )}
+                <View style={styles.balanceDetails}>
+                    {balanceAfterEachTransaction}
+                </View>
+            </View>
+        );
+    };
+
     componentDidMount() {
         const { userStore } = this.props;
-    
+
         // Assuming userStore has a method getOverdraftThreshold which retrieves the saved threshold
         if (userStore && typeof userStore.getOverdraftThreshold === 'function') {
             const savedThreshold = userStore.getOverdraftThreshold();
             this.setState({ overdraftAlertThreshold: savedThreshold });
         }
-    
+
         // Load transactions or any other initial data here
     }
-    render() {
-        const { transactions, loaded, overdraftAlertThreshold } = this.state;
 
+    render() {
+        const { overdraftAlertThreshold } = this.state;
 
         return (
             <RNLinearGradient
@@ -223,10 +250,9 @@ class OverdraftScreen extends React.Component {
                             />
                         </View>
                         <Text style={styles.lineChartTitle}>Potential Overdrafts</Text>
+
                     </View>
-                    <View>
-                    <OverdraftComponent/>
-                    </View>
+                    {this.renderProjectionResult()}
 
 
                 </ScrollView>
@@ -235,18 +261,28 @@ class OverdraftScreen extends React.Component {
     }
 }
 
-const OverdraftComponent = () => {
-    return (
-        <View>
-            {/* <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{transaction.date}</Text>
-            <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{projectedBalance}</Text> */}
-        </View>
-    
-    );
-}
-
-
 const styles = StyleSheet.create({
+    projectionResult: {
+        padding: 10,
+        margin: 10,
+        backgroundColor: 'white',
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#ddd',
+    },
+    transactionDetailText: {
+        color: '#333', // Choose a color that fits your app's theme
+        fontSize: 14,
+        // ... additional styles ...
+    },
+    warningText: {
+        color: 'red',
+        fontWeight: 'bold',
+    },
+    noOverdraftText: {
+        color: 'green',
+        fontWeight: 'bold',
+    },
     alertThresholdInput: {
         flexDirection: 'row',
         justifyContent: 'space-between',
