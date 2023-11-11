@@ -175,7 +175,7 @@ class OverdraftScreen extends React.Component {
         const { projectionResult } = this.state;
         if (!projectionResult) {
             return null;
-        }  
+        }
 
 
         // Map over balanceDetails to create the list of balance texts with conditional styling
@@ -185,23 +185,26 @@ class OverdraftScreen extends React.Component {
             // Apply the red color style if the balance is below the overdraft threshold
             const transactionStyle = isOverdraftTransaction ? styles.overdraftTransaction : styles.transactionDetailText;
 
+
             return (
-                <Text key={index} style={transactionStyle}>
-                    After transaction on {moment(detail.date).format('LL')}: ${detail.balance.toFixed(2)}
-                </Text>
+                <View key={index} style={styles.overdraftContainer}>
+                    <Text style={styles.overdraftText}>
+                        After transaction - {moment(detail.date).format('LL')}:
+                    </Text>
+                    <Text style={styles.balanceText}>
+                        ${detail.balance.toFixed(2)}
+                    </Text>
+                </View>
             );
         });
 
         // Overdraft message
         const overdraftMessage = projectionResult.overdraft ? (
-            <View style={styles.balanceDetails}>
+
             <Text style={styles.warningText}>
                 Projected Overdraft: ${projectionResult.overdraftAmount.toFixed(2)} on {moment(projectionResult.date).format('LL')}
+
             </Text>
-            <Text style={styles.balanceDetails}>
-            {balanceAfterEachTransaction}
-            </Text>
-            </View>
         ) : (
             <Text style={styles.noOverdraftText}>
                 No projected overdraft. Balance is healthy!
@@ -209,9 +212,12 @@ class OverdraftScreen extends React.Component {
         );
 
         return (
-    
+
             <View style={styles.projectionResult}>
                 {overdraftMessage}
+                <View style={styles.balanceDetails}>
+                    {balanceAfterEachTransaction}
+                </View>
             </View>
         );
     };
@@ -275,26 +281,40 @@ class OverdraftScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    overdraftTransaction: {
-        // ... existing styles for transactions ...
-        color: 'red', // This will make the text red
+    overdraftText: {
+        fontSize: 14,
+        color: '#FFFFFF',
+        display: "flex",
+    },
+    overdraftContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingBottom: 8,
+
+    },
+    balanceText: {
+        fontSize: 14,
+        color: "orange",
+        display: "flex",
+
     },
     projectionResult: {
         padding: 10,
         margin: 10,
-        backgroundColor: 'white',
+
         borderRadius: 5,
-        borderWidth: 1,
+
         borderColor: '#ddd',
     },
-    balanceDetails:{
-      
+    balanceDetails: {
+        width: '90%',
         height: 'auto',
-        borderRadius: 6,
-        
-        flexDirection: 'column',
-        marginTop: 12,
-        padding: 8
+        borderRadius: 8,
+        backgroundColor: '#13181d',
+        marginTop: 8,
+        paddingTop: 8,
+        alignItems: "center"
     },
     transactionDetailText: {
         color: '#333', // Choose a color that fits your app's theme
@@ -304,10 +324,13 @@ const styles = StyleSheet.create({
     warningText: {
         color: 'red',
         fontWeight: 'bold',
+        fontSize: 13,
+        alignContent: "center"
     },
     noOverdraftText: {
         color: 'green',
-        fontWeight: 'bold',
+        alignItems: "center",
+        fontSize: 13,
     },
     alertThresholdInput: {
         flexDirection: 'row',
