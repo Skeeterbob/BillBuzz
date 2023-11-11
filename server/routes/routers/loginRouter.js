@@ -88,11 +88,14 @@ loginRouter.post('/forgot-password', async (req, res) => {
 
         await dbHandler.updateUserPassword(user);
 
+        const link = `${req.protocol}://${req.get(host)}/reset-password/${token}`;
         // Send an email to the user with the reset link
         emailHandler.sendMail(
             email,
+            'billbuzz23@gmail.com',
             'Reset Your Password',
-            'Here is your password reset link: ...', // The email text should include the password reset link or token
+            `<div> Here is your password reset link: ${link} </div>`,
+            /*'Here is your password reset link: ...', // The email text should include the password reset link or token*/
             (error, info) => {
               if (error) {
                 console.log('Error sending email: ', error);
