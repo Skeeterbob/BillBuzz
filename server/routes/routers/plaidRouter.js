@@ -141,4 +141,67 @@ plaidRouter.post('/syncTransactions', async (req,res) => {
     }
 });
 
+//Methods to access the users credit cards transactions
+//By Raigene Cook
+plaidRouter.post('/linkCreditCardAccount', async (req,res) => {
+    const accessToken = req.body.accessToken;
+    const userId = req.body.userId;
+    try {
+        const response = await plaidHandler.linkCreditCardAccount(userId, accessToken);
+        res.json(response);
+    }
+    catch (error) {
+        // handle error for linkCreditCardAccount
+        console.error('Retreving Credit Card Info error:', error);
+        throw error;
+    }
+});
+
+
+plaidRouter.post('/getCreditCardInfo', async (req,res) => {
+    const accessToken = req.body.accessToken;
+    try {
+        const response = await plaidHandler.getCreditCardInfo(accessToken);
+        res.json(response);
+    }
+    catch (error) {
+        // handle error for getCreditCardInfo
+        console.error('Retreving Credit Card Info error:', error);
+        throw error;
+    }
+});
+
+//Method to get the transactions from the credit card
+plaidRouter.post('/getCreditCardTransactions', async (req,res) => {
+    const accessToken = req.body.accessToken;
+    const accountId = req.body.accountId;
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
+    try {
+        const response = await plaidHandler.getCreditCardTransactions(accessToken, accountId, startDate, endDate);
+        res.json(response);
+    }
+    catch (error) {
+        // handle error for getCreditCardTransactions
+        console.error('Retreving Credit Card Transactions error:', error);
+        throw error;
+    }
+});
+
+//Method to get the recurring credit card transactions 
+plaidRouter.post('/getCreditCardRecurringTransactions', async (req,res) => {
+    const accessToken = req.body.accessToken;
+    const startDate = req.body.startDate;
+    const endDate = req.body.endDate;
+    try {
+        const response = await plaidHandler.getCreditCardRecurringTransactions(accessToken, startDate, endDate);
+        res.json(response);
+    }
+    catch (error) {
+        // handle error for getCreditCardRecurringTransactions
+        console.error('Retreving Credit Card Recurring Transactions error:', error);
+        throw error;
+    }
+});
+
 export {plaidRouter};
