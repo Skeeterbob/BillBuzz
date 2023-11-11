@@ -291,7 +291,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingBottom: 8,
-
+       
     },
     balanceText: {
         fontSize: 14,
@@ -302,9 +302,9 @@ const styles = StyleSheet.create({
     projectionResult: {
         padding: 10,
         margin: 10,
-
+        justifyContent: 'center', // Center children along the main axis
+        alignItems: 'center',
         borderRadius: 5,
-
         borderColor: '#ddd',
     },
     balanceDetails: {
@@ -314,7 +314,9 @@ const styles = StyleSheet.create({
         backgroundColor: '#13181d',
         marginTop: 8,
         paddingTop: 8,
-        alignItems: "center"
+        alignItems: "center",
+        width: '100%',
+        paddingHorizontal: 20,
     },
     transactionDetailText: {
         color: '#333', // Choose a color that fits your app's theme
@@ -329,7 +331,7 @@ const styles = StyleSheet.create({
     },
     noOverdraftText: {
         color: 'green',
-        alignItems: "center",
+        textAlign: 'center',
         fontSize: 13,
     },
     alertThresholdInput: {
