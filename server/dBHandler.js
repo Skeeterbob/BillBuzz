@@ -352,6 +352,7 @@ class Encryption {
 
         //Create and return a new user with all properties encrypted
         return {
+            overdraftAlertThreshold: await this.encryptString(user.getOverdraftAlertThreshold(), id),
             email: await this.encryptString(user.getEmail(), id),
             password: await this.encryptString(user.getPassword(), id),
             firstName: await this.encryptString(user.getFirstName(), id),
@@ -414,6 +415,7 @@ class Encryption {
         }
         //Create and return a new user with all properties decrypted
         return new User({
+            overdraftAlertThreshold: await this.decryptString(user['overdraftAlertThreshold'],id),
             email: await this.decryptString(user['email'], id),
             password: await this.decryptString(user['password'], id),
             firstName: await this.decryptString(user['firstName'], id),
