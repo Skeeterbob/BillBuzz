@@ -1,7 +1,8 @@
 import express from 'express';
 import { dbHandler, twilioHandler } from "../../handlers.js";
 import crypto from 'crypto';
-import emailHandler from './transporter.js'; // or wherever you exported emailHandler
+//import emailHandler from './transporter.js'; // or wherever you exported emailHandler
+import emailHandler from '../../emailHandler.js';
 
 const loginRouter = express.Router();
 

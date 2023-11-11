@@ -215,25 +215,6 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
         }
     }
 
-    //Method to identify recurring transactions in users debit card transactions
-    // By Raigene Cook
-    async identifyRecurringTransactions(accessToken, startDate, endDate){
-        try{
-            //get transactions from plaid
-            const transactions = await this.getTransactions(accessToken, startDate, endDate);
-            //identify recurring transactions
-            const recurringTransactions = identifyRecurringTransactions(transactions);
-            //return recurring transactions
-            return recurringTransactions;
-        }
-        catch(error){
-            //handle error
-            console.error('Plaid identifyRecurringTransactions error:', error);
-            throw error;
-        }
-    }
-
-
 //Method to get recurring transactions from plaids API
 // TODO: This does not seem functional. 
     async getRecurringTransactions(accessToken, startDate, endDate){
@@ -247,7 +228,7 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
             });
 
             const transactions = response.data.transactions;
-            const recurringTransactions = identifyRecurringTransactions(transactions);
+            const recurringTransactions = this.identifyRecurringTransactions(transactions);
 
             return recurringTransactions;
         }
@@ -258,7 +239,59 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
         }
     }
 
-    //a method to sync transactions from plaid to the database
+    //Method to identify recurring transactions in users debit card transactions
+    // By Raigene Cook
+    async identifyRecurringTransactions(accessToken, startDate, endDate){
+        try{
+            //get transactions from plaid
+            const transactions = await this.getTransactions(accessToken, startDate, endDate);
+            //identify recurring transactions
+            const recurringTransactions = this.findRecurringTransactions(transactions);
+            //return recurring transactions
+            return recurringTransactions;
+        }
+        catch(error){
+            //handle error
+            console.error('Plaid identifyRecurringTransactions error:', error);
+            throw error;
+        }
+    }
+
+    //Method to find recurring transactions in users debit card transactions
+    // By Raigene Cook
+    async findRecurringTransactions(transactions){
+        //create an array to store recurring transactions by the vendor
+        const transactionsByVendor = [];
+
+        //array to store recurring transactions
+        const recurringTransactions = [];
+
+        for (const transaction of transactions){
+            const vendor = transaction.name;
+
+            //Initialize the vendor in the array
+            if(!transactionsByVendor[vendor]){
+                transactionsByVendor[vendor] = [];
+            }
+
+            //check if this transaction has the same vendor as the previous transaction
+            //if it does, add it to the array
+            const similarTransactions = transactionsByVendor[vendor].filter((t) => t.amount === transaction.amount && t.date === transaction.date); 
+        
+            //if there are similar transactions, consider it recurring
+            if(similarTransactions.length > 0){
+                recurringTransactions.push(transaction);
+            }
+
+            //add the transactions to the vendor's transactions
+            transactionsByVendor[vendor].push(transaction);
+        }
+
+        return recurringTransactions;
+
+    }
+
+    //Method to sync plaids transactions to the mongodb database
     // This also does not seem functional in its current state.
     async syncTransactions(userId, startDate, endDate, accessToken){
         try{
@@ -266,6 +299,12 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
             const transactions = await this.getTransactions(accessToken, startDate, endDate);
             //get recurring transactions from plaid
             const recurringTransactions = await this.getRecurringTransactions(accessToken, startDate, endDate);
+            
+            //store transactions in the database
+            await dbHandler.updateUser(userId, transactions);
+            //store recurring transactions in the database
+            await dbHandler.updateUser(userId, recurringTransactions);
+            
             //return the transactions and recurring transactions
             return {transactions, recurringTransactions};
         }
