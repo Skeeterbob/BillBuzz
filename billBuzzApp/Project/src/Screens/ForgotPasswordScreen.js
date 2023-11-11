@@ -73,7 +73,7 @@ const ForgotPasswordScreen = () => {
     setLoading(true);
 
     try {
-      const response = await fetch('', {
+      const response = await fetch('http://10.0.0.165/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
