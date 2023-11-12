@@ -70,7 +70,7 @@ plaidRouter.post('/getAccessToken', async (req, res) => {
         for (const account of accounts) {
             let newAccount = {
                 id: account['account_id'],
-                name: account['name'],
+                name: account['name'] === 'Checking' || account['name'] === 'Saving' ? account['official_name'] : account['name'],
                 balance: account['balances']['current'],
                 transactionList: {
                     transactionList: [],
