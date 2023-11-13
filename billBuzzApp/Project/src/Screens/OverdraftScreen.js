@@ -235,7 +235,7 @@ class OverdraftScreen extends React.Component {
     };
 
     componentDidMount() {
-        this.setState({ overdraftAlertThreshold: this.props.userStore.overdraftThreshold });
+        this.setState({ overdraftAlertThreshold: this.props.userStore.overdraftThreshold }, () => this.checkAndAlertOverdraft());
     }
 
     render() {
