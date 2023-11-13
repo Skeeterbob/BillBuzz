@@ -260,16 +260,20 @@ class OverdraftScreen extends React.Component {
                     </View>
 
                     <View style={styles.summaryHeader}>
-                        <View style={styles.alertThresholdInput}>
-                            <Text style={{ color: '#FFFFFF' }}>Set Alert Threshold: $</Text>
-                            <TextInput style={{ color: '#FFFFFF' }}
-                                value={overdraftAlertThreshold.toString()}
-                                onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
-                                keyboardType="numeric"
-                            />
-                        </View>
+
                         <Text style={styles.lineChartTitle}>Potential Overdrafts</Text>
 
+                    </View>
+                    <View style={styles.alertThresholdInput}>
+                        <Text style={styles.money} >$</Text>
+                        <TextInput
+                            placeholder="Set Alert Threshold..."
+                            style={styles.filterInput}
+                            value={overdraftAlertThreshold.toString()}
+                            onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
+                            placeholderTextColor={'#FFFFFF'}
+                            keyboardType="numeric"
+                        />
                     </View>
                     {this.renderProjectionResult()}
 
@@ -281,6 +285,14 @@ class OverdraftScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
+    money:{
+        width: '10%',
+        fontSize: 16,
+        padding: 13,
+        borderRadius: 0,
+        backgroundColor: '#1F1F1F',
+        color: '#FFFFFF'
+    },
     overdraftText: {
         fontSize: 14,
         color: '#FFFFFF',
@@ -291,7 +303,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingBottom: 8,
-       
+
     },
     balanceText: {
         fontSize: 14,
@@ -420,9 +432,10 @@ const styles = StyleSheet.create({
         marginTop: 16
     },
     filterInput: {
-        width: '60%',
+        width: '75%',
+        fontSize: 15,
         padding: 10,
-        borderRadius: 6,
+        borderRadius: 0,
         backgroundColor: '#212121',
         color: '#FFFFFF'
     },
