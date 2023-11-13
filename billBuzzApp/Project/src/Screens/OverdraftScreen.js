@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import moment from 'moment'
+import {SERVER_ENDPOINT} from "@env";
 
 class OverdraftScreen extends React.Component {
 
@@ -21,42 +22,42 @@ class OverdraftScreen extends React.Component {
         loaded: false,
         overdraftAlertThreshold: '',
         projectionResult: { balanceDetails: [] },
+        saving: false,
     };
-    saveOverdraftAlertThreshold = () => {
-        // const { overdraftAlertThreshold } = this.state;
-        // const { userStore } = this.props;
-        // const { email } = userStore; // Assuming the email is used as a unique identifier for the user
+    saveData = () => {
+        const user = this.props.userStore;
+        this.setState({ saving: true });
 
-        // // Now using fetch to send the updated threshold to the server
-        // fetch(SERVER_ENDPOINT + '/user/updateThreshold', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'Accept': 'application/json'
-        //     },
-        //     body: JSON.stringify({
-        //         email: email, // Assuming this is how you identify the user whose threshold you are updating
-        //         overdraftAlertThreshold: overdraftAlertThreshold
-        //     })
-        // })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         if (data.success) {
-        //             console.log('Threshold saved successfully!');
-        //             // Here, you might want to update your userStore with the new threshold
-        //             userStore.overdraftAlertThreshold = overdraftAlertThreshold;
-        //             // And perhaps call a method to show success to the user
-        //             this.showSuccess("Threshold updated successfully!");
-        //         } else {
-        //             throw new Error('Server returned an error when saving threshold.');
-        //         }
-        //     })
-        //     .catch(error => {
-        //         console.error('Failed to save threshold:', error);
-        //         // Handle any errors here, such as displaying an error message to the user
-        //         this.showError('Failed to save threshold.');
-        //     });
+        let newUser = {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            password: user.password,
+            birthday: user.birthday,
+            bankBalance: user.bankBalance,
+            availableCredit: user.availableCredit,
+            accountList: user.accountList,
+            overdraftThreshold: user.overdraftThreshold
+        };
 
+        fetch(SERVER_ENDPOINT + '/register/updateUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                user: newUser,
+                email: user.email
+            })
+        })
+            .then(result => result.json())
+            .then(data => {
+                this.props.userStore.updateUser(data);
+                this.setState({ saving: false });
+            })
+            .catch(console.error)
     };
     getNextMonthDate = (dateString) => {
         const date = new Date(dateString);
@@ -80,7 +81,7 @@ class OverdraftScreen extends React.Component {
         } else {
             alert('Please enter a valid number for the overdraft alert threshold.');
         }
-        this.saveOverdraftAlertThreshold();
+       
     };
     calcBalance = () => {
         let balance = 0.0;
@@ -127,8 +128,6 @@ class OverdraftScreen extends React.Component {
         });
 
         console.log('Filtered (non-negative) and Sorted Transactions:', filteredTransactions);
-
-
 
         // Now use the filtered and sorted transactions for the projection
         for (const transaction of filteredTransactions) {
@@ -225,7 +224,7 @@ class OverdraftScreen extends React.Component {
     }
 
     render() {
-        const { overdraftAlertThreshold } = this.state;
+        const { overdraftAlertThreshold, saving } = this.state;
 
         return (
             <RNLinearGradient
@@ -247,6 +246,10 @@ class OverdraftScreen extends React.Component {
                             <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
                             <Text style={styles.backText}>Back</Text>
                         </TouchableOpacity>
+
+                        {!saving ? <TouchableOpacity style={styles.headerButton} onPress={() => this.saveData()}>
+                            <Text style={styles.saveText}>Save</Text>
+                        </TouchableOpacity> : null}
                     </View>
 
                     <View style={styles.summaryHeader}>
@@ -255,11 +258,11 @@ class OverdraftScreen extends React.Component {
 
                     </View>
                     <View style={styles.alertThresholdInput}>
-                        <Text style={styles.money} >$</Text>
+                        <Text style={styles.money}>$</Text>
                         <TextInput
                             placeholder="Set Alert Threshold..."
                             style={styles.filterInput}
-                            value={overdraftAlertThreshold.toString()}
+                            value={overdraftAlertThreshold}
                             onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
                             placeholderTextColor={'#FFFFFF'}
                             keyboardType="numeric"
@@ -275,7 +278,8 @@ class OverdraftScreen extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    money:{
+
+    money: {
         width: '10%',
         fontSize: 16,
         padding: 13,
@@ -457,6 +461,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderColor: '#F4CE82',
         borderRadius: 25
+    },
+    saveText: {
+        color: '#39cc11',
+        fontSize: 16,
+        fontWeight: 'bold'
     },
     backText: {
         color: '#FFFFFF',
