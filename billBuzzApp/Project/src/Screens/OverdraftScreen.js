@@ -2,7 +2,6 @@ import React from "react";
 import { inject, observer } from "mobx-react";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import {
-    ActivityIndicator,
     Platform,
     ScrollView,
     StatusBar,
@@ -13,7 +12,6 @@ import {
     TextInput
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { SERVER_ENDPOINT } from "@env";
 import moment from 'moment'
 
 class OverdraftScreen extends React.Component {
@@ -223,15 +221,7 @@ class OverdraftScreen extends React.Component {
     };
 
     componentDidMount() {
-        const { userStore } = this.props;
-
-        // Assuming userStore has a method getOverdraftThreshold which retrieves the saved threshold
-        if (userStore && typeof userStore.getOverdraftThreshold === 'function') {
-            const savedThreshold = userStore.getOverdraftThreshold();
-            this.setState({ overdraftAlertThreshold: savedThreshold });
-        }
-
-        // Load transactions or any other initial data here
+        this.setState({ overdraftAlertThreshold: this.props.userStore.overdraftThreshold });
     }
 
     render() {
@@ -327,7 +317,6 @@ const styles = StyleSheet.create({
         marginTop: 8,
         paddingTop: 8,
         alignItems: "center",
-        width: '100%',
         paddingHorizontal: 20,
     },
     transactionDetailText: {

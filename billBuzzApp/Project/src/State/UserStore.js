@@ -18,6 +18,7 @@ class UserStore {
     availableCredit = 0;
     accountList = [];
     weeklyData = [];
+    overdraftThreshold = '';
 
     constructor() {
         makeObservable(this, {
@@ -32,6 +33,7 @@ class UserStore {
             availableCredit: observable,
             accountList: observable,
             weeklyData: observable,
+            overdraftThreshold: observable,
             updateUser: action,
             clearUser: action,
         });
@@ -49,6 +51,7 @@ class UserStore {
         this.availableCredit = user.availableCredit;
         this.accountList = user.accountList;
         this.weeklyData = user.weeklyData;
+        this.overdraftThreshold = user.overdraftThreshold;
     }
 
     clearUser() {
@@ -63,6 +66,7 @@ class UserStore {
         this.availableCredit = 0;
         this.accountList = [];
         this.weeklyData = [];
+        this.overdraftThreshold = '';
     }
 }
 
