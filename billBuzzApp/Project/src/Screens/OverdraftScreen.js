@@ -14,6 +14,7 @@ import {
 import Icon from "react-native-vector-icons/Ionicons";
 import moment from 'moment'
 import {SERVER_ENDPOINT} from "@env";
+import Toast from "react-native-toast-message";
 
 class OverdraftScreen extends React.Component {
 
@@ -26,7 +27,7 @@ class OverdraftScreen extends React.Component {
     };
     saveData = () => {
         const user = this.props.userStore;
-        this.setState({ saving: true });
+        const {overdraftAlertThreshold} = this.state;
 
         let newUser = {
             firstName: user.firstName,
@@ -38,7 +39,7 @@ class OverdraftScreen extends React.Component {
             bankBalance: user.bankBalance,
             availableCredit: user.availableCredit,
             accountList: user.accountList,
-            overdraftThreshold: user.overdraftThreshold
+            overdraftThreshold: overdraftAlertThreshold
         };
 
         fetch(SERVER_ENDPOINT + '/register/updateUser', {
@@ -55,6 +56,7 @@ class OverdraftScreen extends React.Component {
             .then(result => result.json())
             .then(data => {
                 this.props.userStore.updateUser(data);
+                this.showSuccess("Updated Overdraft Threshold!");
                 this.setState({ saving: false });
             })
             .catch(console.error)
@@ -72,7 +74,7 @@ class OverdraftScreen extends React.Component {
 
         const numericThreshold = parseFloat(newThreshold);
         if (!isNaN(numericThreshold) && numericThreshold >= 0) {
-            this.setState({ overdraftAlertThreshold: numericThreshold }, () => {
+            this.setState({ overdraftAlertThreshold: numericThreshold.toString() }, () => {
                 // State is updated, now we can check for overdraft
                 const overdraftPrediction = this.calcProjectedBalance();
                 this.checkAndAlertOverdraft();
@@ -85,8 +87,10 @@ class OverdraftScreen extends React.Component {
     };
     calcBalance = () => {
         let balance = 0.0;
-        for (const account of this.props.userStore.accountList) {
-            balance += parseFloat(account.balance);
+        if (this.props.userStore.accountList) {
+            for (const account of this.props.userStore.accountList) {
+                balance += parseFloat(account.balance);
+            }
         }
 
         return Math.round(balance * 100) / 100;
@@ -99,14 +103,16 @@ class OverdraftScreen extends React.Component {
         let projectedBalance = this.calcBalance(); // Start with the current balance
 
         // Iterate over each account and their transaction list
-        for (const account of user.accountList) {
-            for (const transaction of account.transactionList.transactionList) {
-                // Clone the transaction and set its date to the next month
-                let predictedTransaction = { ...transaction };
-                let transactionDate = new Date(transaction.date);
-                transactionDate.setMonth(transactionDate.getMonth() + 1); // Move to the next month
-                predictedTransaction.date = transactionDate.toISOString(); // Set new date
-                transactions.push(predictedTransaction);
+        if (user.accountList) {
+            for (const account of user.accountList) {
+                for (const transaction of account.transactionList.transactionList) {
+                    // Clone the transaction and set its date to the next month
+                    let predictedTransaction = { ...transaction };
+                    let transactionDate = new Date(transaction.date);
+                    transactionDate.setMonth(transactionDate.getMonth() + 1); // Move to the next month
+                    predictedTransaction.date = transactionDate.toISOString(); // Set new date
+                    transactions.push(predictedTransaction);
+                }
             }
         }
 
@@ -138,12 +144,12 @@ class OverdraftScreen extends React.Component {
             });
 
             // As soon as projectedBalance falls below the threshold, break the loop and return
-            if (projectedBalance < overdraftAlertThreshold) {
+            if (projectedBalance < parseFloat(overdraftAlertThreshold)) {
                 // Ensure that the date and amount are from the transaction that caused the overdraft
                 return {
                     overdraft: true,
                     date: transaction.date, // This should be the date of the overdraft-causing transaction
-                    overdraftAmount: Math.abs(projectedBalance - overdraftAlertThreshold),
+                    overdraftAmount: Math.abs(projectedBalance - parseFloat(overdraftAlertThreshold)),
                     withinThreshold: projectedBalance < 0,
                     balanceDetails: balanceDetails
                 };
@@ -168,6 +174,15 @@ class OverdraftScreen extends React.Component {
         // }
 
     };
+
+    showSuccess = (message) => {
+        Toast.show({
+            type: 'success',
+            text1: message,
+            position: 'top'
+        });
+    };
+
     renderProjectionResult = () => {
         const { projectionResult } = this.state;
         if (!projectionResult) {
@@ -225,6 +240,7 @@ class OverdraftScreen extends React.Component {
 
     render() {
         const { overdraftAlertThreshold, saving } = this.state;
+        console.log(this.props.userStore.overdraftThreshold)
 
         return (
             <RNLinearGradient
@@ -247,7 +263,7 @@ class OverdraftScreen extends React.Component {
                             <Text style={styles.backText}>Back</Text>
                         </TouchableOpacity>
 
-                        {!saving ? <TouchableOpacity style={styles.headerButton} onPress={() => this.saveData()}>
+                        {!saving ? <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ saving: true }, () => this.saveData())}>
                             <Text style={styles.saveText}>Save</Text>
                         </TouchableOpacity> : null}
                     </View>
@@ -260,15 +276,16 @@ class OverdraftScreen extends React.Component {
                     <View style={styles.alertThresholdInput}>
                         <Text style={styles.money}>$</Text>
                         <TextInput
-                            placeholder="Set Alert Threshold..."
                             style={styles.filterInput}
                             value={overdraftAlertThreshold}
+                            defaultValue={this.props.userStore.overdraftThreshold}
                             onChangeText={(text) => this.setOverdraftAlertThreshold(text)}
                             placeholderTextColor={'#FFFFFF'}
                             keyboardType="numeric"
                         />
                     </View>
                     {this.renderProjectionResult()}
+                    <Toast />
 
 
                 </ScrollView>

@@ -64,7 +64,7 @@ class RegisterInfoScreen extends React.Component {
                 },
                 body: JSON.stringify({
                     user: {
-                        overdraftThreshold: 0,
+                        overdraftThreshold: '0',
                         email,
                         password,
                         firstName,
