@@ -36,7 +36,7 @@ class DBHandler {
             // Update the overdraft alert threshold for the user with the given email
             const result = await this.#usersCollection.updateOne(
                 { email: email }, // if email is encrypted, use encryptedEmail here
-                { $set: { overdraftAlertThreshold: overdraftAlertThreshold } }
+                { $set: { overdraftThreshold: overdraftAlertThreshold } }
             );
 
             return result;

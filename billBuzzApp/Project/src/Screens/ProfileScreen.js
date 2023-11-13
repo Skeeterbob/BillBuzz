@@ -67,14 +67,14 @@ class ProfileScreen extends React.Component {
         })
             .then(result => result.json())
             .then(user => {
-                this.props.navigation.navigate({
-                    name: 'VerifyCode',
+                this.props.navigation.navigate('SignIn', {
+                    screen: 'VerifyCode',
                     params: {
                         email: user.email,
                         password: user.password,
                         phoneNumber: user.phoneNumber
                     }
-                })
+                });
             })
             .catch((error) => {
                 console.log(error)
@@ -107,7 +107,7 @@ class ProfileScreen extends React.Component {
             bankBalance: user.bankBalance,
             availableCredit: user.availableCredit,
             accountList: user.accountList,
-            overdraftAlertThreshold: user.overdraftAlertThreshold
+            overdraftThreshold: user.overdraftThreshold
         };
 
         fetch(SERVER_ENDPOINT + '/register/updateUser', {

@@ -69,17 +69,17 @@ registerRouter.post('/deleteUser', async (req, res) => {
 registerRouter.post('/updateThreshold', async (req, res) => {
     try {
         // Assuming the email and the new threshold are passed in the request body.
-        const { email, overdraftAlertThreshold } = req.body;
+        const { email, overdraftThreshold } = req.body;
         console.log(req.body);
 
         // You should implement the updateThreshold method in your dbHandler to handle the database update.
-        const result = await dbHandler.updateThreshold(email, overdraftAlertThreshold);
+        const result = await dbHandler.updateThreshold(email, overdraftThreshold);
         
         if (result['acknowledged'] && result['modifiedCount'] >= 1) {
             // Send back a success response
             res.status(200).json({
                 message: "Threshold updated successfully",
-                overdraftAlertThreshold: overdraftAlertThreshold
+                overdraftAlertThreshold: overdraftThreshold
             });
         } else {
             // If the document wasn't updated for some reason, handle it accordingly
