@@ -106,7 +106,8 @@ class ProfileScreen extends React.Component {
             birthday: user.birthday,
             bankBalance: user.bankBalance,
             availableCredit: user.availableCredit,
-            accountList: user.accountList
+            accountList: user.accountList,
+            overdraftAlertThreshold: user.overdraftAlertThreshold
         };
 
         fetch(SERVER_ENDPOINT + '/register/updateUser', {

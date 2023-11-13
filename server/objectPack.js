@@ -17,7 +17,7 @@
 
 // This complete file was authored by Bryan Hodgins
 class User {
-    #overdraftAlertThreshold;
+    #overdraftThreshold;
     #email;
     #password;
     #firstName;
@@ -28,7 +28,7 @@ class User {
     #availableCredit;
     #accountList = [];
     #variableList = ['email', 'password', 'firstName', 'lastName', 'birthday',
-        'phoneNumber', 'bankBalance', 'availableCredit', 'accountList', 'overdraftAlertThreshold'];
+        'phoneNumber', 'bankBalance', 'availableCredit', 'accountList', 'overdraftThreshold'];
 
     //needs to pass in a JSON object with all keys for email, password, 
     //firstName, lastName, birthDay, phoneNumber, bankBalance, availableCredit,
@@ -50,7 +50,7 @@ class User {
             })
 
             //assign all the variables to the incoming data
-            this.#overdraftAlertThreshold = data['overdraftAlertThreshold'];
+            this.#overdraftThreshold = data['overdraftThreshold'];
             this.#email = data["email"];
             this.#password = data["password"];
             this.#firstName = data["firstName"];
@@ -122,8 +122,8 @@ class User {
         return newList;
     }
 
-    getOverdraftAlertThreshold () {
-        return this.#overdraftAlertThreshold;
+    getOverdraftThreshold () {
+        return this.#overdraftThreshold;
     }
 
     getFirstName () {
