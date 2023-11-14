@@ -66,5 +66,30 @@ registerRouter.post('/deleteUser', async (req, res) => {
         res.status(400).json({error: '/register/deleteUser endpoint error', success: false});
     }
 });
+registerRouter.post('/updateThreshold', async (req, res) => {
+    try {
+        // Assuming the email and the new threshold are passed in the request body.
+        const { email, overdraftThreshold } = req.body;
+        console.log(req.body);
+
+        // You should implement the updateThreshold method in your dbHandler to handle the database update.
+        const result = await dbHandler.updateThreshold(email, overdraftThreshold);
+        
+        if (result['acknowledged'] && result['modifiedCount'] >= 1) {
+            // Send back a success response
+            res.status(200).json({
+                message: "Threshold updated successfully",
+                overdraftAlertThreshold: overdraftThreshold
+            });
+        } else {
+            // If the document wasn't updated for some reason, handle it accordingly
+            res.status(500).json({ error: "Could not update overdraft alert threshold" });
+        }
+    } catch (err) {
+        console.log(err);
+        // Handle any other errors that might occur
+        res.status(400).json({ error: "Error in /register/updateThreshold endpoint" });
+    }
+});
 
 export {registerRouter};
