@@ -17,7 +17,7 @@ class PlaidHandler {
         try{
         //create the endpoints for authentication
         const configuration = new Configuration({
-            basePath: PlaidEnvironments.development,
+            basePath: PlaidEnvironments.sandbox,
             baseOptions: {
                 headers: {
                     'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
@@ -266,7 +266,7 @@ class PlaidHandler {
               body: JSON.stringify({
                 included_segments: ['All'],
                 app_id: process.env.ONESIGNAL_APP_ID,
-                contents: {en: 'English or Any Language Message', es: 'Spanish Message'},
+                contents: {en: 'New Transactions Available!', es: 'Spanish Message'},
                 name: 'Plaid Webhook Notification'
               })
             };
