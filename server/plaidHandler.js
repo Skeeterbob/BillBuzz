@@ -17,7 +17,7 @@ class PlaidHandler {
         try {
             //create the endpoints for authentication
             const configuration = new Configuration({
-                basePath: PlaidEnvironments.sandbox,
+                basePath: PlaidEnvironments.development,
                 baseOptions: {
                     headers: {
                         'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
@@ -35,6 +35,29 @@ class PlaidHandler {
             throw error;
         }
     }
+
+    async initSandbox() {
+            try {
+                //create the endpoints for authentication
+                const configuration = new Configuration({
+                    basePath: PlaidEnvironments.sandbox,
+                    baseOptions: {
+                        headers: {
+                            'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
+                            'PLAID-SECRET': process.env.PLAID_SECRET_SANDBOX,
+                        },
+                    },
+                });
+
+                this.#client = new PlaidApi(configuration);
+
+                return 'Plaid initilaized successfully';
+
+            } catch (error) {
+                console.error('Plaid initilaization failed:', error);
+                throw error;
+            }
+        }
 
     //Method to generate a link token to be used on the front end to 
     //authenticate the Plaid account link interface

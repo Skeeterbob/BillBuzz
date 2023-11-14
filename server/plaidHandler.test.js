@@ -7,7 +7,7 @@ dotenv.config();
 
 // create PlaidHandler object and initialize
 const plaidHandler = new PlaidHandler();
-plaidHandler.init();
+plaidHandler.initSandbox();
 
 
 test('retrieve a link token from plaidhandler.linkAccount', async () =>{
@@ -30,7 +30,7 @@ async function triggerTransactionWebhook (accessToken) {
             baseOptions: {
                 headers: {
                     'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-                    'PLAID-SECRET': process.env.PLAID_SECRET,
+                    'PLAID-SECRET': process.env.PLAID_SECRET_SANDBOX,
                 }
             }
         });
@@ -56,7 +56,7 @@ async function testTokenCreate () {
         baseOptions: {
             headers: {
                 'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-                'PLAID-SECRET': process.env.PLAID_SECRET,
+                'PLAID-SECRET': process.env.PLAID_SECRET_SANDBOX,
             }
         }
     });
