@@ -53,8 +53,16 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         const user = await dbHandler.getUser(email);
         const response = await plaidHandler.completeLink(publicToken);
         const accessToken = response.accessToken;
-
         const accounts = await plaidHandler.getAccounts(accessToken);
+
+        for (const account of user.getAccountList()) {
+            for (const plaidAccount of accounts) {
+                if (account.getName() === plaidAccount['name']) {
+                    return res.status(200).json({error: 'Account already exists', success: false});
+                }
+            }
+        }
+
         let date = new Date();
         const endDate = date.toLocaleString('en-CA').split(",")[0].toString();
 

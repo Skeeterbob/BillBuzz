@@ -28,6 +28,10 @@ class ConfirmCodeScreen extends React.Component {
     };
 
 
+    componentDidMount() {
+        this.setState({code: ''});
+    }
+
     // Authored by Henry Winczner from line(s) 34 - 220
 
 

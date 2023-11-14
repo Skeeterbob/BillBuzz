@@ -9,7 +9,7 @@ import {
     Image,
     TextInput,
     TouchableOpacity,
-    ScrollView
+    ScrollView, Alert
 } from "react-native";
 import {inject, observer} from "mobx-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -53,6 +53,34 @@ class ProfileScreen extends React.Component {
         });
     }
 
+    verifyNewNumber = (user) => {
+        fetch(SERVER_ENDPOINT + '/login/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: user.email,
+                password: user.password
+            })
+        })
+            .then(result => result.json())
+            .then(user => {
+                this.props.navigation.navigate({
+                    name: 'VerifyCode',
+                    params: {
+                        email: user.email,
+                        password: user.password,
+                        phoneNumber: user.phoneNumber
+                    }
+                })
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }
+
     saveData = () => {
         const user = this.props.userStore;
         const {firstName, lastName, email, phoneNumber} = this.state;
@@ -94,9 +122,15 @@ class ProfileScreen extends React.Component {
         })
             .then(result => result.json())
             .then(data => {
-                this.props.userStore.updateUser(data);
-                this.showSuccess("Updated profile!");
-                this.setState({saving: false});
+                if (this.props.userStore.phoneNumber !== data.phoneNumber) {
+                    this.setState({saving: false});
+                    this.props.userStore.updateUser(data);
+                    this.verifyNewNumber(data);
+                }else {
+                    this.props.userStore.updateUser(data);
+                    this.showSuccess("Updated profile!");
+                    this.setState({saving: false});
+                }
             })
             .catch(console.error)
     };
@@ -121,6 +155,56 @@ class ProfileScreen extends React.Component {
             text1: message,
             position: 'top'
         });
+    };
+
+    deleteAccount = () => {
+        fetch(SERVER_ENDPOINT + '/register/deleteUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: this.props.userStore.email,
+                password: this.props.userStore.password,
+            })
+        })
+            .then(data => data.json())
+            .then(response => {
+                if (response['success']) {
+                    this.props.userStore.clearUser();
+                    AsyncStorage.removeItem('user').then(() => {
+                        this.props.navigation.navigate({
+                            name: 'AppWelcome'
+                        });
+                    });
+                }else {
+                    this.showError("Unable to delete account!");
+                }
+            })
+            .catch(console.error);
+    };
+
+    showDeleteAccount = () => {
+        Alert.alert(
+            'Delete Account',
+            'Are you sure you want to delete your account??',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: undefined,
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    onPress: () => this.deleteAccount()
+                },
+            ],
+            {
+                cancelable: true,
+                onDismiss: undefined
+            }
+        );
     };
 
     render() {
@@ -187,7 +271,11 @@ class ProfileScreen extends React.Component {
 
                         <Text style={styles.categoryHeader}>Account</Text>
                         <View style={styles.category}>
-                            <TouchableOpacity style={{...styles.settingsBtn, borderTopWidth: 2}}><Text style={styles.importantText}>Delete User Account</Text></TouchableOpacity>
+                            <TouchableOpacity style={{...styles.settingsBtn, borderTopWidth: 2}} onPress={() => {
+                                this.showDeleteAccount();
+                            }}>
+                                <Text style={styles.importantText}>Delete User Account</Text>
+                            </TouchableOpacity>
                             <TouchableOpacity style={styles.settingsBtn} onPress={() => {
                                 this.props.userStore.clearUser();
                                 AsyncStorage.removeItem('user').then(() => {

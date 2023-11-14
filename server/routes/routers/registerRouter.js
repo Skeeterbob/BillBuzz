@@ -45,4 +45,26 @@ registerRouter.post('/updateUser', async (req, res) => {
     }
 });
 
+registerRouter.post('/deleteUser', async (req, res) => {
+    try {
+        let email = req.body.email;
+        let password = req.body.password;
+
+        if (!email || !password) {
+            return res.status(400).json({error: 'Email and password required!', success: false});
+        }
+
+        const user = await dbHandler.getUser(email);
+        if (user.getPassword() !== password) {
+            return res.status(401).json({error: 'Invalid password', success: false});
+        }
+
+        await dbHandler.deleteUser(email);
+        res.status(200).json({success: true, error: ''});
+    } catch (err) {
+        console.log(err);
+        res.status(400).json({error: '/register/deleteUser endpoint error', success: false});
+    }
+});
+
 export {registerRouter};

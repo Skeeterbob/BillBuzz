@@ -141,6 +141,23 @@ class DBHandler {
         }
     }
 
+    async deleteUser(email) {
+        try {
+            let id = await this.#getKeyId(email);
+            id = id['key'];
+            if (id != null) {
+                const encryptedEmail = await this.#encryption.encryptString(email, id);
+                return await this.#usersCollection.deleteOne({email: encryptedEmail});
+            } else {
+                console.log('user does not exist');
+                return null;
+            }
+        } catch (error) {
+            console.error("Error deleting user from database:", error);
+            throw error;
+        }
+    }
+
     //Verify if a user's profile already exists in the database by email
     //If the user exists we return true, false if no user is found
     // verify user function authored by Bryan Hodgins

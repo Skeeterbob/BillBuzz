@@ -62,6 +62,8 @@ class PlaidComponent extends React.Component {
                 if (response.success) {
                     this.props.userStore.updateUser(response.user);
                     this.props.successUpdate();
+                }else if (response.error == 'Account already exists') {
+                    alert("Account already exists!");
                 }
             })
             .catch(console.error)
