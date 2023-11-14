@@ -14,16 +14,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 
 
 const upcomingOverdrafts = [
-    {
-        name: 'Utility Bill',
-        dueDate: '10/15/2023',
-        amountDue: 50.00
-    },
-    {
-        name: 'Phone Bill',
-        dueDate: '10/20/2023',
-        amountDue: 30.00
-    },
+ 
     // Add more overdrafts as needed
 ];
 
@@ -426,16 +417,7 @@ class DashboardScreen extends React.Component {
                     </View>
 
                     {creditCard ? <View style={styles.upcomingPayment}>
-                        <View style={styles.upcomingPaymentHeader}>
-                            <Text style={styles.upcomingPaymentTitle}>Upcoming Card Payment</Text>
-                        </View>
-
-                        <View style={styles.upcomingPaymentDetails}>
-                            <Text style={styles.paymentText}>{creditCard.name}</Text>
-                            {/*//TODO: The account on the backend doesn't have a due date field*/}
-                            <Text style={styles.paymentText}>{'N/A'}</Text>
-                            <Text style={styles.paymentText}>${creditCard.balance}</Text>
-                        </View>
+                       
                     </View> : undefined}
                 </ScrollView>
             </RNLinearGradient>
