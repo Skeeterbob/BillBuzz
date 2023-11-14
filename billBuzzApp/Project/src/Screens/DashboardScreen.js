@@ -8,22 +8,13 @@ import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
-
+import DropDownPicker from 'react-native-dropdown-picker';
 
 // Authored by Henry Winczner from line(s) 1 - 58
 
 
 const upcomingOverdrafts = [
-    {
-        name: 'Utility Bill',
-        dueDate: '10/15/2023',
-        amountDue: 50.00
-    },
-    {
-        name: 'Phone Bill',
-        dueDate: '10/20/2023',
-        amountDue: 30.00
-    },
+ 
     // Add more overdrafts as needed
 ];
 
@@ -39,11 +30,13 @@ class DashboardScreen extends React.Component {
             datasets: [{ data: [12, 20, 30, 40, 50, 60, 70] }]
         },
         filterText: '',
-        sortBy: 'default'
+        sortBy: 'default',
+        selectedAccount: 'All Accounts',
+        dropdownOpen: false
     };
 
-   
-   
+
+
     //hwinczner 
     componentDidMount() {
         this.compileChart();
@@ -118,6 +111,7 @@ class DashboardScreen extends React.Component {
     // create new modes as needed.
     // Bryan Hodgins authored the compileChart function.
     compileChart = (startDate = null, endDate = null, mode = 0) => {
+        const {selectedAccount} = this.state;
         const data = {};
         data['labels'] = []
         data['datasets'] = [{ data: [] }];
@@ -139,7 +133,14 @@ class DashboardScreen extends React.Component {
             const threshold = new Date(today);
             threshold.setDate(threshold.getDate() - 7);
             threshold.setHours(0, 0, 0, 0);
-            const transactionList = getAllTransactions(this.props.userStore, threshold, today);
+
+            let accountList = [];
+            for (const account of this.props.userStore.accountList) {
+                if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                    accountList.push(account);
+                }
+            }
+            const transactionList = getAllTransactions({accountList: accountList}, threshold, today);
             for (const transaction of transactionList) {
                 const date = new Date(transaction.date);
                 if (threshold < date) {
@@ -155,7 +156,13 @@ class DashboardScreen extends React.Component {
         //mode for standard weekly chart Sunday to Saturday. Requires Two date objects.
         if (mode == 1) {
             data['labels'] = dayList;
-            const transactionList = getAllTransactions(this.props.userStore, startDate, endDate);
+            let accountList = [];
+            for (const account of this.props.userStore.accountList) {
+                if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                    accountList.push(account);
+                }
+            }
+            const transactionList = getAllTransactions({accountList: accountList}, startDate, endDate);
             for (let i = 0; i < dayList.length; i++) {
                 data['datasets'][0]['data'][i] = 0;
             }
@@ -182,13 +189,27 @@ class DashboardScreen extends React.Component {
     }
 
     render() {
-        const { chartData, currentWeek } = this.state;
+        const { chartData, currentWeek, selectedAccount, dropdownOpen } = this.state;
         const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
         const { sortBy } = this.state;
+        let accounts = [{label: 'All Accounts', value: 'All Accounts'}];
+        for (const account of this.props.userStore.accountList) {
+            accounts.push({label: account.name, value: account.name});
+        }
+
+        let accountData = [];
+        for (const account of this.props.userStore.accountList) {
+            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                accountData.push(account);
+            }
+        }
+
         let transactions = [];
         for (const account of this.props.userStore.accountList) {
-            account.transactionList.transactionList.forEach(value => transactions.push(value))
+            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                account.transactionList.transactionList.forEach(value => transactions.push(value))
+            }
         }
 
         let filteredTransactions = transactions.filter(transaction =>
@@ -220,12 +241,14 @@ class DashboardScreen extends React.Component {
         const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
 
         user.accountList.forEach(account => {
-            account.transactionList.transactionList.forEach(transaction => {
-                transactions.push({
-                    name: transaction.vendor,
-                    amount: transaction.amount
+            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                account.transactionList.transactionList.forEach(transaction => {
+                    transactions.push({
+                        name: transaction.vendor,
+                        amount: transaction.amount
+                    })
                 })
-            })
+            }
         });
 
         return (
@@ -270,6 +293,19 @@ class DashboardScreen extends React.Component {
                             <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'} />
                         </TouchableOpacity>
                     </View>
+
+                    <DropDownPicker
+                        open={dropdownOpen}
+                        value={selectedAccount}
+                        items={accounts}
+                        setOpen={item => this.setState({dropdownOpen: item})}
+                        setValue={(callback) => this.setState(state => ({ selectedAccount: callback(state.selectedAccount) }))}
+                        onChangeItem={item => this.setState({selectedAccount: item.value})}
+                        defaultValue={selectedAccount}
+                        style={styles.accountSelector}
+                        textStyle={{color: '#FFFFFF'}}
+                        dropDownContainerStyle={styles.accountSelector}
+                    />
 
                     <View style={styles.lineChartContainer}>
                         <View style={styles.summaryHeader}>
@@ -355,7 +391,7 @@ class DashboardScreen extends React.Component {
                             <Text style={styles.summaryButtonText}>View all transactions</Text>
                         </TouchableOpacity>
                     </View>
-                 
+
                     <View style={styles.upcomingOverdrafts}>
                         <View style={styles.upcomingOverdraftsHeader}>
                             <Text style={styles.upcomingOverdraftsTitle}>Upcoming Overdrafts</Text>
@@ -370,19 +406,18 @@ class DashboardScreen extends React.Component {
                                 </View>
                             ))}
                         </View>
+                        <TouchableOpacity
+                            style={styles.summaryButton}
+                            onPress={() => {
+                                this.props.navigation.navigate('Overdrafts');
+                            }}
+                        >
+                            <Text style={styles.summaryButtonText}>View all Overdrafts</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {creditCard ? <View style={styles.upcomingPayment}>
-                        <View style={styles.upcomingPaymentHeader}>
-                            <Text style={styles.upcomingPaymentTitle}>Upcoming Card Payment</Text>
-                        </View>
-
-                        <View style={styles.upcomingPaymentDetails}>
-                            <Text style={styles.paymentText}>{creditCard.name}</Text>
-                            {/*//TODO: The account on the backend doesn't have a due date field*/}
-                            <Text style={styles.paymentText}>{'N/A'}</Text>
-                            <Text style={styles.paymentText}>${creditCard.balance}</Text>
-                        </View>
+                       
                     </View> : undefined}
                 </ScrollView>
             </RNLinearGradient>
@@ -404,7 +439,7 @@ const truncateText = (text) => {
 const TransactionComponent = (transaction) => {
     return (
         <View style={styles.transaction}>
-           
+
             <View style={styles.transactionData}>
                 <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
                 <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
@@ -549,8 +584,11 @@ const styles = StyleSheet.create({
 
 
     // Authored by Hadi Ghaddar from line(s) 557 - 796
-
-
+    accountSelector: {
+        backgroundColor: '#181818',
+        width: '80%',
+        marginLeft: '10%'
+    },
 
     weeklyView: {
         width: '100%',

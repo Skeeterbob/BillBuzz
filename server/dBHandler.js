@@ -27,6 +27,27 @@ class DBHandler {
 
     // Method to update a user
     // Authored by Henry Winczner from line(s) 36 - 45
+
+
+
+    // Authored by Henry Winczner from line(s) 36 - 51
+
+
+    async updateThreshold(email, overdraftAlertThreshold) {
+        try {
+            // Update the overdraft alert threshold for the user with the given email
+            const result = await this.#usersCollection.updateOne(
+                { email: email }, // if email is encrypted, use encryptedEmail here
+                { $set: { overdraftThreshold: overdraftAlertThreshold } }
+            );
+
+            return result;
+        } catch (error) {
+            console.error("Error updating overdraft alert threshold in database:", error);
+            throw error;
+        }
+    }
+
     async updateUserPassword(user) {
         const updated = await this.#usersCollection.updateOne(
             { _id: user._id },
@@ -91,7 +112,7 @@ class DBHandler {
             //Get key from email in user class
             let id = await this.#getKeyId(email); //Bryan Hodgins
             id = id['key']; //Bryan Hodgins
-    //Lines 94-96 by Raigene (commit #9bc0383)
+            //Lines 94-96 by Raigene (commit #9bc0383)
             if (id == null) {
                 console.log('User does not exist');
                 return false;
@@ -147,7 +168,7 @@ class DBHandler {
             id = id['key'];
             if (id != null) {
                 const encryptedEmail = await this.#encryption.encryptString(email, id);
-                return await this.#usersCollection.deleteOne({email: encryptedEmail});
+                return await this.#usersCollection.deleteOne({ email: encryptedEmail });
             } else {
                 console.log('user does not exist');
                 return null;
@@ -333,6 +354,7 @@ class Encryption {
 
         //Create and return a new user with all properties encrypted
         return {
+            overdraftThreshold: await this.encryptString(user.getOverdraftThreshold(), id),
             email: await this.encryptString(user.getEmail(), id),
             password: await this.encryptString(user.getPassword(), id),
             firstName: await this.encryptString(user.getFirstName(), id),
@@ -395,6 +417,7 @@ class Encryption {
         }
         //Create and return a new user with all properties decrypted
         return new User({
+            overdraftThreshold: user['overdraftThreshold'] ? await this.decryptString(user['overdraftThreshold'],id) : '',
             email: await this.decryptString(user['email'], id),
             password: await this.decryptString(user['password'], id),
             firstName: await this.decryptString(user['firstName'], id),

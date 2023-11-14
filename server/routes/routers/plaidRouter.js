@@ -1,27 +1,31 @@
 import express from 'express';
 import { User } from '../../objectPack.js'
+<<<<<<< HEAD
 import {dbHandler, plaidHandler} from "../../handlers.js";
 import { Queue } from '../../queueHandler.js'
+=======
+import { dbHandler, plaidHandler } from "../../handlers.js";
+>>>>>>> a46591467a364dfcbca87d89f3f41cbde12c1617
 
 const plaidRouter = express.Router();
 const queue = new Queue();
 queue.init();
 
-plaidRouter.get('/', (req, res)=>{
+plaidRouter.get('/', (req, res) => {
 
 });
 
 // This route takes a unique userId from the front-end and sends a request to
 // the plaid API to generate a link token and return the response to the
 // front-end
-plaidRouter.post('/getLinkToken', async(req,res)=>{
-    try{
+plaidRouter.post('/getLinkToken', async (req, res) => {
+    try {
         const linkToken = await plaidHandler.linkAccount(req.body.userId);
         //sends response to frontend
         res.json(linkToken);
-    }catch(error){
+    } catch (error) {
         console.error('Link Account Error!:', error);
-        res.status(500).json({error:'Server Error'});
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 
@@ -31,11 +35,11 @@ plaidRouter.post('/getLinkToken', async(req,res)=>{
 // and return the new user data as well. The front-end will be responsible for
 // getting account details from the user and updating the user if there are
 // changes made to the account details such as account name.
-plaidRouter.post('/getAccessToken', async (req,res) => {
+plaidRouter.post('/getAccessToken', async (req, res) => {
     const publicToken = req.body.publicToken;
     const email = req.body.email;
     if (!publicToken || !email) {
-        return res.status(400).send({"error": 'email and publicToken fields are required', success: false});
+        return res.status(400).send({ "error": 'email and publicToken fields are required', success: false });
     }
 
     try {
@@ -58,7 +62,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         for (const account of user.getAccountList()) {
             for (const plaidAccount of accounts) {
                 if (account.getName() === plaidAccount['name']) {
-                    return res.status(200).json({error: 'Account already exists', success: false});
+                    return res.status(200).json({ error: 'Account already exists', success: false });
                 }
             }
         }
@@ -73,7 +77,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         for (const account of accounts) {
             let newAccount = {
                 id: account['account_id'],
-                name: account['name'],
+                name: account['name'] === 'Checking' || account['name'] === 'Saving' ? account['official_name'] : account['name'],
                 balance: account['balances']['current'],
                 transactionList: {
                     transactionList: [],
@@ -103,18 +107,18 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         }
 
         await dbHandler.updateUser(newUserData.email, new User(newUserData))
-        res.status(200).json({success: true, user: newUserData});
+        res.status(200).json({ success: true, user: newUserData });
     }
     catch (error) {
         // handle error
-        res.status(500).json({success: false});
+        res.status(500).json({ success: false });
         console.log(error);
     }
 });
 
 // Bryan Hodgins originally authored this endpoint (I think)
 // Authored by Raigene Cook from line(s) 106 - 119
-plaidRouter.post('/getTransactions', async (req,res) => {
+plaidRouter.post('/getTransactions', async (req, res) => {
     const accessToken = req.body.accessToken;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
@@ -138,10 +142,10 @@ plaidRouter.post('/getTransactions', async (req,res) => {
 
 
 
-plaidRouter.post('/getrecurringTransactions', async (req,res) => {
+plaidRouter.post('/getrecurringTransactions', async (req, res) => {
     const accessToken = req.body.accessToken;
     if (!accessToken) {
-        return res.status(400).send({error: 'Access token required!'});
+        return res.status(400).send({ error: 'Access token required!' });
     }
 
     try {
@@ -171,18 +175,18 @@ plaidRouter.post('/getrecurringTransactions', async (req,res) => {
             };
         });
 
-        res.status(200).json({transactions: recurringTransactions});
+        res.status(200).json({ transactions: recurringTransactions });
     }
     catch (error) {
         // handle error for getRecurringTransactions
         console.error('Retrieving Recurring Transactions error:', error);
-        return res.status(500).send({error: 'Unknown error!'});
+        return res.status(500).send({ error: 'Unknown error!' });
     }
 });
 
 //method to get sync transactions from plaid to the database
 // Authored by Raigene Cook from line(s) 173 - 187
-plaidRouter.post('/syncTransactions', async (req,res) => {
+plaidRouter.post('/syncTransactions', async (req, res) => {
     const userId = req.body.userId;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
@@ -212,11 +216,11 @@ plaidRouter.post('/removeAccount', async (req, res) => {
     const email = req.body.email;
 
     if (!accessToken) {
-        return res.status(400).json({error: 'Access token is required'});
+        return res.status(400).json({ error: 'Access token is required' });
     }
 
     if (!email) {
-        return res.status(400).json({error: 'User email is required'});
+        return res.status(400).json({ error: 'User email is required' });
     }
 
     try {
@@ -227,13 +231,93 @@ plaidRouter.post('/removeAccount', async (req, res) => {
             newUserData.accountList = newUserData.accountList.filter(account => account.accessToken !== accessToken);
 
             await dbHandler.updateUser(newUserData.email, new User(newUserData))
-            res.status(200).json({removed: true, user: newUserData});
-        }else {
-            res.status(500).json({error: 'Failed to unlink account', removed: false});
+            res.status(200).json({ removed: true, user: newUserData });
+        } else {
+            res.status(500).json({ error: 'Failed to unlink account', removed: false });
         }
     } catch (error) {
-        res.status(500).json({error: 'Unknown error while unlinking account', removed: false});
+        res.status(500).json({ error: 'Unknown error while unlinking account', removed: false });
     }
 });
 
-export {plaidRouter};
+plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
+    const accessToken = req.body.accessToken;
+    if (!accessToken) {
+        return res.status(400).send({ error: 'Access token required' });
+    }
+
+    try {
+        // Log to see if we have the accessToken
+        console.log('Access token:', accessToken);
+
+        // Get the current balance of the user's account
+        const balanceResponse = await plaidHandler.getAccountBalance(accessToken);
+
+        console.log(balanceResponse);
+
+        const currentBalance = balanceResponse.accounts[0].balances.available;
+
+        // Estimate upcoming transactions or calculate scheduled payments, etc.
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+
+        // Get transactions for the last 30 days to predict upcoming transactions
+        const response = await plaidHandler.getTransactions(accessToken, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+
+        // Log the transactions response
+        console.log('Transactions response:', response);
+
+        const transactions = response.transactions;
+
+        // Log the transactions
+        console.log('Transactions:', transactions);
+
+        // Predict upcoming transactions (simplified example)
+        const predictedOutgoing = transactions.reduce((total, transaction) => {
+            // Log each transaction amount
+            console.log('Transaction amount:', transaction.amount);
+            if (transaction.amount < 0) {
+                total += Math.abs(transaction.amount);
+            }
+            return total;
+        }, 0);
+
+        // Log the predicted outgoing
+        console.log('Predicted outgoing:', predictedOutgoing);
+
+        const predictedBalance = currentBalance - predictedOutgoing;
+
+        // Log the predicted balance
+        console.log('Predicted balance:', predictedBalance);
+
+        if (predictedBalance < 0) {
+            return res.status(200).json({
+                isAtRisk: true,
+                overdraftAmount: Math.abs(predictedBalance),
+                message: 'You are at risk of overdrafting your account!'
+            });
+        } else {
+            return res.status(200).json({
+                isAtRisk: false,
+                message: 'Your account is not at risk of overdraft.'
+            });
+        }
+    } catch (error) {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Error data:', error.response.data);
+            console.error('Status code:', error.response.status);
+            console.error('Headers:', error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('Error request:', error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error message:', error.message);
+        }
+        console.error('Error config:', error.config);
+    }
+});
+export { plaidRouter };
