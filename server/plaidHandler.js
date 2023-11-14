@@ -17,7 +17,7 @@ class PlaidHandler {
         try{
         //create the endpoints for authentication
         const configuration = new Configuration({
-            basePath: PlaidEnvironments.sandbox,
+            basePath: PlaidEnvironments.development,
             baseOptions: {
                 headers: {
                     'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
@@ -53,7 +53,6 @@ class PlaidHandler {
             if(!userId){
             throw new Error('Must enter Access Token or institution ID ');
             }
-            console.log(process.env.WEBHOOK_URL);
             //Create link token by providing a unique user id
             // Bryan Hodgins modified the next section (9 lines) as part of debugging.
             const linkAccountResponse = await this.#client.linkTokenCreate({
@@ -256,6 +255,7 @@ class PlaidHandler {
 //            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
             //serverLogAndEmitSocket(`Transactions: ${addedCount} added, ${modifiedCount} modified, ${removedCount} removed`, itemId);
             const url = 'https://onesignal.com/api/v1/notifications';
+            console.log(url);
             const options = {
               method: 'POST',
               headers: {
@@ -264,7 +264,7 @@ class PlaidHandler {
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                included_segments: ['Total Subscriptions'],
+                included_segments: ['All'],
                 app_id: process.env.ONESIGNAL_APP_ID,
                 contents: {en: 'English or Any Language Message', es: 'Spanish Message'},
                 name: 'Plaid Webhook Notification'

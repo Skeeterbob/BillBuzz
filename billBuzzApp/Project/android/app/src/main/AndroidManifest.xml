@@ -21,6 +21,8 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+        <meta-data android:name="com.onesignal.NotificationServiceExtension"
+            android:value="com.onesignal.billbuzz.notifcationextenderservice" />
 <!--        <service-->
 <!--            android:name=".java.MyFirebaseMessagingService"-->
 <!--            android:exported="false">-->
