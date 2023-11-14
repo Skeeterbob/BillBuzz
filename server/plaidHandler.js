@@ -288,11 +288,7 @@ class PlaidHandler {
             serverLogAndEmitSocket(`unhandled webhook type received.`, plaidItemId);
         }
     };
-}
 
-
-
-export {PlaidHandler};
     async getAccountBalance(accessToken, accountIds = []) {
         // Prepare the request object with access_token
         const request = {

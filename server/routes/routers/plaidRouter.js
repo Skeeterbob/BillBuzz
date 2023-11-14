@@ -1,11 +1,7 @@
 import express from 'express';
 import { User } from '../../objectPack.js'
-<<<<<<< HEAD
 import {dbHandler, plaidHandler} from "../../handlers.js";
 import { Queue } from '../../queueHandler.js'
-=======
-import { dbHandler, plaidHandler } from "../../handlers.js";
->>>>>>> a46591467a364dfcbca87d89f3f41cbde12c1617
 
 const plaidRouter = express.Router();
 const queue = new Queue();
