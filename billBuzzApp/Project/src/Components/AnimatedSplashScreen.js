@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, View } from 'react-native';
+import { Modal, View, Text } from 'react-native';
 import LottieView from 'lottie-react-native';
 
 const AnimatedSplashScreen = ({ loaded, backgroundColor, logoWidth, logoHeight }) => {
@@ -38,6 +38,7 @@ const AnimatedSplashScreen = ({ loaded, backgroundColor, logoWidth, logoHeight }
                         height: '50%'
                     }}
                 />
+                <Text style={{ marginTop: 20, fontSize: 23, color: 'white' }}>Loading...</Text>
             </View>
         </Modal>
     );
