@@ -143,7 +143,9 @@ class TransactionScreen extends React.Component {
                     {/* hwinczner */}
                   
                     <View style={styles.filterContainer}>
-                    <TouchableOpacity style={styles.calendarStyles} onPress={this.setOpen}><Text>📅</Text></TouchableOpacity>
+                    <TouchableOpacity style={styles.calendarStyles} onPress={this.setOpen}>
+                        <Icon name={'calendar'} size={32} color={'#d2d2d2'} />
+                    </TouchableOpacity>
                         <TextInput
                             style={styles.filterInput}
                             placeholder="Filter by keyword..."
@@ -155,7 +157,7 @@ class TransactionScreen extends React.Component {
                         <DropDownPicker 
                             items={[
                                 { label: 'Default', value: 'default' },
-                                { label: 'Highest to Lowest Cost', value: 'cost' },
+                                { label: 'Highest to Lowest', value: 'cost' },
                                 { label: 'Alphabetical', value: 'alpha' },
                             ]}
                             defaultValue={this.state.sortBy}
@@ -163,7 +165,7 @@ class TransactionScreen extends React.Component {
                             setOpen={this.toggleDropdown}
                             value={this.state.sortBy}
                             setValue={(callback) => this.setState(state => ({ sortBy: callback(state.sortBy) }))}
-                            containerStyle={{ height: 40 }}
+                            containerStyle={{ height: 50 }}
                             style={styles.filterPicker}
                             itemStyle={{
                                 justifyContent: 'flex-start',
@@ -174,7 +176,6 @@ class TransactionScreen extends React.Component {
 
 
                     </View>
-                    {/* hwinczner */}
                     <Modal
                         animationType='slide'
                         transparent={true}
@@ -359,8 +360,7 @@ const styles = StyleSheet.create({
         marginLeft: 6
     },
     filterPicker: {
-        width: '33%',
-        
+        width: '29%',
         flex: 1,
         backgroundColor: '#eca239',
         color: '#FFFFFF',
