@@ -214,12 +214,12 @@ class OverdraftScreen extends React.Component {
         const overdraftMessage = projectionResult.overdraft ? (
 
             <Text style={styles.warningText}>
-                Projected Overdraft: ${projectionResult.overdraftAmount.toFixed(2)} on {moment(projectionResult.date).format('LL')}
+                Low Balance Alert: ${projectionResult.overdraftAmount.toFixed(2)} on {moment(projectionResult.date).format('LL')}
 
             </Text>
         ) : (
             <Text style={styles.noOverdraftText}>
-                No projected overdraft. Balance is healthy!
+                Balance is healthy!
             </Text>
         );
 
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     noOverdraftText: {
         color: 'green',
         textAlign: 'center',
-        fontSize: 13,
+        fontSize: 16,
     },
     alertThresholdInput: {
         flexDirection: 'row',
