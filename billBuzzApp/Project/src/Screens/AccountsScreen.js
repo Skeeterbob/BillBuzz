@@ -114,8 +114,7 @@ const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transact
             
             <View style={styles.creditCardTop}>
                 <Text style={styles.creditCardNameText}>{name}</Text>
-                <Text style={styles.creditCardNameText}>{names}</Text>
-                
+                                
             </View>
 
             <RNLinearGradient
