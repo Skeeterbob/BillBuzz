@@ -320,7 +320,7 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + "/" + weekDate.getDay() + "/" + weekDate.getFullYear()}</Text>
+                            <Text style={styles.weeklyViewText}>{weekDate.getMonth() + 1 + "/" + weekDate.getDate() + "/" + weekDate.getFullYear()}</Text>
                             </View>
 
                             <TouchableOpacity
@@ -364,8 +364,8 @@ class DashboardScreen extends React.Component {
 
                         <View style={styles.summaryCards}>
                             {filteredTransactions.length === 0 ? (
-                                <View style={styles.noTransactionsText}>
-                                    <Text>No transactions found.</Text>
+                                <View>
+                                    <Text style={styles.noTransactionsText}>No transactions found.</Text>
                                 </View>
                             ) : (
                                 filteredTransactions.slice(0, 3).map((transaction, index) =>
@@ -581,10 +581,6 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginBottom: 8,
     },
-
-
-
-
     // Authored by Hadi Ghaddar from line(s) 557 - 796
     accountSelector: {
         backgroundColor: '#181818',
@@ -822,12 +818,12 @@ const styles = StyleSheet.create({
         flexDirection: 'column'
     },
     noTransactionsText: {
-        color: '#FF4500',  // Orange-red color as an example
+        color: 'red',  // Orange-red color as an example
         fontSize: 16,
         fontWeight: 'normal',
         fontStyle: 'italic',
         textAlign: 'center',
-        paddingTop: 10,
+        
     }
 });
 
