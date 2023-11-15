@@ -135,6 +135,48 @@ plaidRouter.post('/getTransactions', async (req, res) => {
 
 
 
+// plaidRouter.post('/getrecurringTransactions', async (req, res) => {
+//     const accessToken = req.body.accessToken;
+//     if (!accessToken) {
+//         return res.status(400).send({ error: 'Access token required!' });
+//     }
+
+//     try {
+//         const endDate = new Date().toISOString().split('T')[0];
+//         const startDate = new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString().split('T')[0];
+//         const response = await plaidHandler.getRecurringTransactions(accessToken, startDate, endDate);
+//         const transactions = response.transactions;
+
+//         //Group transactions by their name
+//         const groupedByName = transactions.reduce((acc, transaction) => {
+//             (acc[transaction.name] = acc[transaction.name] || []).push(transaction);
+//             return acc;
+//         }, {});
+
+//         //Minimum number of times this transaction has to show to be considered 'recurring'
+//         const minOccurrences = 4;
+//         const potentialRecurring = Object.values(groupedByName).filter(
+//             transactions => transactions.length >= minOccurrences
+//         );
+
+//         const recurringTransactions = potentialRecurring.map(transactionsOfSameName => {
+//             let transaction = transactionsOfSameName[0];
+//             return {
+//                 amount: transaction.amount,
+//                 name: transaction.name,
+//                 vendorName: transaction.merchant_name
+//             };
+//         });
+
+//         res.status(200).json({ transactions: recurringTransactions });
+//     }
+//     catch (error) {
+//         // handle error for getRecurringTransactions
+//         console.error('Retrieving Recurring Transactions error:', error);
+//         return res.status(500).send({ error: 'Unknown error!' });
+//     }
+// });
+
 plaidRouter.post('/getrecurringTransactions', async (req, res) => {
     const accessToken = req.body.accessToken;
     if (!accessToken) {
@@ -148,26 +190,28 @@ plaidRouter.post('/getrecurringTransactions', async (req, res) => {
         const transactions = response.transactions;
 
         //Group transactions by their name
-        const groupedByName = transactions.reduce((acc, transaction) => {
-            (acc[transaction.name] = acc[transaction.name] || []).push(transaction);
+        const groupedByDateAndAmount = transactions.reduce((acc, transaction) => {
+            const date = new Date(transaction.date).toISOString().split('T')[0]; // Extracting just the date part
+            const amountKey = `${date}_${transaction.amount}`; // Creating a unique key combining date and amount
+            (acc[amountKey] = acc[amountKey] || []).push(transaction);
             return acc;
         }, {});
-
-        //Minimum number of times this transaction has to show to be considered 'recurring'
-        const minOccurrences = 4;
-        const potentialRecurring = Object.values(groupedByName).filter(
+        
+        // Minimum number of times a transaction of the same amount has to show to be considered 'recurring'
+        const minOccurrences = 2;
+        const potentialRecurring = Object.values(groupedByDateAndAmount).filter(
             transactions => transactions.length >= minOccurrences
         );
-
-        const recurringTransactions = potentialRecurring.map(transactionsOfSameName => {
-            let transaction = transactionsOfSameName[0];
+        
+        const recurringTransactions = potentialRecurring.map(transactionsOfSameDateAndAmount => {
+            let transaction = transactionsOfSameDateAndAmount[0];
             return {
+                date: transaction.date,
                 amount: transaction.amount,
                 name: transaction.name,
                 vendorName: transaction.merchant_name
             };
         });
-
         res.status(200).json({ transactions: recurringTransactions });
     }
     catch (error) {
@@ -176,6 +220,7 @@ plaidRouter.post('/getrecurringTransactions', async (req, res) => {
         return res.status(500).send({ error: 'Unknown error!' });
     }
 });
+
 
 //method to get sync transactions from plaid to the database
 // Authored by Raigene Cook from line(s) 173 - 187
