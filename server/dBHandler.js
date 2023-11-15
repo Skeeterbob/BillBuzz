@@ -25,24 +25,6 @@ class DBHandler {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
     }
 
-    // Method to update a user
-    async updateUserPassword(user) {
-        const updated = await this.#usersCollection.updateOne(
-            { _id: user._id },
-            { $set: user.toObject() } // Assuming toObject method exists to convert User to plain object
-        );
-        return updated.modifiedCount > 0;
-    }
-
-    // Method to get a user by reset token
-    async getUserByToken(token) {
-        const userDoc = await this.#usersCollection.findOne({ resetPasswordToken: token });
-        if (!userDoc) {
-            return null;
-        }
-        return new User(userDoc); // Assuming User constructor takes a document
-    }
-
     async init() {
         //Create our initial MongoClient based on our connection URL and options
         this.#client = new MongoClient(this.#mongoConnectionURL, {
@@ -88,9 +70,9 @@ class DBHandler {
     async updateUser(email, user) {
         try {
             //Get key from email in user class
-            let id = await this.#getKeyId(email); //Bryan Hodgins
-            id = id['key']; //Bryan Hodgins
-    //Lines 94-96 by Raigene (commit #9bc0383)
+            let id = await this.#getKeyId(user.getEmail());
+            id = id['key'];
+
             if (id == null) {
                 console.log('User does not exist');
                 return false;
@@ -136,6 +118,23 @@ class DBHandler {
         } catch (error) {
             //Throw and log any error we get when trying to get a user from the database
             console.error("Error getting user from database:", error);
+            throw error;
+        }
+    }
+
+    async deleteUser(email) {
+        try {
+            let id = await this.#getKeyId(email);
+            id = id['key'];
+            if (id != null) {
+                const encryptedEmail = await this.#encryption.encryptString(email, id);
+                return await this.#usersCollection.deleteOne({ email: encryptedEmail });
+            } else {
+                console.log('user does not exist');
+                return null;
+            }
+        } catch (error) {
+            console.error("Error deleting user from database:", error);
             throw error;
         }
     }
@@ -315,14 +314,14 @@ class Encryption {
 
         //Create and return a new user with all properties encrypted
         return {
-            email: await this.encryptString(user.getEmail(), id),
-            password: await this.encryptString(user.getPassword(), id),
-            firstName: await this.encryptString(user.getFirstName(), id),
-            lastName: await this.encryptString(user.getLastName(), id),
-            birthday: await this.encryptString(user.getBirthday(), id),
-            phoneNumber: await this.encryptString(user.getPhoneNumber(), id),
-            bankBalance: await this.encryptString(user.getBankBalance().toString(), id),
-            availableCredit: await this.encryptString(user.getAvailableCredit().toString(), id),
+            email: await this.encryptString(user.getEmail(),id),
+            password: await this.encryptString(user.getPassword(),id),
+            firstName: await this.encryptString(user.getFirstName(),id),
+            lastName: await this.encryptString(user.getLastName(),id),
+            birthday: await this.encryptString(user.getBirthday(),id),
+            phoneNumber: await this.encryptString(user.getPhoneNumber(),id),
+            bankBalance: await this.encryptString(user.getBankBalance().toString(),id),
+            availableCredit: await this.encryptString(user.getAvailableCredit().toString(),id),
             accountList: accountList
         };
     }
@@ -377,14 +376,14 @@ class Encryption {
         }
         //Create and return a new user with all properties decrypted
         return new User({
-            email: await this.decryptString(user['email'], id),
-            password: await this.decryptString(user['password'], id),
-            firstName: await this.decryptString(user['firstName'], id),
-            lastName: await this.decryptString(user['lastName'], id),
-            birthday: await this.decryptString(user['birthday'], id),
-            phoneNumber: await this.decryptString(user['phoneNumber'], id),
-            bankBalance: await this.decryptString(user['bankBalance'], id),
-            availableCredit: await this.decryptString(user['availableCredit'], id),
+            email: await this.decryptString(user['email'],id),
+            password: await this.decryptString(user['password'],id),
+            firstName: await this.decryptString(user['firstName'],id),
+            lastName: await this.decryptString(user['lastName'],id),
+            birthday: await this.decryptString(user['birthday'],id),
+            phoneNumber: await this.decryptString(user['phoneNumber'],id),
+            bankBalance: await this.decryptString(user['bankBalance'],id),
+            availableCredit: await this.decryptString(user['availableCredit'],id),
             accountList: accountList
         });
     }

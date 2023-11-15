@@ -14,7 +14,10 @@
  }*/
 
 //class to store and manipulate user data
+
+// This complete file was authored by Bryan Hodgins
 class User {
+    #overdraftThreshold;
     #email;
     #password;
     #firstName;
@@ -25,7 +28,7 @@ class User {
     #availableCredit;
     #accountList = [];
     #variableList = ['email', 'password', 'firstName', 'lastName', 'birthday',
-        'phoneNumber', 'bankBalance', 'availableCredit', 'accountList'];
+        'phoneNumber', 'bankBalance', 'availableCredit', 'accountList', 'overdraftThreshold'];
 
     //needs to pass in a JSON object with all keys for email, password, 
     //firstName, lastName, birthDay, phoneNumber, bankBalance, availableCredit,
@@ -47,6 +50,7 @@ class User {
             })
 
             //assign all the variables to the incoming data
+            this.#overdraftThreshold = data['overdraftThreshold'];
             this.#email = data["email"];
             this.#password = data["password"];
             this.#firstName = data["firstName"];
@@ -61,7 +65,14 @@ class User {
             console.log(err);
         }
     }
-
+    toObject() {
+        return {
+          // map each property of the User instance to a key in the returned object
+          property1: this.property1,
+          property2: this.property2,
+          // ... (and so on for all properties of the User class)
+        };
+      }
     //function to add an account to the account list
     /*addAccount(account) { 
         need to make sure that it is of class account and add it to the 
@@ -111,6 +122,10 @@ class User {
         return newList;
     }
 
+    getOverdraftThreshold () {
+        return this.#overdraftThreshold;
+    }
+
     getFirstName () {
         return this.#firstName;
     }
@@ -154,7 +169,7 @@ class Account {
     #balance;
     #transactionList;
     #accessToken;
-    #variableList = ['id', 'name', 'balance', 'transactionList'];
+    #variableList = ['id', 'name', 'balance', 'transactionList', 'accessToken'];
 
     constructor(data) {
         if (Array.isArray(data)){

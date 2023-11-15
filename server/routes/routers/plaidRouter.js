@@ -1,24 +1,24 @@
 import express from 'express';
 import { User } from '../../objectPack.js'
-import {dbHandler, plaidHandler} from "../../handlers.js";
+import { dbHandler, plaidHandler } from "../../handlers.js";
 
 const plaidRouter = express.Router();
 
-plaidRouter.get('/', (req, res)=>{
+plaidRouter.get('/', (req, res) => {
 
 });
 
 // This route takes a unique userId from the front-end and sends a request to
 // the plaid API to generate a link token and return the response to the
 // front-end
-plaidRouter.post('/getLinkToken', async(req,res)=>{
-    try{
+plaidRouter.post('/getLinkToken', async (req, res) => {
+    try {
         const linkToken = await plaidHandler.linkAccount(req.body.userId);
         //sends response to frontend
         res.json(linkToken);
-    }catch(error){
+    } catch (error) {
         console.error('Link Account Error!:', error);
-        res.status(500).json({error:'Server Error'});
+        res.status(500).json({ error: 'Server Error' });
     }
 });
 
@@ -28,22 +28,38 @@ plaidRouter.post('/getLinkToken', async(req,res)=>{
 // and return the new user data as well. The front-end will be responsible for
 // getting account details from the user and updating the user if there are
 // changes made to the account details such as account name.
-plaidRouter.post('/getAccessToken', async (req,res) => {
+plaidRouter.post('/getAccessToken', async (req, res) => {
     const publicToken = req.body.publicToken;
     const email = req.body.email;
     if (!publicToken || !email) {
-        return res.status(400).send({"error":'email and publicToken fields are required'});
+        return res.status(400).send({ "error": 'email and publicToken fields are required', success: false });
     }
 
     try {
         // send request to plaid API to get the accessToken associated with the
         // new account link.
         // Bryan Hodgins wrote the fir 4 lines here. Everything else was added later.
+
+
+
+
+        // Authored by Hadi Ghaddar from line(s) 50 - 102
+
+
+
         const user = await dbHandler.getUser(email);
         const response = await plaidHandler.completeLink(publicToken);
         const accessToken = response.accessToken;
-
         const accounts = await plaidHandler.getAccounts(accessToken);
+
+        for (const account of user.getAccountList()) {
+            for (const plaidAccount of accounts) {
+                if (account.getName() === plaidAccount['name']) {
+                    return res.status(200).json({ error: 'Account already exists', success: false });
+                }
+            }
+        }
+
         let date = new Date();
         const endDate = date.toLocaleString('en-CA').split(",")[0].toString();
 
@@ -54,7 +70,7 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
         for (const account of accounts) {
             let newAccount = {
                 id: account['account_id'],
-                name: account['name'],
+                name: account['name'] === 'Checking' || account['name'] === 'Saving' ? account['official_name'] : account['name'],
                 balance: account['balances']['current'],
                 transactionList: {
                     transactionList: [],
@@ -83,17 +99,16 @@ plaidRouter.post('/getAccessToken', async (req,res) => {
             newUserData.accountList.push(newAccount);
         }
 
-        await dbHandler.updateUser(newUserData.email, new User(newUserData))
-        res.status(200).json({status: 'success', user: newUserData});
+        await dbHandler.updateUser(newUserData.email, newUserData.email, new User(newUserData))
+        res.status(200).json({ success: true, user: newUserData });
     }
     catch (error) {
         // handle error
-        res.status(500).json({status: 'failure'});
+        res.status(500).json({ success: false });
         console.log(error);
     }
 });
 
-//Lines 98-145 by Raigene (commit #598eda7)
 plaidRouter.post('/getTransactions', async (req,res) => {
     const accessToken = req.body.accessToken;
     const startDate = req.body.startDate;
@@ -109,23 +124,60 @@ plaidRouter.post('/getTransactions', async (req,res) => {
     }
 });
 
-plaidRouter.post('/getrecurringTransactions', async (req,res) => {
+
+
+// Authored by Hadi Ghaddar from line(s) 129 - 169
+
+
+
+
+
+
+plaidRouter.post('/getrecurringTransactions', async (req, res) => {
     const accessToken = req.body.accessToken;
-    const startDate = req.body.startDate;
-    const endDate = req.body.endDate;
+    if (!accessToken) {
+        return res.status(400).send({ error: 'Access token required!' });
+    }
+
     try {
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date(new Date().setMonth(new Date().getMonth() - 6)).toISOString().split('T')[0];
         const response = await plaidHandler.getRecurringTransactions(accessToken, startDate, endDate);
-        res.json(response);
+        const transactions = response.transactions;
+
+        //Group transactions by their name
+        const groupedByName = transactions.reduce((acc, transaction) => {
+            (acc[transaction.name] = acc[transaction.name] || []).push(transaction);
+            return acc;
+        }, {});
+
+        //Minimum number of times this transaction has to show to be considered 'recurring'
+        const minOccurrences = 4;
+        const potentialRecurring = Object.values(groupedByName).filter(
+            transactions => transactions.length >= minOccurrences
+        );
+
+        const recurringTransactions = potentialRecurring.map(transactionsOfSameName => {
+            let transaction = transactionsOfSameName[0];
+            return {
+                amount: transaction.amount,
+                name: transaction.name,
+                vendorName: transaction.merchant_name
+            };
+        });
+
+        res.status(200).json({ transactions: recurringTransactions });
     }
     catch (error) {
         // handle error for getRecurringTransactions
-        console.error('Retreving Recurring Transactions error:', error);
-        throw error;
+        console.error('Retrieving Recurring Transactions error:', error);
+        return res.status(500).send({ error: 'Unknown error!' });
     }
 });
 
 //method to get sync transactions from plaid to the database
-plaidRouter.post('/syncTransactions', async (req,res) => {
+// Authored by Raigene Cook from line(s) 173 - 187
+plaidRouter.post('/syncTransactions', async (req, res) => {
     const userId = req.body.userId;
     const startDate = req.body.startDate;
     const endDate = req.body.endDate;
@@ -204,4 +256,121 @@ plaidRouter.post('/getCreditCardRecurringTransactions', async (req,res) => {
     }
 });
 
-export {plaidRouter};
+
+
+// Authored by Hadi Ghaddar from line(s) 196 - 227
+
+
+
+
+
+plaidRouter.post('/removeAccount', async (req, res) => {
+    const accessToken = req.body.accessToken;
+    const email = req.body.email;
+
+    if (!accessToken) {
+        return res.status(400).json({ error: 'Access token is required' });
+    }
+
+    if (!email) {
+        return res.status(400).json({ error: 'User email is required' });
+    }
+
+    try {
+        const user = await dbHandler.getUser(email);
+        const response = await plaidHandler.deleteAccount(accessToken);
+        if (response.data.request_id) {
+            let newUserData = JSON.parse(user.toJSONString());
+            newUserData.accountList = newUserData.accountList.filter(account => account.accessToken !== accessToken);
+
+            await dbHandler.updateUser(newUserData.email, new User(newUserData))
+            res.status(200).json({ removed: true, user: newUserData });
+        } else {
+            res.status(500).json({ error: 'Failed to unlink account', removed: false });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Unknown error while unlinking account', removed: false });
+    }
+});
+
+plaidRouter.post('/checkOverdraftRisk', async (req, res) => {
+    const accessToken = req.body.accessToken;
+    if (!accessToken) {
+        return res.status(400).send({ error: 'Access token required' });
+    }
+
+    try {
+        // Log to see if we have the accessToken
+        console.log('Access token:', accessToken);
+
+        // Get the current balance of the user's account
+        const balanceResponse = await plaidHandler.getAccountBalance(accessToken);
+
+        console.log(balanceResponse);
+
+        const currentBalance = balanceResponse.accounts[0].balances.available;
+
+        // Estimate upcoming transactions or calculate scheduled payments, etc.
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 30);
+
+        // Get transactions for the last 30 days to predict upcoming transactions
+        const response = await plaidHandler.getTransactions(accessToken, startDate.toISOString().split('T')[0], endDate.toISOString().split('T')[0]);
+
+        // Log the transactions response
+        console.log('Transactions response:', response);
+
+        const transactions = response.transactions;
+
+        // Log the transactions
+        console.log('Transactions:', transactions);
+
+        // Predict upcoming transactions (simplified example)
+        const predictedOutgoing = transactions.reduce((total, transaction) => {
+            // Log each transaction amount
+            console.log('Transaction amount:', transaction.amount);
+            if (transaction.amount < 0) {
+                total += Math.abs(transaction.amount);
+            }
+            return total;
+        }, 0);
+
+        // Log the predicted outgoing
+        console.log('Predicted outgoing:', predictedOutgoing);
+
+        const predictedBalance = currentBalance - predictedOutgoing;
+
+        // Log the predicted balance
+        console.log('Predicted balance:', predictedBalance);
+
+        if (predictedBalance < 0) {
+            return res.status(200).json({
+                isAtRisk: true,
+                overdraftAmount: Math.abs(predictedBalance),
+                message: 'You are at risk of overdrafting your account!'
+            });
+        } else {
+            return res.status(200).json({
+                isAtRisk: false,
+                message: 'Your account is not at risk of overdraft.'
+            });
+        }
+    } catch (error) {
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.error('Error data:', error.response.data);
+            console.error('Status code:', error.response.status);
+            console.error('Headers:', error.response.headers);
+        } else if (error.request) {
+            // The request was made but no response was received
+            console.error('Error request:', error.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Error message:', error.message);
+        }
+        console.error('Error config:', error.config);
+    }
+});
+export { plaidRouter };

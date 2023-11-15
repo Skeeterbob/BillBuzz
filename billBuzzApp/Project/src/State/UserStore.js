@@ -1,5 +1,11 @@
 import {makeObservable, observable, action} from "mobx";
 
+
+
+// Authored by Hadi Ghaddar from line(s) 1 - 65
+
+
+
 class UserStore {
     email = '';
     password = '';
@@ -10,6 +16,8 @@ class UserStore {
     bankBalance = 0;
     availableCredit = 0;
     accountList = [];
+    weeklyData = [];
+    overdraftThreshold = '';
 
     constructor() {
         makeObservable(this, {
@@ -22,8 +30,10 @@ class UserStore {
             bankBalance: observable,
             availableCredit: observable,
             accountList: observable,
+            weeklyData: observable,
+            overdraftThreshold: observable,
             updateUser: action,
-            clearUser: action
+            clearUser: action,
         });
     }
 
@@ -37,6 +47,8 @@ class UserStore {
         this.bankBalance = user.bankBalance;
         this.availableCredit = user.availableCredit;
         this.accountList = user.accountList;
+        this.weeklyData = user.weeklyData;
+        this.overdraftThreshold = user.overdraftThreshold;
     }
 
     clearUser() {
@@ -49,6 +61,8 @@ class UserStore {
         this.bankBalance = 0;
         this.availableCredit = 0;
         this.accountList = [];
+        this.weeklyData = [];
+        this.overdraftThreshold = '';
     }
 }
 

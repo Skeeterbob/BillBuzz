@@ -11,6 +11,8 @@ loginRouter.post('/', async (req, res) => {
 
 // Raigene cook originally authored this, and Bryan Hodgins made some minor debugging tweaks.
 //Lines 12-27 by Raigene (Commit #1dadd9a)
+// Raigene cook originally authored this, and Bryan Hodgins made some minor debugging tweaks.
+//Lines 12-27 by Raigene (Commit #1dadd9a)
 loginRouter.post('/verify', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
@@ -64,81 +66,8 @@ loginRouter.post('/verify/sms', async (req, res) => {
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Error' });
-    }
-
-});
-loginRouter.post('/forgot-password', async (req, res) => {
-    const { email } = req.body;
-
-    if (!email) {
-        return res.status(400).send({ "error": 'Email field is required' });
-    }
-
-    try {
-        const user = await dbHandler.getUser(email);
-        if (!user) {
-            return res.status(404).send({ "error": 'User not found' });
-        }
-
-        // Generate a reset token
-        const token = crypto.randomBytes(20).toString('hex');
-        user.resetPasswordToken = token;
-        user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
-
-        await dbHandler.updateUserPassword(user);
-
-        const link = `${req.protocol}://${req.get(host)}/reset-password/${token}`;
-        // Send an email to the user with the reset link
-        emailHandler.sendMail(
-            email,
-            'billbuzz23@gmail.com',
-            'Reset Your Password',
-            `<div> Here is your password reset link: ${link} </div>`,
-            /*'Here is your password reset link: ...', // The email text should include the password reset link or token*/
-            (error, info) => {
-              if (error) {
-                console.log('Error sending email: ', error);
-                res.status(500).send('Error sending password reset email');
-              } else {
-                console.log('Password reset email sent: ', info.response);
-                res.status(200).send('Password reset email sent');
-              }
-            }
-          );
-
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({ "error": 'Internal server error' });
+        res.status(500).json({error: 'Error'});
     }
 });
 
-// Route to handle the password reset
-loginRouter.post('/reset-password/:token', async (req, res) => {
-    const { token } = req.params;
-    const { password } = req.body;
-
-    if (!token || !password) {
-        return res.status(400).send({ "error": 'Token and password fields are required' });
-    }
-
-    try {
-        const user = await dbHandler.getUserByToken(token);
-        if (!user || user.resetPasswordExpires < Date.now()) {
-            return res.status(404).send({ "error": 'Token is invalid or has expired' });
-        }
-
-        user.password = password;
-        user.resetPasswordToken = undefined;
-        user.resetPasswordExpires = undefined;
-
-        await dbHandler.updateUserPassword(user);
-
-        res.status(200).send({ "message": 'Password successfully reset' });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({ "error": 'Internal server error' });
-    }
-});
-
-export { loginRouter };
+export {loginRouter};

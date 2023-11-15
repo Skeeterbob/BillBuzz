@@ -8,34 +8,35 @@ dotenv.config();
 class PlaidHandler {
     #client;
 
-    constructor(){
+    constructor() {
         this.client = null;
     }
 
     // Function to instantiate the plaid client
     // init  function authored by Raigene Cook
-    async init(){
-        try{
-        //create the endpoints for authentication
-        const configuration = new Configuration({
-            basePath: PlaidEnvironments.sandbox,
-            baseOptions: {
-                headers: {
-                    'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
-                    'PLAID-SECRET': process.env.PLAID_SECRET,
+    // init  function authored by Raigene Cook
+    async init() {
+        try {
+            //create the endpoints for authentication
+            const configuration = new Configuration({
+                basePath: PlaidEnvironments.sandbox,
+                baseOptions: {
+                    headers: {
+                        'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
+                        'PLAID-SECRET': process.env.PLAID_SECRET,
+                    },
                 },
-            },
-        });
-   
-        this.#client = new PlaidApi(configuration);
+            });
 
-        return 'Plaid initilaized successfully';
+            this.#client = new PlaidApi(configuration);
 
-        }catch(error){
+            return 'Plaid initilaized successfully';
+
+        } catch (error) {
             console.error('Plaid initilaization failed:', error);
             throw error;
         }
-   }
+    }
 
    //Method to generate a link token to be used on the front end to 
    //authenticate the Plaid account link interface
@@ -46,30 +47,31 @@ class PlaidHandler {
 
             // makes sure the client exists. Might be able to perform
             // better validation here.
-            if(!this.#client){
+            if (!this.#client) {
                 throw new Error('Plaid is not initialized');
             }
 
             //could add better validation here
-            if(!userId){
-            throw new Error('Must enter Access Token or institution ID ');
+            if (!userId) {
+                throw new Error('Must enter Access Token or institution ID ');
             }
 
             //Create link token by providing a unique user id
             // Bryan Hodgins modified the next section (9 lines) as part of debugging.
+            // Bryan Hodgins modified the next section (9 lines) as part of debugging.
             const linkAccountResponse = await this.#client.linkTokenCreate({
-                user:{
+                user: {
                     client_user_id: userId,
                 },
                 client_name: 'BillBuzz service',
-                products:['auth', 'transactions'],
-                country_codes:['US'],
+                products: ['auth', 'transactions'],
+                country_codes: ['US'],
                 language: 'en',
             });
 
             return linkAccountResponse.data;
-        } 
-        catch(error){
+        }
+        catch (error) {
             console.error('Plaid linkAccount error:', error);
             throw error;
         }
@@ -81,18 +83,20 @@ class PlaidHandler {
             const response = await this.#client.itemPublicTokenExchange({
                 public_token: publicToken,
             });
-            return {accessToken: response.data.access_token,
-                itemId: response.data.item_id}
+            return {
+                accessToken: response.data.access_token,
+                itemId: response.data.item_id
+            }
         }
         catch (error) {
             // handle error using PlaidAPI error codes
-            if(error.response && error.response.data){
+            if (error.response && error.response.data) {
                 const plaidError = error.response.data;
 
-                if(plaidError.INVALID_INPUT === 'Invalid Input'){
-                    return{error:'Invalid input, check your input'};
-                }else{
-                    return{error:'Plaid API error. Please try again.'};
+                if (plaidError.INVALID_INPUT === 'Invalid Input') {
+                    return { error: 'Invalid input, check your input' };
+                } else {
+                    return { error: 'Plaid API error. Please try again.' };
                 }
             }
             console.error('Plaid completeLink error:', error);
@@ -208,7 +212,7 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
             });
             return response.data;
         }
-        catch(error){
+        catch (error) {
             //handle error 
             console.error('Plaid getTransactions error:', error);
             throw error;
@@ -216,15 +220,12 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
     }
 
 //Method to get recurring transactions from plaids API
-// TODO: This does not seem functional. 
     async getRecurringTransactions(accessToken, startDate, endDate){
         try{
             const response = await this.#client.transactionsGet({
                 access_token: accessToken,
                 start_date: startDate,
-                end_date: endDate,
-                count: 500,
-                offset: 0,
+                end_date: endDate
             });
 
             const transactions = response.data.transactions;
@@ -232,67 +233,14 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
 
             return recurringTransactions;
         }
-        catch(error){
+        catch (error) {
             //handle error
             console.error('Plaid getRecurringTransactions error:', error);
             throw error;
         }
     }
 
-    //Method to identify recurring transactions in users debit card transactions
-    // By Raigene Cook
-    async identifyRecurringTransactions(accessToken, startDate, endDate){
-        try{
-            //get transactions from plaid
-            const transactions = await this.getTransactions(accessToken, startDate, endDate);
-            //identify recurring transactions
-            const recurringTransactions = this.findRecurringTransactions(transactions);
-            //return recurring transactions
-            return recurringTransactions;
-        }
-        catch(error){
-            //handle error
-            console.error('Plaid identifyRecurringTransactions error:', error);
-            throw error;
-        }
-    }
-
-    //Method to find recurring transactions in users debit card transactions
-    // By Raigene Cook
-    async findRecurringTransactions(transactions){
-        //create an array to store recurring transactions by the vendor
-        const transactionsByVendor = [];
-
-        //array to store recurring transactions
-        const recurringTransactions = [];
-
-        for (const transaction of transactions){
-            const vendor = transaction.name;
-
-            //Initialize the vendor in the array
-            if(!transactionsByVendor[vendor]){
-                transactionsByVendor[vendor] = [];
-            }
-
-            //check if this transaction has the same vendor as the previous transaction
-            //if it does, add it to the array
-            const similarTransactions = transactionsByVendor[vendor].filter((t) => t.amount === transaction.amount && t.date === transaction.date); 
-        
-            //if there are similar transactions, consider it recurring
-            if(similarTransactions.length > 0){
-                recurringTransactions.push(transaction);
-            }
-
-            //add the transactions to the vendor's transactions
-            transactionsByVendor[vendor].push(transaction);
-        }
-
-        return recurringTransactions;
-
-    }
-
-    //Method to sync plaids transactions to the mongodb database
-    // This also does not seem functional in its current state.
+    //a method to sync transactions from plaid to the database
     async syncTransactions(userId, startDate, endDate, accessToken){
         try{
             //get transactions from plaid
@@ -306,23 +254,22 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
             await dbHandler.updateUser(userId, recurringTransactions);
             
             //return the transactions and recurring transactions
-            return {transactions, recurringTransactions};
+            return { transactions, recurringTransactions };
         }
-        catch(error){
+        catch (error) {
             console.error('Syncing Transactions error:', error);
             throw error;
         }
     }
 
-//Method to delete the plaid account
-    async deleteAccount(accessToken){
-        try{
-            const response = await this.#client.itemRemove({
+    //Method to delete the plaid account
+    async deleteAccount(accessToken) {
+        try {
+            return await this.#client.itemRemove({
                 access_token: accessToken,
             });
-            return response.data;
         }
-        catch(error){
+        catch (error) {
             console.error('Plaid deleteAccount error:', error);
             throw error;
         }
@@ -340,9 +287,44 @@ async getTransactions(accessToken, accountIds, startDate, endDate){
             //error handling
         }
     }
+    async getAccountBalance(accessToken, accountIds = []) {
+        // Prepare the request object with access_token
+        const request = {
+            access_token: accessToken,
+            // Optionally add options if accountIds are provided
+            ...(accountIds.length > 0 && {
+                options: {
+                    account_ids: accountIds, // Array of account IDs you want the balances for
+                },
+            }),
+        };
+    
+        try {
+            const response = await this.#client.accountsBalanceGet(request);
+            // Check if the accounts array is not empty
+            if (!response.data.accounts || response.data.accounts.length === 0) {
+                throw new Error('No accounts found for this access token.');
+            }
+            // You can now return the accounts balance data
+            
+            return response.data;
+        } catch (error) {
+            console.error('Error getting account balance:', error);
+            if (error.response) {
+                // Provide a more detailed error message based on Plaid's error code
+                throw new Error(error.response.data.error_message || 'An error occurred with Plaid API.');
+            } else {
+                // This could be a network error or some other issue
+                throw new Error('Unable to connect to Plaid API.');
+            }
+        }
+    }
+    
+    
+  
 }
 
-export {PlaidHandler};
+export { PlaidHandler };
 
 
 

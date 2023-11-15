@@ -1,41 +1,46 @@
-import React from "react";
+import React, { useEffect, useState } from 'react';
 import { BarChart, LineChart } from 'react-native-chart-kit';
 import { Dimensions, ScrollView } from 'react-native';
-import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
 import { inject, observer } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
+import { SERVER_ENDPOINT } from "@env";
+import { getAllTransactions } from "../utils/Utils";
+import DropDownPicker from 'react-native-dropdown-picker';
+
+// Authored by Henry Winczner from line(s) 1 - 58
+
 
 const upcomingOverdrafts = [
-    {
-        name: 'Utility Bill',
-        dueDate: '10/15/2023',
-        amountDue: 50.00
-    },
-    {
-        name: 'Phone Bill',
-        dueDate: '10/20/2023',
-        amountDue: 30.00
-    },
+ 
     // Add more overdrafts as needed
 ];
 
 class DashboardScreen extends React.Component {
-
+    //hwinczner 
     state = {
-        expanded: false,
-        showTransactions: false,
-        showOverdrafts: false,
-        currentWeek: 0,  // New state to track the current week being displayed
-        weeklyData: [    // Weekly data example, replace with your own data
-            {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{ data: [15, 50, 100, 25, 200, 35, 10] }]
-            },
-            // ... more weeks data
-        ]
+        // ... other state properties
+        weeklyData: [],
+        currentWeek: {},
+        data: [],  // added for transactions
+        chartData: {
+            labels: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            datasets: [{ data: [12, 20, 30, 40, 50, 60, 70] }]
+        },
+        filterText: '',
+        sortBy: 'default',
+        selectedAccount: 'All Accounts',
+        dropdownOpen: false
     };
+
+
+
+    //hwinczner 
+    componentDidMount() {
+        this.compileChart();
+    }
 
     toggleTransactions = () => {
         this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
@@ -44,44 +49,206 @@ class DashboardScreen extends React.Component {
     toggleOverdrafts = () => {
         this.setState(prevState => ({ showOverdrafts: !prevState.showOverdrafts }));
     };
+    // Bryan Hodgins authored the prevWeek() function
     prevWeek = () => {  // Go to the previous week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek - 1 }));
+        let currentWeek = this.state.currentWeek;
+        // if it is the current week view modify the date range to start on sunday
+        if (currentWeek.startDate.getDay() != 0 || currentWeek.endDate == null) {
+            const offset = currentWeek.startDate.getDay();
+            // why is the day reading wrong here?
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - offset - 1);
+            currentWeek.endDate = new Date(currentWeek.startDate);
+            currentWeek.endDate.setDate(currentWeek.startDate.getDate() + 7);
+            currentWeek.endDate.setHours(-4);
+            currentWeek.startDate.setHours(-4);
+            this.setState(() => ({ currentWeek: currentWeek }));
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
+            // TODO: can add in code to change the text on the chart here.
+        }
+        else {
+            currentWeek.startDate.setDate(currentWeek.startDate.getDate() - 7);
+            currentWeek.endDate.setDate(currentWeek.endDate.getDate() - 7);
+            this.setState(() => ({ currentWeek: currentWeek }));
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
+            // TODO: can add in code to change the text on the chart here.
+        }
+    }
+    // Bryan Hodgins authored the nextWeek function
+    nextWeek = () => {  // Go to the next week
+        let currentWeek = this.state.currentWeek;
+        //increase the currentWeek by one week;
+        currentWeek.startDate.setDate(currentWeek.startDate.getDate() + 7);
+        if (currentWeek.endDate != null) {
+            currentWeek.endDate.setDate(currentWeek.endDate.getDate() + 7);
+        }
+        //check to see if we will push the date forward past today's date
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        if (today <= currentWeek.endDate || currentWeek.endDate == null) {
+            currentWeek.endDate = null;
+            currentWeek.startDate.setDate(today.getDate() - 7);
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 0);
+            // TODO: can add in code to change the text on the chart here.
+        }
+        else {
+            this.compileChart(currentWeek.startDate, currentWeek.endDate, 1);
+            // TODO: can add in code to change the text on the chart here.
+        }
+        this.setState(() => ({ currentWeek: currentWeek }));
     }
 
-    nextWeek = () => {  // Go to the next week
-        this.setState(prevState => ({ currentWeek: prevState.currentWeek + 1 }));
-    }
+
+
+    // Authored by Henry Winczner from line(s) 111 - 114
 
     handleToggleExpand = () => {
         this.setState(prevState => ({ expanded: !prevState.expanded }));
     };
 
-    render() {
-        const { currentWeek, weeklyData, expanded } = this.state;
-        const user = this.props.userStore;
-        const transactions = [
-            {
-                name: 'Netflix',
-                amount: 17.99
-            },
-            {
-                name: 'Starbucks',
-                amount: 8.54
-            },
-            {
-                name: 'Hulu',
-                amount: 12.99
+    // function to return chart data.
+    // mode 0 is chart data for the last 7 days.
+    // mode 1 is chart data for a specified week
+    // create new modes as needed.
+    // Bryan Hodgins authored the compileChart function.
+    compileChart = (startDate = null, endDate = null, mode = 0) => {
+        const {selectedAccount} = this.state;
+        const data = {};
+        data['labels'] = []
+        data['datasets'] = [{ data: [] }];
+        const transList = [];
+        let dayList = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        // mode for the last seven days of transactions.
+        if (mode == 0) {
+            const today = new Date();
+            // iterate over days going backwards from today to create labels for chart
+            const offset = 6 - today.getDay();
+            for (let i = 0; i < dayList.length; i++) {
+                let day = today.getDay() - i;
+                if (day < 0) {
+                    day = day + 7;
+                }
+                data['labels'][6 - i] = dayList[day];
+                data['datasets'][0]['data'][i] = 0;
             }
-        ];
-        const creditCard = user.accountList[0] ?? { name: 'TEst Data', balance: 0 };
+            const threshold = new Date(today);
+            threshold.setDate(threshold.getDate() - 7);
+            threshold.setHours(0, 0, 0, 0);
+
+            let accountList = [];
+            for (const account of this.props.userStore.accountList) {
+                if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                    accountList.push(account);
+                }
+            }
+            const transactionList = getAllTransactions({accountList: accountList}, threshold, today);
+            for (const transaction of transactionList) {
+                const date = new Date(transaction.date);
+                if (threshold < date) {
+                    let index = offset + date.getDay() + 1;
+                    if (index > 6) {
+                        index -= 7;
+                    }
+                    data['datasets'][0]['data'][index] += Number(transaction.amount);
+                }
+            }
+            this.setState(() => ({ currentWeek: { startDate: threshold, endDate: null } }))
+        }
+        //mode for standard weekly chart Sunday to Saturday. Requires Two date objects.
+        if (mode == 1) {
+            data['labels'] = dayList;
+            let accountList = [];
+            for (const account of this.props.userStore.accountList) {
+                if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                    accountList.push(account);
+                }
+            }
+            const transactionList = getAllTransactions({accountList: accountList}, startDate, endDate);
+            for (let i = 0; i < dayList.length; i++) {
+                data['datasets'][0]['data'][i] = 0;
+            }
+            for (const transaction of transactionList) {
+                const date = new Date(transaction.date);
+                let index = date.getDay() + 1;
+                if (index > 6) {
+                    index -= 7;
+                }
+                data['datasets'][0]['data'][index] += Number(transaction.amount);
+            }
+        }
+        this.setState(() => ({ chartData: data }));
+    }
+
+
+
+    // Authored by Henry Winczner from line(s) 179 - 213
+
+
+    plaidSuccessUpdate = () => {
+        //Refresh the page when plaid is done updating so we get the new user data
+        this.forceUpdate();
+    }
+
+    render() {
+        const { chartData, currentWeek, selectedAccount, dropdownOpen } = this.state;
+        const weekDate = new Date(currentWeek.startDate)
+        const user = this.props.userStore;
+        const { sortBy } = this.state;
+        let accounts = [{label: 'All Accounts', value: 'All Accounts'}];
+        for (const account of this.props.userStore.accountList) {
+            accounts.push({label: account.name, value: account.name});
+        }
+
+        let accountData = [];
+        for (const account of this.props.userStore.accountList) {
+            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                accountData.push(account);
+            }
+        }
+
+        let transactions = [];
+        for (const account of this.props.userStore.accountList) {
+            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                account.transactionList.transactionList.forEach(value => transactions.push(value))
+            }
+        }
+
+        let filteredTransactions = transactions.filter(transaction =>
+            transaction.subscriptionName.toLowerCase()
+        );
+
+        filteredTransactions.sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            return dateB - dateA;
+        });
+
+        switch (sortBy) {
+            case 'cost':
+                filteredTransactions.sort((a, b) => b.amount - a.amount);
+                break;
+            case 'alpha':
+                filteredTransactions.sort((a, b) => a.subscriptionName.localeCompare(b.subscriptionName));
+                break;
+            default:
+                break;
+        }
+
+
+
+         // Authored by Hadi Ghaddar from line(s) 220 - 250
+
+
+        const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
 
         user.accountList.forEach(account => {
-            account.transactionList.transactionList.forEach(transaction => {
-                transactions.push({
-                    name: transaction.vendor,
-                    amount: transaction.amount
+            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                account.transactionList.transactionList.forEach(transaction => {
+                    transactions.push({
+                        name: transaction.vendor,
+                        amount: transaction.amount
+                    })
                 })
-            })
+            }
         });
 
         return (
@@ -93,7 +260,7 @@ class DashboardScreen extends React.Component {
                 style={{ backgroundColor: '#0B0D10', width: '100%', height: '100%' }}
             >
 
-                <PlaidComponent />
+                <PlaidComponent successUpdate={this.plaidSuccessUpdate} />
 
                 <View style={styles.dashboardButton}>
                     <TouchableOpacity
@@ -104,6 +271,13 @@ class DashboardScreen extends React.Component {
                         <Icon name={'card'} size={32} color={'#000000'} />
                     </TouchableOpacity>
                 </View>
+
+
+
+                 {/*Authored by Henry Winczner from line(s) 259 - 341*/}
+
+
+
 
                 <ScrollView contentContainerStyle={styles.body}>
                     <View style={styles.headerInfo}>
@@ -120,79 +294,94 @@ class DashboardScreen extends React.Component {
                         </TouchableOpacity>
                     </View>
 
+                    <DropDownPicker
+                        open={dropdownOpen}
+                        value={selectedAccount}
+                        items={accounts}
+                        setOpen={item => this.setState({dropdownOpen: item})}
+                        setValue={(callback) => this.setState(state => ({ selectedAccount: callback(state.selectedAccount) }))}
+                        onChangeItem={item => this.setState({selectedAccount: item.value})}
+                        defaultValue={selectedAccount}
+                        style={styles.accountSelector}
+                        textStyle={{color: '#FFFFFF'}}
+                        dropDownContainerStyle={styles.accountSelector}
+                    />
+
                     <View style={styles.lineChartContainer}>
                         <View style={styles.summaryHeader}>
-                            <Text style={styles.lineChartTitle}>Transactions This Week:</Text>
+                            <Text style={styles.lineChartTitle}>Transactions by Week:</Text>
                         </View>
 
                         <View style={styles.weeklyView}>
-                            <TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => { this.prevWeek() }}
+                            >
                                 <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>This Week</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + "/" + weekDate.getDay() + "/" + weekDate.getFullYear()}</Text>
                             </View>
 
-                            <TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => { this.nextWeek() }}
+                            >
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
-                            <BarChart
-                                 data={weeklyData[currentWeek]}
-                                 width={Dimensions.get('window').width - 50} // from react-native
-                                 height={220}
-                                 yAxisLabel="$"
-                                 yAxisSuffix=" "
-                                 yAxisInterval={.5}
-                                 chartConfig={{
-                                     backgroundColor: '#13181d',
-                                     backgroundGradientFrom: '#13181d',
-                                     backgroundGradientTo: '#13181d',
-                                     decimalPlaces: 2, // optional, defaults to 2dp
-                                     color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                                     labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                                     style: {
-                                         borderRadius: 16,
-                                     },
-                                 }}
-                                 style={{
-                                     marginVertical: 8,
-                                     borderRadius: 16,
-                                 }}
-                                 
-                            />
-                        
-                    </View>
+                        <BarChart
+                            data={chartData}
+                            width={Dimensions.get('window').width - 50} // from react-native
+                            height={220}
+                            yAxisLabel="$"
+                            yAxisSuffix=" "
+                            yAxisInterval={.5}
+                            chartConfig={{
+                                backgroundColor: '#13181d',
+                                backgroundGradientFrom: '#13181d',
+                                backgroundGradientTo: '#13181d',
+                                decimalPlaces: 2, // optional, defaults to 2dp
+                                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                style: {
+                                    borderRadius: 16,
+                                },
+                                barPercentage: 0.85,
+                            }}
+                            style={{
+                                marginVertical: 8,
+                                marginRight: 410,  // Add right margin
+                                borderRadius: 16,
+                            }}
 
+                        />
+
+                    </View>
                     <View style={styles.summary}>
                         <View style={styles.summaryHeader}>
-                            <Text style={styles.summaryText}>Summary</Text>
+                            <Text style={styles.summaryText}>Recent Transactions</Text>
                         </View>
 
-                        <View style={styles.summaryDetails}>
-                            <Text style={styles.detailsText}>Total Bank Balance: <Text
-                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
-                            <Text style={styles.detailsText}>Total Available Credit: <Text
-                                style={styles.detailsInfoText}>${user.availableCredit}</Text></Text>
-                            {/*TODO: Figure out what total credit balance is*/}
-                            <Text style={styles.detailsText}>Total Credit Balance: <Text
-                                style={styles.detailsInfoText}>${user.bankBalance}</Text></Text>
-                        </View>
-
-                        <Text style={styles.recentTransactionsText}>Recent Transactions</Text>
                         <View style={styles.summaryCards}>
-                            {transactions.map(transaction => (
-                                <View
-                                    key={transaction.name + '-' + transaction.amount}
-                                    style={styles.summardCard}
-                                >
-                                    <Text style={styles.creditCardText}>{transaction.name}</Text>
-                                    <Text style={styles.creditCardText}>${transaction.amount}</Text>
+                            {filteredTransactions.length === 0 ? (
+                                <View style={styles.noTransactionsText}>
+                                    <Text>No transactions found.</Text>
                                 </View>
-                            ))}
-                        </View>
+                            ) : (
+                                filteredTransactions.slice(0, 3).map((transaction, index) =>
+                                    <TransactionComponent
+                                        key={transaction.name + '-' + Math.random()}
+                                        transaction={transaction}
+                                    />
+                                )
+                            )}
 
+
+
+                            {/*Authored by Hadi Ghaddar from line(s) 348 - 393*/}
+
+
+                        </View>
                         <TouchableOpacity
                             style={styles.summaryButton}
                             onPress={() => {
@@ -217,19 +406,18 @@ class DashboardScreen extends React.Component {
                                 </View>
                             ))}
                         </View>
+                        <TouchableOpacity
+                            style={styles.summaryButton}
+                            onPress={() => {
+                                this.props.navigation.navigate('Overdrafts');
+                            }}
+                        >
+                            <Text style={styles.summaryButtonText}>View all Overdrafts</Text>
+                        </TouchableOpacity>
                     </View>
 
                     {creditCard ? <View style={styles.upcomingPayment}>
-                        <View style={styles.upcomingPaymentHeader}>
-                            <Text style={styles.upcomingPaymentTitle}>Upcoming Card Payment</Text>
-                        </View>
-
-                        <View style={styles.upcomingPaymentDetails}>
-                            <Text style={styles.paymentText}>{creditCard.name}</Text>
-                            {/*//TODO: The account on the backend doesn't have a due date field*/}
-                            <Text style={styles.paymentText}>{'N/A'}</Text>
-                            <Text style={styles.paymentText}>${creditCard.balance}</Text>
-                        </View>
+                       
                     </View> : undefined}
                 </ScrollView>
             </RNLinearGradient>
@@ -239,7 +427,69 @@ class DashboardScreen extends React.Component {
     }
 }
 
+
+
+// Authored by Henry Winczner from line(s) 400 - 548
+
+
+const truncateText = (text) => {
+    return text.length > 25 ? text.slice(0, 25) + '...' : text;
+};
+
+const TransactionComponent = (transaction) => {
+    console.log(JSON.stringify(transaction));
+
+    return (
+        <View style={styles.transaction}>
+
+            <View style={styles.transactionData}>
+                <Text style={{ color: '#f3a111' }}>{truncateText(transaction.transaction.subscriptionName)}</Text>
+                <Text style={{ color: '#f3a111' }}>${transaction.transaction.amount}</Text>
+            </View>
+            <View style={styles.transactionDate}>
+                <Text style={{ color: '#ffffff', fontStyle: 'italic' }}>{formatDate(transaction.transaction.date)}</Text>
+            </View>
+        </View>
+    );
+}
+
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const year = date.getUTCFullYear();
+
+    return `${month}/${day}/${year}`;
+}
+
+
 const styles = StyleSheet.create({
+    recurringBtn: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        padding: 12,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#eca239',
+        marginBottom: 16,
+        shadowColor: '#232323',
+        shadowOffset: {
+            width: 2,
+            height: 2,
+        },
+        shadowOpacity: 0,
+        shadowRadius: 10,
+        elevation: 4,
+    },
+    recurringBtnText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#000000'
+    },
     Text: {
         color: '#FFFFFF',
         fontSize: 16,
@@ -249,6 +499,35 @@ const styles = StyleSheet.create({
         textShadowOffset: { width: -1, height: 1 },
         textShadowRadius: 1,
         padding: 5,
+    },
+    transactionDate: {
+        alignSelf: 'flex-end',
+        fontStyle: 'italic',
+    },
+    transaction: {
+        width: '90%',
+        height: 'auto',
+        borderRadius: 6,
+        backgroundColor: '#212121',
+        display: 'flex',
+        flexDirection: 'column',
+        marginTop: 12,
+        padding: 8
+    },
+    transactionHeader: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between'
+    },
+    transactionData: {
+        width: '100%',
+        height: 'auto',
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginTop: 4
     },
     upcomingOverdrafts: {
         width: '90%',
@@ -302,6 +581,17 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginBottom: 8,
     },
+
+
+
+
+    // Authored by Hadi Ghaddar from line(s) 557 - 796
+    accountSelector: {
+        backgroundColor: '#181818',
+        width: '80%',
+        marginLeft: '10%'
+    },
+
     weeklyView: {
         width: '100%',
         height: 'auto',
@@ -438,9 +728,8 @@ const styles = StyleSheet.create({
     summaryCards: {
         width: '100%',
         height: 'auto',
-        borderColor: '#FFFFFF',
-        borderTopWidth: 2,
-        marginTop: 4
+        marginTop: 4,
+        alignItems: 'center',
     },
     recentTransactionsText: {
         fontWeight: 'bold',
@@ -448,7 +737,8 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginTop: 8,
         marginLeft: 'auto',
-        marginRight: 'auto'
+        marginRight: 'auto',
+
     },
     summardCard: {
         width: '100%',
@@ -530,6 +820,14 @@ const styles = StyleSheet.create({
         height: 'auto',
         display: 'flex',
         flexDirection: 'column'
+    },
+    noTransactionsText: {
+        color: '#FF4500',  // Orange-red color as an example
+        fontSize: 16,
+        fontWeight: 'normal',
+        fontStyle: 'italic',
+        textAlign: 'center',
+        paddingTop: 10,
     }
 });
 

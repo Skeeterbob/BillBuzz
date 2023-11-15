@@ -9,19 +9,210 @@ import {
     Image,
     TextInput,
     TouchableOpacity,
-    ScrollView
+    ScrollView, Alert
 } from "react-native";
 import {inject, observer} from "mobx-react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Icon from "react-native-vector-icons/Ionicons";
+import Logo from '../../assets/images/bee_logo.png';
 
-const profilePicture = 'https://i.pinimg.com/736x/03/4b/de/034bde783ea726b922100c86547831e8.jpg';
+import {SERVER_ENDPOINT} from "@env";
+import Toast from "react-native-toast-message";
+import {TextInputMask} from "react-native-masked-text";
+
+const PHONE_NUMBER_REGEX = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+const EMAIL_REGEX = /^\S+@\S+\.\S+$/;
+
+
+
+// Authored by Hadi Ghaddar from line(s) 1 - 336
+
+
+
+
 
 class ProfileScreen extends React.Component {
 
+    state = {
+        firstName: '',
+        lastName: '',
+        email: '',
+        phoneNumber: '',
+        birthday: '',
+        saving: false
+    };
+
+    componentDidMount() {
+        const user = this.props.userStore;
+        this.setState({
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            birthday: user.birthday
+        });
+    }
+
+    verifyNewNumber = (user) => {
+        fetch(SERVER_ENDPOINT + '/login/verify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: user.email,
+                password: user.password
+            })
+        })
+            .then(result => result.json())
+            .then(user => {
+                this.props.navigation.navigate('SignIn', {
+                    screen: 'VerifyCode',
+                    params: {
+                        email: user.email,
+                        password: user.password,
+                        phoneNumber: user.phoneNumber
+                    }
+                });
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }
+
+    saveData = () => {
+        const user = this.props.userStore;
+        const {firstName, lastName, email, phoneNumber} = this.state;
+        this.setState({saving: true});
+        if (!EMAIL_REGEX.test(email)) {
+            this.showError('Invalid email entered!');
+            this.setState({saving: false});
+            return;
+        }
+
+        if (!PHONE_NUMBER_REGEX.test(phoneNumber) || phoneNumber.length < 14) {
+            this.showError('Invalid phone number entered!');
+            this.setState({saving: false});
+            return;
+        }
+
+        let newUser = {
+            firstName,
+            lastName,
+            email,
+            phoneNumber,
+            password: user.password,
+            birthday: user.birthday,
+            bankBalance: user.bankBalance,
+            availableCredit: user.availableCredit,
+            accountList: user.accountList,
+            overdraftThreshold: user.overdraftThreshold
+        };
+
+        fetch(SERVER_ENDPOINT + '/register/updateUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                user: newUser,
+                email: user.email
+            })
+        })
+            .then(result => result.json())
+            .then(data => {
+                if (this.props.userStore.phoneNumber !== data.phoneNumber) {
+                    this.setState({saving: false});
+                    this.props.userStore.updateUser(data);
+                    this.verifyNewNumber(data);
+                }else {
+                    this.props.userStore.updateUser(data);
+                    this.showSuccess("Updated profile!");
+                    this.setState({saving: false});
+                }
+            })
+            .catch(console.error)
+    };
+
+    canSave = () => {
+        const user = this.props.userStore;
+        const {firstName, lastName, email, phoneNumber} = this.state;
+        return user.firstName !== firstName || user.lastName !== lastName || user.email !== email || user.phoneNumber !== phoneNumber;
+    }
+
+    showError = (message) => {
+        Toast.show({
+            type: 'error',
+            text1: message,
+            position: 'top'
+        });
+    };
+
+    showSuccess = (message) => {
+        Toast.show({
+            type: 'success',
+            text1: message,
+            position: 'top'
+        });
+    };
+
+    deleteAccount = () => {
+        fetch(SERVER_ENDPOINT + '/register/deleteUser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                email: this.props.userStore.email,
+                password: this.props.userStore.password,
+            })
+        })
+            .then(data => data.json())
+            .then(response => {
+                if (response['success']) {
+                    this.props.userStore.clearUser();
+                    AsyncStorage.removeItem('user').then(() => {
+                        this.props.navigation.navigate({
+                            name: 'AppWelcome'
+                        });
+                    });
+                }else {
+                    this.showError("Unable to delete account!");
+                }
+            })
+            .catch(console.error);
+    };
+
+    showDeleteAccount = () => {
+        Alert.alert(
+            'Delete Account',
+            'Are you sure you want to delete your account??',
+            [
+                {
+                    text: 'Cancel',
+                    onPress: undefined,
+                    style: 'cancel',
+                },
+                {
+                    text: 'Delete',
+                    onPress: () => this.deleteAccount()
+                },
+            ],
+            {
+                cancelable: true,
+                onDismiss: undefined
+            }
+        );
+    };
+
     render() {
         const user = this.props.userStore;
-        const date = new Date(user.birthday);
+        const {firstName, lastName, email, phoneNumber, birthday, saving} = this.state;
+        const date = new Date(birthday);
+        const canSave = this.canSave();
 
         return (
             <LinearGradient
@@ -33,14 +224,18 @@ class ProfileScreen extends React.Component {
             >
                 <ScrollView style={styles.body}>
                     <View style={styles.pageHeader}>
-                        <TouchableOpacity style={styles.backButton} onPress={() => this.props.navigation.goBack(null)}>
+                        <TouchableOpacity style={styles.headerButton} onPress={() => this.props.navigation.goBack(null)}>
                             <Icon name={'arrow-back'} size={32} color={'#FFFFFF'} />
+                            <Text style={styles.backText}>Back</Text>
                         </TouchableOpacity>
-                        <Text style={styles.backText}>Back</Text>
+
+                        {canSave && !saving ? <TouchableOpacity style={styles.headerButton} onPress={() => this.saveData()}>
+                            <Text style={styles.saveText}>Save</Text>
+                        </TouchableOpacity> : null}
                     </View>
 
                     <View style={styles.profileIntro}>
-                        <Image style={styles.profileImage} source={{uri: profilePicture}} resizeMode={"cover"}/>
+                        <Image style={styles.profileImage} source={Logo} resizeMode={"cover"}/>
                         <Text style={styles.nameHeading}>
                             {`${user.firstName} ${user.lastName}`}
                         </Text>
@@ -49,10 +244,24 @@ class ProfileScreen extends React.Component {
                     <View style={styles.profileOptions}>
                         <Text style={styles.categoryHeader}>Profile Info</Text>
                         <View style={styles.category}>
-                            <TextInput style={{...styles.dataInput, borderTopWidth: 2}} value={`${user.firstName} ${user.lastName}`} editable={false} />
+                            <TextInput style={{...styles.dataInput, borderTopWidth: 2}} value={firstName} onChangeText={text => this.setState({firstName: text})} />
+                            <TextInput style={styles.dataInput} value={lastName} onChangeText={text => this.setState({lastName: text})} />
                             <TextInput style={styles.dataInput} value={`${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`} editable={false} />
-                            <TextInput style={styles.dataInput} value={user.email} editable={false} />
-                            <TextInput style={styles.dataInput} value={user.phoneNumber} editable={false} />
+                            <TextInput style={styles.dataInput} value={email} onChangeText={text => this.setState({email: text})} />
+                            <TextInputMask
+                                type={'custom'}
+                                options={{
+                                    mask: '(999) 999-9999'
+                                }}
+                                style={styles.dataInput}
+                                onChangeText={text => this.setState({phoneNumber: text})}
+                                value={phoneNumber}
+                                autoCapitalize={'none'}
+                                autoComplete={'off'}
+                                keyboardType={'number-pad'}
+                                textContentType={'telephoneNumber'}
+                                autoFocus={false}
+                            />
                         </View>
 
                         <Text style={styles.categoryHeader}>Legal</Text>
@@ -63,7 +272,11 @@ class ProfileScreen extends React.Component {
 
                         <Text style={styles.categoryHeader}>Account</Text>
                         <View style={styles.category}>
-                            <TouchableOpacity style={{...styles.settingsBtn, borderTopWidth: 2}}><Text style={styles.importantText}>Delete User Account</Text></TouchableOpacity>
+                            <TouchableOpacity style={{...styles.settingsBtn, borderTopWidth: 2}} onPress={() => {
+                                this.showDeleteAccount();
+                            }}>
+                                <Text style={styles.importantText}>Delete User Account</Text>
+                            </TouchableOpacity>
                             <TouchableOpacity style={styles.settingsBtn} onPress={() => {
                                 this.props.userStore.clearUser();
                                 AsyncStorage.removeItem('user').then(() => {
@@ -76,6 +289,8 @@ class ProfileScreen extends React.Component {
                             </TouchableOpacity>
                         </View>
                     </View>
+
+                    <Toast />
                 </ScrollView>
             </LinearGradient>
         );
@@ -178,16 +393,18 @@ const styles = StyleSheet.create({
     pageHeader: {
         width: '100%',
         height: 'auto',
-        paddingLeft: 8,
+        paddingLeft: 16,
+        paddingRight: 16,
         display: 'flex',
         flexDirection: 'row',
-        alignItems: 'center'
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
-    backButton: {
-        width: 40,
+    headerButton: {
+        width: 'auto',
         height: 40,
-
         display: 'flex',
+        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         borderColor: '#F4CE82',
@@ -195,6 +412,11 @@ const styles = StyleSheet.create({
     },
     backText: {
         color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: 'bold'
+    },
+    saveText: {
+        color: '#39cc11',
         fontSize: 16,
         fontWeight: 'bold'
     }

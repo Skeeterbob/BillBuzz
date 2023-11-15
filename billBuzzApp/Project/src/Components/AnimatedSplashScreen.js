@@ -2,6 +2,11 @@ import React from 'react';
 import {Image, Modal, Text, View} from 'react-native';
 import Logo from '../../assets/images/bee_logo.png';
 
+
+
+// Authored by Hadi Ghaddar from line(s) 1 - 35
+
+
 const AnimatedSplashScreen = ({loaded, backgroundColor, logoWidth, logoHeight}) => {
     return (
         <Modal
