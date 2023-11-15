@@ -148,9 +148,14 @@ class DashboardScreen extends React.Component {
                     if (index > 6) {
                         index -= 7;
                     }
-                    data['datasets'][0]['data'][index] += Number(transaction.amount);
+                    // Add only positive amounts to the dataset
+                    const transactionAmount = Number(transaction.amount);
+                    if (transactionAmount > 0) {
+                        data['datasets'][0]['data'][index] += transactionAmount;
+                    }
                 }
             }
+            console.log('Final dataset for graph:', data['datasets'][0]['data']);
             this.setState(() => ({ currentWeek: { startDate: threshold, endDate: null } }))
         }
         //mode for standard weekly chart Sunday to Saturday. Requires Two date objects.

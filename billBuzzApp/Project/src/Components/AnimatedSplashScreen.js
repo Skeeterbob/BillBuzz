@@ -1,32 +1,43 @@
-import React from 'react';
-import {Image, Modal, Text, View} from 'react-native';
-import Logo from '../../assets/images/bee_logo.png';
+import React, { useState, useEffect } from 'react';
+import { Modal, View } from 'react-native';
+import LottieView from 'lottie-react-native';
 
+const AnimatedSplashScreen = ({ loaded, backgroundColor, logoWidth, logoHeight }) => {
+    const [isSplashVisible, setIsSplashVisible] = useState(!loaded);
 
+    useEffect(() => {
+        const frameRate = 60;
+        const animationDuration = 207 / frameRate;
 
-// Authored by Hadi Ghaddar from line(s) 1 - 35
+        const timer = setTimeout(() => {
+            setIsSplashVisible(false);
+        }, animationDuration * 1000); // Convert to milliseconds
 
+        return () => clearTimeout(timer);
+    }, [loaded]);
 
-const AnimatedSplashScreen = ({loaded, backgroundColor, logoWidth, logoHeight}) => {
     return (
         <Modal
-            visible={!loaded}
+            visible={isSplashVisible}
             animationType="fade"
             transparent={false}
         >
-            <View
-                style={{
-                    flex: 1,
-                    width: '100%',
-                    height: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    backgroundColor: backgroundColor
-                }}
-            >
-                <Image source={Logo} style={{width: logoWidth, height: logoHeight}} resizeMode={"contain"}/>
-                <Text style={{fontSize: 42, fontWeight: 'bold', color: '#F4CE82', marginTop: -32}}>BillBuzz</Text>
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: backgroundColor || 'white'
+            }}>
+                <LottieView
+                    source={require('../../assets/animations/animation.json')}
+                    autoPlay
+                    loop={false}
+                    resizeMode="cover"
+                    style={{
+                        width: '50%',
+                        height: '50%'
+                    }}
+                />
             </View>
         </Modal>
     );
