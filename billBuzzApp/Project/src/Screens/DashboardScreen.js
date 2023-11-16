@@ -427,7 +427,7 @@ class DashboardScreen extends React.Component {
 
                         <View style={styles.upcomingOverdraftsDetails}>
 
-                            <View key={uniqueKey}>
+                            <View>
                                 <ProjectionResultComponent
                                 style={styles.overdraftTextContainer}
                                 projectionResult={projectionResult}

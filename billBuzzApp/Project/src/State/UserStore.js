@@ -23,7 +23,6 @@ class UserStore {
         this.projectionResult = projectionResult;
     };
 
-
     constructor() {
         makeObservable(this, {
             projectionResult: observable,
