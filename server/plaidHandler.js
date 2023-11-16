@@ -17,7 +17,7 @@ class PlaidHandler {
         try {
             //create the endpoints for authentication
             const configuration = new Configuration({
-                basePath: PlaidEnvironments.sandbox,
+                basePath: PlaidEnvironments.development,
                 baseOptions: {
                     headers: {
                         'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
@@ -36,6 +36,29 @@ class PlaidHandler {
         }
     }
 
+    async initSandbox() {
+            try {
+                //create the endpoints for authentication
+                const configuration = new Configuration({
+                    basePath: PlaidEnvironments.sandbox,
+                    baseOptions: {
+                        headers: {
+                            'PLAID-CLIENT-ID': process.env.PLAID_CLIENT_ID,
+                            'PLAID-SECRET': process.env.PLAID_SECRET_SANDBOX,
+                        },
+                    },
+                });
+
+                this.#client = new PlaidApi(configuration);
+
+                return 'Plaid initilaized successfully';
+
+            } catch (error) {
+                console.error('Plaid initilaization failed:', error);
+                throw error;
+            }
+        }
+
     //Method to generate a link token to be used on the front end to 
     //authenticate the Plaid account link interface
     //needs a user id (mongoDB id)
@@ -53,7 +76,6 @@ class PlaidHandler {
             if (!userId) {
                 throw new Error('Must enter Access Token or institution ID ');
             }
-
             //Create link token by providing a unique user id
             // Bryan Hodgins modified the next section (9 lines) as part of debugging.
             const linkAccountResponse = await this.#client.linkTokenCreate({
@@ -64,6 +86,7 @@ class PlaidHandler {
                 products: ['auth', 'transactions'],
                 country_codes: ['US'],
                 language: 'en',
+                webhook: process.env.WEBHOOK_URL,
             });
 
             return linkAccountResponse.data;
@@ -180,6 +203,115 @@ class PlaidHandler {
             //error handling
         }
     }
+
+    //Authored by Bryan Hodgins, Source: Plaid docs.
+    async handleItemWebhook(requestBody, io) {
+        const {
+          webhook_code: webhookCode,
+          item_id: plaidItemId,
+          error,
+        } = requestBody;
+      
+        const serverLogAndEmitSocket = (additionalInfo, itemId, errorCode) => {
+          console.log(
+            `WEBHOOK: ITEMS: ${webhookCode}: Plaid item id ${plaidItemId}: ${additionalInfo}`
+          );
+          // use websocket to notify the client that a webhook has been received and handled
+          if (webhookCode) io.emit(webhookCode, { itemId, errorCode });
+        };
+      
+        switch (webhookCode) {
+          case 'WEBHOOK_UPDATE_ACKNOWLEDGED':
+            serverLogAndEmitSocket('is updated', plaidItemId, error);
+            break;
+          case 'ERROR': {
+            itemErrorHandler(plaidItemId, error);
+            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
+            serverLogAndEmitSocket(
+              `ERROR: ${error.error_code}: ${error.error_message}`,
+              itemId,
+              error.error_code
+            );
+            break;
+          }
+          case 'PENDING_EXPIRATION': {
+            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
+            await updateItemStatus(itemId, 'bad');
+            serverLogAndEmitSocket(
+              `user needs to re-enter login credentials`,
+              itemId,
+              error
+            );
+            break;
+          }
+          default:
+            serverLogAndEmitSocket(
+              'unhandled webhook type received.',
+              plaidItemId,
+              error
+            );
+        }
+    };
+
+    //handleTransaction Webhook authored by Bryan Hodgins.
+    async handleTransactionWebhook (requestBody) {
+        const {
+          webhook_code: webhookCode,
+          item_id: plaidItemId,
+        } = requestBody;
+      
+        const serverLogAndEmitSocket = (additionalInfo, itemId) => {
+          console.log(
+            `WEBHOOK: TRANSACTIONS: ${webhookCode}: Plaid_item_id ${plaidItemId}: ${additionalInfo}`
+          );
+          // use websocket to notify the client that a webhook has been received and handled
+          //if (webhookCode) io.emit(webhookCode, { itemId });
+        };
+      
+        switch (webhookCode) {
+          case 'SYNC_UPDATES_AVAILABLE': {
+            // Fired when new transactions data becomes available.
+            // plaidItemId is used to access the plaid item to be updated.
+//            const {
+//              addedCount,
+//              modifiedCount,
+//              removedCount,
+//            } = await updateTransactions(plaidItemId);
+//            const { id: itemId } = await retrieveItemByPlaidItemId(plaidItemId);
+            //serverLogAndEmitSocket(`Transactions: ${addedCount} added, ${modifiedCount} modified, ${removedCount} removed`, itemId);
+            const url = 'https://onesignal.com/api/v1/notifications';
+            console.log(url);
+            const options = {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                Authorization: "Basic " + process.env.ONESIGNAL_API_KEY,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                included_segments: ['All'],
+                app_id: process.env.ONESIGNAL_APP_ID,
+                contents: {en: 'New Transactions Available!', es: 'Spanish Message'},
+                name: 'Plaid Webhook Notification'
+              })
+            };
+
+            fetch(url, options)
+              .then(res => res.json())
+              .then(json => console.log('fetch response', json))
+              .catch(err => console.error('error:' + err));
+            break;
+          }
+          case 'DEFAULT_UPDATE':
+          case 'INITIAL_UPDATE':
+          case 'HISTORICAL_UPDATE':
+            /* ignore - not needed if using sync endpoint + webhook */
+            break;
+          default:
+            serverLogAndEmitSocket(`unhandled webhook type received.`, plaidItemId);
+        }
+    };
+
     async getAccountBalance(accessToken, accountIds = []) {
         // Prepare the request object with access_token
         const request = {

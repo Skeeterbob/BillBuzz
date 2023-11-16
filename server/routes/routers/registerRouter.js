@@ -11,7 +11,7 @@ registerRouter.post('/createUser', async (req, res) => {
         if (req.body.user) {
             let user = new User({...req.body.user});
             const result = await dbHandler.insertUser(user);
-            await twilioHandler.sendSMS('+1' + user.getPhoneNumber());
+            console.log(await twilioHandler.sendSMS('+1' + user.getPhoneNumber()));
             console.log('database result', result);
             res.status(200).json(result);
         }else {
