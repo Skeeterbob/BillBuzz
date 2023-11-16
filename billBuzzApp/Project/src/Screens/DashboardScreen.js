@@ -189,6 +189,11 @@ class DashboardScreen extends React.Component {
         //Refresh the page when plaid is done updating so we get the new user data
         this.forceUpdate();
     }
+    overdraftUpdate = () => {
+        this.forceUpdate();
+    }
+    
+    
 
     render() {
         const { chartData, currentWeek, selectedAccount, dropdownOpen } = this.state;
@@ -407,7 +412,9 @@ class DashboardScreen extends React.Component {
                             <View key={uniqueKey}>
                                 <ProjectionResultComponent
                                 style={styles.overdraftTextContainer}
-                                projectionResult={projectionResult} />
+                                projectionResult={projectionResult}
+                                update={this.overdraftUpdate}
+                                 />
                             </View>
 
                         </View>

@@ -165,6 +165,7 @@ class OverdraftScreen extends React.Component {
         console.log('Overdraft Prediction:', overdraftPrediction);
         this.setState({ projectionResult: overdraftPrediction });
         this.props.userStore.setProjectionResult(overdraftPrediction);
+        
         // if (overdraftPrediction.overdraft) {
         //     const message = overdraftPrediction.withinThreshold
         //         ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
