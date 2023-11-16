@@ -4,24 +4,24 @@ import { Dimensions, ScrollView } from 'react-native';
 import { Platform, StatusBar, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { LinearGradient as RNLinearGradient } from 'react-native-linear-gradient';
 import Icon from "react-native-vector-icons/Ionicons";
-import { inject, observer } from "mobx-react";
+import { inject, observer, autorun } from "mobx-react";
 import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
 import DropDownPicker from 'react-native-dropdown-picker';
+import { ProjectionResultComponent } from '../Screens/OverdraftScreen';
 
 // Authored by Henry Winczner from line(s) 1 - 58
 
 
 const upcomingOverdrafts = [
- 
+
     // Add more overdrafts as needed
 ];
 
 class DashboardScreen extends React.Component {
     //hwinczner 
     state = {
-        // ... other state properties
         weeklyData: [],
         currentWeek: {},
         data: [],  // added for transactions
@@ -32,7 +32,8 @@ class DashboardScreen extends React.Component {
         filterText: '',
         sortBy: 'default',
         selectedAccount: 'All Accounts',
-        dropdownOpen: false
+        dropdownOpen: false,
+        projectionResult: { balanceDetails: [] },
     };
 
 
@@ -40,6 +41,7 @@ class DashboardScreen extends React.Component {
     //hwinczner 
     componentDidMount() {
         this.compileChart();
+       
     }
 
     toggleTransactions = () => {
@@ -111,7 +113,7 @@ class DashboardScreen extends React.Component {
     // create new modes as needed.
     // Bryan Hodgins authored the compileChart function.
     compileChart = (startDate = null, endDate = null, mode = 0) => {
-        const {selectedAccount} = this.state;
+        const { selectedAccount } = this.state;
         const data = {};
         data['labels'] = []
         data['datasets'] = [{ data: [] }];
@@ -140,7 +142,7 @@ class DashboardScreen extends React.Component {
                     accountList.push(account);
                 }
             }
-            const transactionList = getAllTransactions({accountList: accountList}, threshold, today);
+            const transactionList = getAllTransactions({ accountList: accountList }, threshold, today);
             for (const transaction of transactionList) {
                 const date = new Date(transaction.date);
                 if (threshold < date) {
@@ -162,7 +164,7 @@ class DashboardScreen extends React.Component {
                     accountList.push(account);
                 }
             }
-            const transactionList = getAllTransactions({accountList: accountList}, startDate, endDate);
+            const transactionList = getAllTransactions({ accountList: accountList }, startDate, endDate);
             for (let i = 0; i < dayList.length; i++) {
                 data['datasets'][0]['data'][i] = 0;
             }
@@ -193,9 +195,12 @@ class DashboardScreen extends React.Component {
         const weekDate = new Date(currentWeek.startDate)
         const user = this.props.userStore;
         const { sortBy } = this.state;
-        let accounts = [{label: 'All Accounts', value: 'All Accounts'}];
+        const { projectionResult } = this.props.userStore;
+        const uniqueKey = JSON.stringify(projectionResult);
+        
+        let accounts = [{ label: 'All Accounts', value: 'All Accounts' }];
         for (const account of this.props.userStore.accountList) {
-            accounts.push({label: account.name, value: account.name});
+            accounts.push({ label: account.name, value: account.name });
         }
 
         let accountData = [];
@@ -235,7 +240,7 @@ class DashboardScreen extends React.Component {
 
 
 
-         // Authored by Hadi Ghaddar from line(s) 220 - 250
+        // Authored by Hadi Ghaddar from line(s) 220 - 250
 
 
         const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
@@ -274,7 +279,7 @@ class DashboardScreen extends React.Component {
 
 
 
-                 {/*Authored by Henry Winczner from line(s) 259 - 341*/}
+                {/*Authored by Henry Winczner from line(s) 259 - 341*/}
 
 
 
@@ -298,12 +303,12 @@ class DashboardScreen extends React.Component {
                         open={dropdownOpen}
                         value={selectedAccount}
                         items={accounts}
-                        setOpen={item => this.setState({dropdownOpen: item})}
+                        setOpen={item => this.setState({ dropdownOpen: item })}
                         setValue={(callback) => this.setState(state => ({ selectedAccount: callback(state.selectedAccount) }))}
-                        onChangeItem={item => this.setState({selectedAccount: item.value})}
+                        onChangeItem={item => this.setState({ selectedAccount: item.value })}
                         defaultValue={selectedAccount}
                         style={styles.accountSelector}
-                        textStyle={{color: '#FFFFFF'}}
+                        textStyle={{ color: '#FFFFFF' }}
                         dropDownContainerStyle={styles.accountSelector}
                     />
 
@@ -320,7 +325,7 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
 
                             <View>
-                            <Text style={styles.weeklyViewText}>{weekDate.getMonth() + 1 + "/" + weekDate.getDate() + "/" + weekDate.getFullYear()}</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + 1 + "/" + weekDate.getDate() + "/" + weekDate.getFullYear()}</Text>
                             </View>
 
                             <TouchableOpacity
@@ -398,13 +403,13 @@ class DashboardScreen extends React.Component {
                         </View>
 
                         <View style={styles.upcomingOverdraftsDetails}>
-                            {upcomingOverdrafts.map((overdraft, index) => (
-                                <View key={index} style={styles.overdraftTextContainer}>
-                                    <Text style={styles.overdraftText}>{overdraft.name}</Text>
-                                    <Text style={styles.overdraftText}>{overdraft.dueDate}</Text>
-                                    <Text style={styles.overdraftText}>${overdraft.amountDue}</Text>
-                                </View>
-                            ))}
+
+                            <View key={uniqueKey}>
+                                <ProjectionResultComponent
+                                style={styles.overdraftTextContainer}
+                                projectionResult={projectionResult} />
+                            </View>
+
                         </View>
                         <TouchableOpacity
                             style={styles.summaryButton}
@@ -417,7 +422,7 @@ class DashboardScreen extends React.Component {
                     </View>
 
                     {creditCard ? <View style={styles.upcomingPayment}>
-                       
+
                     </View> : undefined}
                 </ScrollView>
             </RNLinearGradient>
@@ -560,7 +565,8 @@ const styles = StyleSheet.create({
     overdraftTextContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        marginBottom: 4
+        marginBottom: 4,
+        alignContent: 'center',
     },
     overdraftText: {
         fontSize: 16,
@@ -823,7 +829,7 @@ const styles = StyleSheet.create({
         fontWeight: 'normal',
         fontStyle: 'italic',
         textAlign: 'center',
-        
+
     }
 });
 

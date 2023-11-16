@@ -18,9 +18,16 @@ class UserStore {
     accountList = [];
     weeklyData = [];
     overdraftThreshold = '';
+    projectionResult = { balanceDetails: [] };
+    setProjectionResult = (projectionResult) => {
+        this.projectionResult = projectionResult;
+    };
+
 
     constructor() {
         makeObservable(this, {
+            projectionResult: observable,
+            setProjectionResult: action,
             email: observable,
             password: observable,
             firstName: observable,
