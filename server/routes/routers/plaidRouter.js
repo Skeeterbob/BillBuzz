@@ -189,22 +189,28 @@ plaidRouter.post('/getrecurringTransactions', async (req, res) => {
         const response = await plaidHandler.getRecurringTransactions(accessToken, startDate, endDate);
         const transactions = response.transactions;
 
+        
         //Group transactions by their name
-        const groupedByDateAndAmount = transactions.reduce((acc, transaction) => {
-            const date = new Date(transaction.date).toISOString().split('T')[0]; // Extracting just the date part
-            const amountKey = `${date}_${transaction.amount}`; // Creating a unique key combining date and amount
-            (acc[amountKey] = acc[amountKey] || []).push(transaction);
+        const groupedByVendorAndAmount = transactions.reduce((acc, transaction) => {
+            // Create a normalized key by concatenating the vendor name with the amount
+            const vendorAmountKey = `${transaction.merchant_name}_${transaction.amount.toFixed(2)}`;
+        
+            // If the key doesn't exist, initialize it with an empty array
+            // Then push the current transaction into the array for that key
+            (acc[vendorAmountKey] = acc[vendorAmountKey] || []).push(transaction);
+        
             return acc;
         }, {});
         
+        
         // Minimum number of times a transaction of the same amount has to show to be considered 'recurring'
         const minOccurrences = 2;
-        const potentialRecurring = Object.values(groupedByDateAndAmount).filter(
+        const potentialRecurring = Object.values(groupedByVendorAndAmount).filter(
             transactions => transactions.length >= minOccurrences
         );
         
-        const recurringTransactions = potentialRecurring.map(transactionsOfSameDateAndAmount => {
-            let transaction = transactionsOfSameDateAndAmount[0];
+        const recurringTransactions = potentialRecurring.map(transactionsOfSameVendorAndAmount => {
+            let transaction = transactionsOfSameVendorAndAmount[0];
             return {
                 date: transaction.date,
                 amount: transaction.amount,

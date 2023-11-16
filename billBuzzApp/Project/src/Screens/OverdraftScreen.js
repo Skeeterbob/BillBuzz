@@ -75,10 +75,8 @@ class OverdraftScreen extends React.Component {
         const numericThreshold = parseFloat(newThreshold);
         if (!isNaN(numericThreshold) && numericThreshold >= 0) {
             this.setState({ overdraftAlertThreshold: numericThreshold.toString() }, () => {
-                // State is updated, now we can check for overdraft
                 const overdraftPrediction = this.calcProjectedBalance();
                 this.checkAndAlertOverdraft();
-                // ... your logic for handling overdraft prediction
             });
         } else {
             alert('Please enter a valid number for the overdraft alert threshold.');
@@ -166,6 +164,8 @@ class OverdraftScreen extends React.Component {
         const overdraftPrediction = this.calcProjectedBalance();
         console.log('Overdraft Prediction:', overdraftPrediction);
         this.setState({ projectionResult: overdraftPrediction });
+        this.props.userStore.setProjectionResult(overdraftPrediction);
+        
         // if (overdraftPrediction.overdraft) {
         //     const message = overdraftPrediction.withinThreshold
         //         ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
@@ -201,7 +201,7 @@ class OverdraftScreen extends React.Component {
             return (
                 <View key={index} style={styles.overdraftContainer}>
                     <Text style={styles.overdraftText}>
-                        After transaction - {moment(detail.date).format('LL')}:
+                        After transaction on {moment(detail.date).format('LL')}:
                     </Text>
                     <Text style={styles.balanceText}>
                         ${detail.balance.toFixed(2)}
@@ -214,12 +214,12 @@ class OverdraftScreen extends React.Component {
         const overdraftMessage = projectionResult.overdraft ? (
 
             <Text style={styles.warningText}>
-                Projected Overdraft: ${projectionResult.overdraftAmount.toFixed(2)} on {moment(projectionResult.date).format('LL')}
+                Low Balance Alert: ${projectionResult.overdraftAmount.toFixed(2)} over threshold: {moment(projectionResult.date).format('LL')}
 
             </Text>
         ) : (
             <Text style={styles.noOverdraftText}>
-                No projected overdraft. Balance is healthy!
+                Balance is healthy!
             </Text>
         );
 
@@ -284,7 +284,8 @@ class OverdraftScreen extends React.Component {
                             keyboardType="numeric"
                         />
                     </View>
-                    {this.renderProjectionResult()}
+                    {this.renderProjectionResult()} 
+                    
                     <Toast />
 
 
@@ -293,6 +294,30 @@ class OverdraftScreen extends React.Component {
         );
     }
 }
+export const ProjectionResultComponent = ({ projectionResult }) => {
+    if (!projectionResult) {
+        return null;
+    }
+    const overdraftMessage = projectionResult.overdraft ? (
+        <View>
+        <Text style={styles.warningTextComp}>
+            Low Balance Alert: ${projectionResult.overdraftAmount.toFixed(2)} over
+        </Text>
+        <Text style={styles.warningTextComp}>
+            Threshold on {moment(projectionResult.date).format('LL')}
+        </Text>
+        </View>
+    ) : (
+        <Text style={styles.noOverdraftTextComp}>
+            No Threshold Alerts
+        </Text>
+    );
+    return (
+        <View style={styles.projectionResult}>
+            {overdraftMessage}
+        </View>
+    );
+};
 
 const styles = StyleSheet.create({
 
@@ -351,10 +376,21 @@ const styles = StyleSheet.create({
         fontSize: 13,
         alignContent: "center"
     },
+    warningTextComp: {
+        color: 'red',
+        fontWeight: 'bold',
+        fontSize: 18,
+        alignContent: "center"
+    },
     noOverdraftText: {
         color: 'green',
         textAlign: 'center',
-        fontSize: 13,
+        fontSize: 16,
+    }, 
+    noOverdraftTextComp: {
+        color: 'green',
+        textAlign: 'center',
+        fontSize: 15,
     },
     alertThresholdInput: {
         flexDirection: 'row',

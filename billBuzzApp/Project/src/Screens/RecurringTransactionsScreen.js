@@ -107,7 +107,7 @@ const TransactionComponent = (transaction) => {
     return (
         <View style={styles.transaction}>
             <View style={styles.transactionData}>
-                <Text style={{color: '#f3a111'}}>{transaction.transaction.name}</Text>
+                <Text style={{color: '#f3a111'}}>{truncateText(transaction.transaction.name)}</Text>
                 <Text style={{color: '#f3a111'}}>${transaction.transaction.amount}</Text>
             </View>
             <View style={styles.transactionDate}>
