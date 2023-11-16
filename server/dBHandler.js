@@ -19,13 +19,15 @@ class DBHandler {
     #client;
     #db;
     #usersCollection; // Added by Bryan Hodgins
-    #idCollection;  // Addedd by Bryan Hodgins
+    #idCollection;  // Added by Bryan Hodgins
 
     constructor(mongoConnectionURL) {
         this.#mongoConnectionURL = !mongoConnectionURL ? process.env.MONGO_CONNECTION : mongoConnectionURL;
     }
 
     // Method to update a user
+    // Authored by Henry Winczner from line(s) 36 - 45
+
 
 
     // Authored by Henry Winczner from line(s) 36 - 51
