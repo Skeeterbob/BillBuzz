@@ -38,7 +38,7 @@ class DashboardScreen extends React.Component {
 
 
 
-    //hwinczner 
+    //hwinczner
     componentDidMount() {
         this.compileChart();
        
@@ -145,14 +145,29 @@ class DashboardScreen extends React.Component {
             const transactionList = getAllTransactions({ accountList: accountList }, threshold, today);
             for (const transaction of transactionList) {
                 const date = new Date(transaction.date);
-                if (threshold < date) {
-                    let index = offset + date.getDay() + 1;
+                let index;
+                // Calculate the index based on mode
+                if (mode === 0 && threshold < date) {
+                    index = offset + date.getDay() + 1;
                     if (index > 6) {
                         index -= 7;
                     }
-                    data['datasets'][0]['data'][index] += Number(transaction.amount);
+                } else if (mode === 1) {
+                    index = date.getDay();
                 }
+
+                // Add transaction amount to the dataset
+                const transactionAmount = Number(transaction.amount);
+                data['datasets'][0]['data'][index] += transactionAmount;
+
+                // Assign color based on whether the transaction is positive or negative
+                data['datasets'][0]['dataWithColor'] = data['datasets'][0]['dataWithColor'] || [];
+                data['datasets'][0]['dataWithColor'][index] = {
+                    value: transactionAmount,
+                    color: transactionAmount > 0 ? 'red' : 'green'
+                };
             }
+            console.log('Final dataset for graph:', data['datasets'][0]['data']);
             this.setState(() => ({ currentWeek: { startDate: threshold, endDate: null } }))
         }
         //mode for standard weekly chart Sunday to Saturday. Requires Two date objects.
@@ -330,7 +345,9 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
 
                             <View>
-                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + 1 + "/" + weekDate.getDate() + "/" + weekDate.getFullYear()}</Text>
+
+                            <Text style={styles.weeklyViewText}>{weekDate.getMonth() + 1 + '/' + weekDate.getDate() + '/' + weekDate.getFullYear() + ' - ' + (currentWeek.endDate ? (currentWeek.endDate.getMonth() + 1 + '/' + currentWeek.endDate.getDate() + '/' + currentWeek.endDate.getFullYear()) : 'Current')
+                            }</Text>
                             </View>
 
                             <TouchableOpacity
@@ -340,18 +357,21 @@ class DashboardScreen extends React.Component {
                             </TouchableOpacity>
                         </View>
                         <BarChart
-                            data={chartData}
-                            width={Dimensions.get('window').width - 50} // from react-native
+                            data={this.state.chartData}
+                            width={Dimensions.get('window').width - 50}
                             height={220}
                             yAxisLabel="$"
-                            yAxisSuffix=" "
-                            yAxisInterval={.5}
+                            yAxisSuffix=""
+                            yAxisInterval={0.5}
                             chartConfig={{
                                 backgroundColor: '#13181d',
                                 backgroundGradientFrom: '#13181d',
                                 backgroundGradientTo: '#13181d',
-                                decimalPlaces: 2, // optional, defaults to 2dp
-                                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                                decimalPlaces: 2,
+                                color: (opacity = 1, index) => {
+                                    const dataValue = this.state.chartData.datasets[0].data[index];
+                                    return dataValue > 0 ? `rgba(255, 0, 0, ${opacity})` : `rgba(255, 252, 127, ${opacity})`;
+                                },
                                 labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
                                 style: {
                                     borderRadius: 16,
@@ -360,10 +380,8 @@ class DashboardScreen extends React.Component {
                             }}
                             style={{
                                 marginVertical: 8,
-                                marginRight: 410,  // Add right margin
                                 borderRadius: 16,
                             }}
-
                         />
 
                     </View>
