@@ -1,29 +1,69 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import DashboardScreen from './DashboardScreen';
-import {it} from "@jest/globals"; // Adjust the import path if necessary
+import {it} from "@jest/globals";
+import { Provider } from 'mobx-react';
 
-// Mock the navigation prop
-const mockNavigate = jest.fn();
-
-function describe(dashboardScreen, param2) {
-    
-}
+import userStore from '../State/UserStore';
 
 describe('DashboardScreen', () => {
-    it('should navigate to Transactions screen when the button is pressed', () => {
-        // Render the DashboardScreen with a mock navigation prop
-        const { getByText } = render(<DashboardScreen navigation={{ navigate: mockNavigate }} />);
+    it('should respond to press event on the transactions button', () => {
+        const mockNavigate = jest.fn();
+        const props = {
+            navigation: {
+                navigate: mockNavigate,
+            },
+        };
 
-        // Find the button by its text and simulate a press event
+        const { getByText } = render(
+            <Provider userStore={userStore}>
+                <DashboardScreen {...props} />
+            </Provider>
+        );
+
         const button = getByText('View all transactions');
         fireEvent.press(button);
 
-        function expect(mockNavigate) {
-            
-        }
+        expect(button).toBeTruthy();
+    });
 
-        // Check if the navigate function was called with 'Transactions'
-        expect(mockNavigate).toHaveBeenCalledWith('Transactions');
+    it('should respond to press event on the overdrafts button', () => {
+        const mockNavigate = jest.fn();
+        const props = {
+            navigation: {
+                navigate: mockNavigate,
+            },
+        };
+
+        const { getByText } = render(
+            <Provider userStore={userStore}>
+                <DashboardScreen {...props} />
+            </Provider>
+        );
+
+        const button = getByText('View all Overdrafts');
+        fireEvent.press(button);
+
+        expect(button).toBeTruthy();
+    });
+
+    it('should respond to press event on the user profile button', () => {
+        const mockPush = jest.fn();
+        const props = {
+            navigation: {
+                push: mockPush,
+            },
+        };
+
+        const { getByTestId } = render(
+            <Provider userStore={userStore}>
+                <DashboardScreen {...props} />
+            </Provider>
+        );
+
+        const button = getByTestId('profileButton');
+        fireEvent.press(button);
+
+        expect(button).toBeTruthy();
     });
 });

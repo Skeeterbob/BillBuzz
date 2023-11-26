@@ -9,7 +9,7 @@ import PlaidComponent from "../Components/PlaidComponent";
 import { SERVER_ENDPOINT } from "@env";
 import { getAllTransactions } from "../utils/Utils";
 import DropDownPicker from 'react-native-dropdown-picker';
-import { ProjectionResultComponent } from '../Screens/OverdraftScreen';
+import { ProjectionResultComponent } from './OverdraftScreen';
 
 // Authored by Henry Winczner from line(s) 1 - 58
 
@@ -314,6 +314,7 @@ class DashboardScreen extends React.Component {
                             onPress={() => {
                                 this.props.navigation.push('Profile');
                             }}
+                            testID="profileButton"
                         >
                             <Icon name={'person-circle-outline'} size={32} color={'#FFFFFF'} />
                         </TouchableOpacity>
