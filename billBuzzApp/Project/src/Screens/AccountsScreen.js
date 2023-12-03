@@ -74,7 +74,7 @@ class AccountsScreen extends React.Component {
                                 balance={account.balance}
                                 amountDue={0}
                                 dueDate={'N/A'}
-                                transactions={account.transactionList.transactionList}
+                                transactions={account.transactionList ? account.transactionList.transactionList : []}
                                 token={account.accessToken}
                                 navigation={this.navigation}
                             />

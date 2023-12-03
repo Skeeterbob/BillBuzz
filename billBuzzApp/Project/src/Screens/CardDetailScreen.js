@@ -9,13 +9,14 @@ import {
     Platform,
     StatusBar,
     TouchableOpacity,
-    Alert
+    Alert, TextInput, Button, Modal
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import CreditCardImage from '../../assets/images/credit_card.png';
 import Icon from "react-native-vector-icons/Ionicons";
 import {inject, observer} from "mobx-react";
 import {SERVER_ENDPOINT} from "@env";
+import Toast from "react-native-toast-message";
 
 
 // Authored by Hadi Ghaddar from line(s) 1 - 137
@@ -24,10 +25,18 @@ import {SERVER_ENDPOINT} from "@env";
 class CardDetailScreen extends React.Component {
 
     cardData = null;
+    state = {
+        editor: false,
+        cardName: ''
+    };
 
     constructor(props) {
         super(props);
         this.cardData = this.props.route.params.cardData;
+    }
+
+    componentDidMount() {
+        this.setState({cardName: this.cardData?.name});
     }
 
     showDeleteAccount = () => {
@@ -76,6 +85,64 @@ class CardDetailScreen extends React.Component {
             .catch(console.error);
     };
 
+    openEditor = () => {
+        this.setState({editor: true});
+    }
+
+    saveDate = () => {
+        const {cardName} = this.state;
+        const user = this.props.userStore;
+        if (cardName !== this.cardData?.name) {
+            let newUser = {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                phoneNumber: user.phoneNumber,
+                password: user.password,
+                birthday: user.birthday,
+                bankBalance: user.bankBalance,
+                availableCredit: user.availableCredit,
+                accountList: [...user.accountList],
+                overdraftThreshold: user.overdraftThreshold
+            };
+
+            newUser.accountList.forEach(item => {
+                if (item.name === this.cardData?.name) {
+                    item.name = cardName;
+                }
+            });
+
+            fetch(SERVER_ENDPOINT + '/register/updateUser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    user: newUser,
+                    email: user.email
+                })
+            })
+                .then(result => result.json())
+                .then(data => {
+                    this.props.userStore.updateUser(data);
+                    this.showSuccess("Updated profile!");
+                    this.setState({editor: false});
+                })
+                .catch(console.error)
+        }else {
+            this.setState({editor: false});
+        }
+    }
+
+    showSuccess = (message) => {
+        Toast.show({
+            type: 'success',
+            text1: message,
+            position: 'top'
+        });
+    };
+
     render() {
         return (
             <LinearGradient
@@ -101,7 +168,15 @@ class CardDetailScreen extends React.Component {
 
                     <ScrollView contentContainerStyle={styles.scrollViewContent}>
                         <ImageBackground source={CreditCardImage} style={styles.creditCard} resizeMode={"stretch"}>
-                            <Text style={styles.creditCardTitle}>{this.cardData.name}</Text>
+                            <TouchableOpacity style={{display: 'flex', flexDirection: 'row'}} onPress={() => {
+                                this.openEditor();
+                            }}>
+                                <Text style={styles.creditCardTitle}>
+                                    {this.state.cardName}&nbsp;
+                                </Text>
+
+                                <Icon name={'pencil'} size={28} color={'#030303'}/>
+                            </TouchableOpacity>
                         </ImageBackground>
 
                         <View style={styles.transactions}>
@@ -131,6 +206,32 @@ class CardDetailScreen extends React.Component {
                         </View>
                     </ScrollView>
                 </SafeAreaView>
+
+                {this.state.editor ? <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={true}
+                    onRequestClose={() => {
+                        this.setState({editor: !this.state.editor});
+                    }}>
+                    <View style={styles.modalView}>
+                        <TextInput
+                            style={styles.editTextInput}
+                            onChangeText={text => this.setState({cardName: text})}
+                            value={this.state.cardName}
+                        />
+
+                        <TouchableOpacity style={styles.editButton} onPress={() => this.saveDate()}>
+                            <Text style={styles.editButtonText}>Save</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.editButton} onPress={() => this.setState({editor: false, cardName: this.cardData?.name})}>
+                            <Text style={styles.editButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal> : null}
+
+                <Toast />
             </LinearGradient>
         );
     }
@@ -331,6 +432,47 @@ const styles = StyleSheet.create({
     recurringBtnText: {
         fontSize: 18,
         fontWeight: 'bold',
+        color: '#000000'
+    },
+    modalView: {
+        width: '100%',
+        height: 'auto',
+        backgroundColor: '#f1f1f1',
+        borderRadius: 8,
+        padding: 8,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    editTextInput: {
+        width: '100%',
+        height: 60,
+        color: '#000000',
+        fontWeight: 'bold',
+        fontSize: 24
+    },
+    editButton: {
+        width: '80%',
+        height: 40,
+        backgroundColor: '#40940a',
+        marginTop: 4,
+        marginBottom: 4,
+        borderRadius: 6,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    editButtonText: {
+        fontWeight: 'bold',
+        fontSize: 18,
         color: '#000000'
     }
 });
