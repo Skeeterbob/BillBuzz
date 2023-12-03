@@ -9,7 +9,9 @@ import {
     Platform,
     StatusBar,
     TouchableOpacity,
-    Alert, TextInput, Button, Modal
+    Alert,
+    TextInput,
+    Modal
 } from "react-native";
 import LinearGradient from 'react-native-linear-gradient';
 import CreditCardImage from '../../assets/images/credit_card.png';
@@ -93,6 +95,8 @@ class CardDetailScreen extends React.Component {
         const {cardName} = this.state;
         const user = this.props.userStore;
         if (cardName !== this.cardData?.name) {
+            let accountList = [...user.accountList];
+
             let newUser = {
                 firstName: user.firstName,
                 lastName: user.lastName,
@@ -102,15 +106,17 @@ class CardDetailScreen extends React.Component {
                 birthday: user.birthday,
                 bankBalance: user.bankBalance,
                 availableCredit: user.availableCredit,
-                accountList: [...user.accountList],
+                accountList: [],
                 overdraftThreshold: user.overdraftThreshold
             };
 
-            newUser.accountList.forEach(item => {
+            accountList.forEach(item => {
                 if (item.name === this.cardData?.name) {
                     item.name = cardName;
                 }
             });
+
+            newUser.accountList = accountList;
 
             fetch(SERVER_ENDPOINT + '/register/updateUser', {
                 method: 'POST',
