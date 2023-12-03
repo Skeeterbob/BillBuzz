@@ -24,6 +24,7 @@ class OverdraftScreen extends React.Component {
         overdraftAlertThreshold: '',
         projectionResult: { balanceDetails: [] },
         saving: false,
+        canSave: false
     };
     saveData = () => {
         const user = this.props.userStore;
@@ -57,7 +58,7 @@ class OverdraftScreen extends React.Component {
             .then(data => {
                 this.props.userStore.updateUser(data);
                 this.showSuccess("Updated Overdraft Threshold!");
-                this.setState({ saving: false });
+                this.setState({ saving: false, canSave: false });
             })
             .catch(console.error)
     };
@@ -67,6 +68,7 @@ class OverdraftScreen extends React.Component {
         return nextMonth.toISOString().split('T')[0]; // Format to YYYY-MM-DD
     };
     setOverdraftAlertThreshold = (newThreshold) => {
+        const user = this.props.userStore;
         if (newThreshold.trim() === "") {
             this.setState({ overdraftAlertThreshold: '' }); // Allow the user to clear the input
             return;
@@ -78,10 +80,13 @@ class OverdraftScreen extends React.Component {
                 const overdraftPrediction = this.calcProjectedBalance();
                 this.checkAndAlertOverdraft();
             });
+
+            if (numericThreshold.toString() !== user.overdraftThreshold) {
+                this.setState({canSave: true});
+            }
         } else {
             alert('Please enter a valid number for the overdraft alert threshold.');
         }
-
     };
     calcBalance = () => {
         let balance = 0.0;
@@ -254,7 +259,7 @@ class OverdraftScreen extends React.Component {
     }
 
     render() {
-        const { overdraftAlertThreshold, saving } = this.state;
+        const { overdraftAlertThreshold, saving, canSave } = this.state;
         console.log(this.props.userStore.overdraftThreshold)
 
         return (
@@ -278,7 +283,7 @@ class OverdraftScreen extends React.Component {
                             <Text style={styles.backText}>Back</Text>
                         </TouchableOpacity>
 
-                        {!saving ? <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ saving: true }, () => this.saveData())}>
+                        {canSave && !saving ? <TouchableOpacity style={styles.headerButton} onPress={() => this.setState({ saving: true }, () => this.saveData())}>
                             <Text style={styles.saveText}>Save</Text>
                         </TouchableOpacity> : null}
                     </View>

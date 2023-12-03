@@ -67,12 +67,13 @@ class ProfileScreen extends React.Component {
         })
             .then(result => result.json())
             .then(user => {
-                this.props.navigation.navigate('SignIn', {
+                this.props.navigation.navigate('AppWelcome', {
                     screen: 'VerifyCode',
                     params: {
                         email: user.email,
                         password: user.password,
-                        phoneNumber: user.phoneNumber
+                        phoneNumber: user.phoneNumber,
+                        profileScreen: true
                     }
                 });
             })
@@ -124,8 +125,8 @@ class ProfileScreen extends React.Component {
             .then(result => result.json())
             .then(data => {
                 if (this.props.userStore.phoneNumber !== data.phoneNumber) {
-                    this.setState({saving: false});
                     this.props.userStore.updateUser(data);
+                    this.setState({saving: false});
                     this.verifyNewNumber(data);
                 }else {
                     this.props.userStore.updateUser(data);

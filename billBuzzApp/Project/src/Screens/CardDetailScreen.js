@@ -122,7 +122,7 @@ class CardDetailScreen extends React.Component {
 
                             {this.cardData.transactions.map(transaction => (
                                 <TransactionCardComponent
-                                    key={`${transaction.name}-${transaction.date}-${transaction.amount}`}
+                                    key={`${transaction.name}-${transaction.date}-${Math.random()}`}
                                     name={transaction.subscriptionName}
                                     date={transaction.date}
                                     amount={transaction.amount}

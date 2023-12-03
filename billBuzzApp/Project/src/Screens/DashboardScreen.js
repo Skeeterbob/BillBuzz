@@ -19,6 +19,75 @@ const upcomingOverdrafts = [
     // Add more overdrafts as needed
 ];
 
+const calcBalance = (user) => {
+    let balance = 0.0;
+    if (user.accountList) {
+        for (const account of user.accountList) {
+            balance += parseFloat(account.balance);
+        }
+    }
+
+    return Math.round(balance * 100) / 100;
+}
+
+const calcProjectedBalance = (user, overdraftAlertThreshold) => {
+    if (!user || !overdraftAlertThreshold) {
+        return 0;
+    }
+
+    let transactions = [];
+    let balanceDetails = [];
+    let projectedBalance = calcBalance(user);
+
+    if (user.accountList) {
+        for (const account of user.accountList) {
+            for (const transaction of account.transactionList.transactionList) {
+                // Clone the transaction and set its date to the next month
+                let predictedTransaction = { ...transaction };
+                let transactionDate = new Date(transaction.date);
+                transactionDate.setMonth(transactionDate.getMonth() + 1); // Move to the next month
+                predictedTransaction.date = transactionDate.toISOString(); // Set new date
+                transactions.push(predictedTransaction);
+            }
+        }
+    }
+
+    // Filter and sort the transactions
+    let filteredTransactions = transactions.filter(transaction => {
+        const transactionAmount = parseFloat(transaction.amount);
+        return transactionAmount >= 0;
+    });
+
+    filteredTransactions.sort((a, b) => {
+        const dateA = new Date(a.date);
+        const dateB = new Date(b.date);
+        return dateA - dateB; // Sorting in ascending order by date
+    });
+
+    // Now use the filtered and sorted transactions for the projection
+    for (const transaction of filteredTransactions) {
+        projectedBalance -= parseFloat(transaction.amount);
+        balanceDetails.push({
+            date: transaction.date,
+            balance: projectedBalance
+        });
+
+        // As soon as projectedBalance falls below the threshold, break the loop and return
+        if (projectedBalance < parseFloat(overdraftAlertThreshold)) {
+            // Ensure that the date and amount are from the transaction that caused the overdraft
+            return {
+                overdraft: true,
+                date: transaction.date, // This should be the date of the overdraft-causing transaction
+                overdraftAmount: Math.abs(projectedBalance - parseFloat(overdraftAlertThreshold)),
+                withinThreshold: projectedBalance < 0,
+                balanceDetails: balanceDetails
+            };
+        }
+    }
+
+    return { overdraft: false, transactions: filteredTransactions, balanceDetails };
+}
+
 class DashboardScreen extends React.Component {
     //hwinczner 
     state = {
@@ -34,15 +103,10 @@ class DashboardScreen extends React.Component {
         selectedAccount: 'All Accounts',
         dropdownOpen: false,
         projectionResult: { balanceDetails: [] },
+        accounts: [],
+        filteredTransactions: [],
+        creditCard: {}
     };
-
-
-
-    //hwinczner
-    componentDidMount() {
-        this.compileChart();
-
-    }
 
     toggleTransactions = () => {
         this.setState(prevState => ({ showTransactions: !prevState.showTransactions }));
@@ -137,11 +201,14 @@ class DashboardScreen extends React.Component {
             threshold.setHours(0, 0, 0, 0);
 
             let accountList = [];
-            for (const account of this.props.userStore.accountList) {
-                if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
-                    accountList.push(account);
+            if (this.props.userStore) {
+                for (const account of this.props.userStore.accountList) {
+                    if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                        accountList.push(account);
+                    }
                 }
             }
+
             const transactionList = getAllTransactions({ accountList: accountList }, threshold, today);
             for (const transaction of transactionList) {
                 const date = new Date(transaction.date);
@@ -174,11 +241,14 @@ class DashboardScreen extends React.Component {
         if (mode == 1) {
             data['labels'] = dayList;
             let accountList = [];
-            for (const account of this.props.userStore.accountList) {
-                if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
-                    accountList.push(account);
+            if (this.props.userStore) {
+                for (const account of this.props.userStore.accountList) {
+                    if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
+                        accountList.push(account);
+                    }
                 }
             }
+
             const transactionList = getAllTransactions({ accountList: accountList }, startDate, endDate);
             for (let i = 0; i < dayList.length; i++) {
                 data['datasets'][0]['data'][i] = 0;
@@ -204,30 +274,17 @@ class DashboardScreen extends React.Component {
         //Refresh the page when plaid is done updating so we get the new user data
         this.forceUpdate();
     }
-    overdraftUpdate = () => {
-        this.forceUpdate();
-    }
 
-
-
-    render() {
-        const { chartData, currentWeek, selectedAccount, dropdownOpen } = this.state;
-        const weekDate = new Date(currentWeek.startDate)
+    componentDidMount() {
         const user = this.props.userStore;
-        const { sortBy } = this.state;
-        const { projectionResult } = this.props.userStore;
-        const uniqueKey = JSON.stringify(projectionResult);
-        
+        const {selectedAccount, sortBy} = this.state;
+        this.compileChart();
+        const overdraftPrediction = calcProjectedBalance(user, user.overdraftThreshold);
+        this.props.userStore.setProjectionResult(overdraftPrediction ? overdraftPrediction : { balanceDetails: [] });
+
         let accounts = [{ label: 'All Accounts', value: 'All Accounts' }];
         for (const account of this.props.userStore.accountList) {
             accounts.push({ label: account.name, value: account.name });
-        }
-
-        let accountData = [];
-        for (const account of this.props.userStore.accountList) {
-            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
-                accountData.push(account);
-            }
         }
 
         let transactions = [];
@@ -258,23 +315,15 @@ class DashboardScreen extends React.Component {
                 break;
         }
 
-
-
-        // Authored by Hadi Ghaddar from line(s) 220 - 250
-
-
         const creditCard = user.accountList[0] ?? { name: 'Test Data', balance: 0 };
+        this.setState({accounts: accounts, filteredTransactions: filteredTransactions, creditCard: creditCard});
+    }
 
-        user.accountList.forEach(account => {
-            if (selectedAccount === 'All Accounts' || selectedAccount === account.name) {
-                account.transactionList.transactionList.forEach(transaction => {
-                    transactions.push({
-                        name: transaction.vendor,
-                        amount: transaction.amount
-                    })
-                })
-            }
-        });
+    render() {
+        const { chartData, currentWeek, selectedAccount, dropdownOpen, accounts, filteredTransactions, creditCard } = this.state;
+        const weekDate = new Date(currentWeek.startDate)
+        const user = this.props.userStore;
+        const { projectionResult } = this.props.userStore;
 
         return (
             <RNLinearGradient
@@ -330,6 +379,7 @@ class DashboardScreen extends React.Component {
                         style={styles.accountSelector}
                         textStyle={{ color: '#FFFFFF' }}
                         dropDownContainerStyle={styles.accountSelector}
+                       listMode={"SCROLLVIEW"}
                     />
 
                     <View style={styles.lineChartContainer}>
@@ -431,7 +481,6 @@ class DashboardScreen extends React.Component {
                                 <ProjectionResultComponent
                                     style={styles.overdraftTextContainer}
                                     projectionResult={projectionResult}
-                                    update={this.overdraftUpdate}
                                 />
                             </View>
 

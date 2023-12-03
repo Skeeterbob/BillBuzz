@@ -172,6 +172,7 @@ class TransactionScreen extends React.Component {
                             }}
                             dropDownStyle={{ backgroundColor: '#212121' }}
                             onChangeItem={(item) => this.setState({ sortBy: item.value })}
+                            listMode="SCROLLVIEW"
                         />
 
 

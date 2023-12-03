@@ -55,12 +55,18 @@ class ConfirmCodeScreen extends React.Component {
                     const email = this.props.route.params.email;
                     const password = this.props.route.params.password;
                     this.getUserData(email, password).then(async userData => {
-                        await AsyncStorage.setItem('user', JSON.stringify({email, password}));
 
-                        this.props.userStore.updateUser(userData);
-                        this.props.navigation.navigate({
-                            name: 'AppMain'
-                        })
+                        if (!this.props.route.params.profileScreen) {
+                            this.props.userStore.updateUser(userData);
+                            await AsyncStorage.setItem('user', JSON.stringify({email, password}));
+                            this.props.navigation.navigate({
+                                name: 'AppMain'
+                            })
+                        }else {
+                            this.props.navigation.navigate('AppMain', {
+                                screen: 'Profile'
+                            })
+                        }
                     });
                 }
             })
