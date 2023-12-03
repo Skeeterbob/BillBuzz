@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 import moment from 'moment'
-import {SERVER_ENDPOINT} from "@env";
+import { SERVER_ENDPOINT } from "@env";
 import Toast from "react-native-toast-message";
 
 class OverdraftScreen extends React.Component {
@@ -27,7 +27,7 @@ class OverdraftScreen extends React.Component {
     };
     saveData = () => {
         const user = this.props.userStore;
-        const {overdraftAlertThreshold} = this.state;
+        const { overdraftAlertThreshold } = this.state;
 
         let newUser = {
             firstName: user.firstName,
@@ -81,7 +81,7 @@ class OverdraftScreen extends React.Component {
         } else {
             alert('Please enter a valid number for the overdraft alert threshold.');
         }
-       
+
     };
     calcBalance = () => {
         let balance = 0.0;
@@ -165,7 +165,7 @@ class OverdraftScreen extends React.Component {
         console.log('Overdraft Prediction:', overdraftPrediction);
         this.setState({ projectionResult: overdraftPrediction });
         this.props.userStore.setProjectionResult(overdraftPrediction);
-        
+
         // if (overdraftPrediction.overdraft) {
         //     const message = overdraftPrediction.withinThreshold
         //         ? `Warning: Projected overdraft of $${overdraftPrediction.overdraftAmount} on ${moment(overdraftPrediction.date).format('LL')}!`
@@ -195,19 +195,33 @@ class OverdraftScreen extends React.Component {
             // Determine if the balance is below the overdraft threshold
             const isOverdraftTransaction = detail.balance < projectionResult.overdraftAlertThreshold;
             // Apply the red color style if the balance is below the overdraft threshold
-            const transactionStyle = isOverdraftTransaction ? styles.overdraftTransaction : styles.transactionDetailText;
-
-
-            return (
-                <View key={index} style={styles.overdraftContainer}>
-                    <Text style={styles.overdraftText}>
-                        After transaction on {moment(detail.date).format('LL')}:
-                    </Text>
-                    <Text style={styles.balanceText}>
-                        ${detail.balance.toFixed(2)}
-                    </Text>
+            if (projectionResult.overdraft) {
+                return (
+                    <View key={index} style={styles.transaction}>
+                    <View style={styles.transactionData}>
+                        <Text style={{ color: 'red' }}>
+                            After transaction on {moment(detail.date).format('LL')}:
+                        </Text>
+                        <Text style={{ color: 'red' }}>
+                            ${detail.balance.toFixed(2)}
+                        </Text>
+                    </View>
                 </View>
-            );
+                )
+            }
+            else
+                return (
+                    <View key={index} style={styles.transaction}>
+                        <View style={styles.transactionData}>
+                            <Text style={{ color: '#f3a111' }}>
+                                After transaction on {moment(detail.date).format('LL')}:
+                            </Text>
+                            <Text style={{ color: '#f3a111' }}>
+                                ${detail.balance.toFixed(2)}
+                            </Text>
+                        </View>
+                    </View>
+                );
         });
 
         // Overdraft message
@@ -223,11 +237,12 @@ class OverdraftScreen extends React.Component {
             </Text>
         );
 
+
         return (
 
             <View style={styles.projectionResult}>
                 {overdraftMessage}
-                <View style={styles.balanceDetails}>
+                <View style={styles.transaction}>
                     {balanceAfterEachTransaction}
                 </View>
             </View>
@@ -284,8 +299,8 @@ class OverdraftScreen extends React.Component {
                             keyboardType="numeric"
                         />
                     </View>
-                    {this.renderProjectionResult()} 
-                    
+                    {this.renderProjectionResult()}
+
                     <Toast />
 
 
@@ -300,12 +315,12 @@ export const ProjectionResultComponent = ({ projectionResult }) => {
     }
     const overdraftMessage = projectionResult.overdraft ? (
         <View>
-        <Text style={styles.warningTextComp}>
-            Low Balance Alert: ${projectionResult.overdraftAmount.toFixed(2)} over
-        </Text>
-        <Text style={styles.warningTextComp}>
-            Threshold on {moment(projectionResult.date).format('LL')}
-        </Text>
+            <Text style={styles.warningTextComp}>
+                Low Balance Alert: ${projectionResult.overdraftAmount.toFixed(2)} over
+            </Text>
+            <Text style={styles.warningTextComp}>
+                Threshold on {moment(projectionResult.date).format('LL')}
+            </Text>
         </View>
     ) : (
         <Text style={styles.noOverdraftTextComp}>
@@ -386,7 +401,7 @@ const styles = StyleSheet.create({
         color: 'green',
         textAlign: 'center',
         fontSize: 16,
-    }, 
+    },
     noOverdraftTextComp: {
         color: 'green',
         textAlign: 'center',
@@ -469,6 +484,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 4
+        
     },
     filterContainer: {
         flexDirection: 'row',

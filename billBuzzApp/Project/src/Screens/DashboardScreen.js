@@ -41,7 +41,7 @@ class DashboardScreen extends React.Component {
     //hwinczner
     componentDidMount() {
         this.compileChart();
-       
+
     }
 
     toggleTransactions = () => {
@@ -207,8 +207,8 @@ class DashboardScreen extends React.Component {
     overdraftUpdate = () => {
         this.forceUpdate();
     }
-    
-    
+
+
 
     render() {
         const { chartData, currentWeek, selectedAccount, dropdownOpen } = this.state;
@@ -346,8 +346,8 @@ class DashboardScreen extends React.Component {
 
                             <View>
 
-                            <Text style={styles.weeklyViewText}>{weekDate.getMonth() + 1 + '/' + weekDate.getDate() + '/' + weekDate.getFullYear() + ' - ' + (currentWeek.endDate ? (currentWeek.endDate.getMonth() + 1 + '/' + currentWeek.endDate.getDate() + '/' + currentWeek.endDate.getFullYear()) : 'Current')
-                            }</Text>
+                                <Text style={styles.weeklyViewText}>{weekDate.getMonth() + 1 + '/' + weekDate.getDate() + '/' + weekDate.getFullYear() + ' - ' + (currentWeek.endDate ? (currentWeek.endDate.getMonth() + 1 + '/' + currentWeek.endDate.getDate() + '/' + currentWeek.endDate.getFullYear()) : 'Current')
+                                }</Text>
                             </View>
 
                             <TouchableOpacity
@@ -356,7 +356,7 @@ class DashboardScreen extends React.Component {
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
-                        <BarChart
+                        <LineChart
                             data={this.state.chartData}
                             width={Dimensions.get('window').width - 50}
                             height={220}
@@ -429,10 +429,10 @@ class DashboardScreen extends React.Component {
 
                             <View>
                                 <ProjectionResultComponent
-                                style={styles.overdraftTextContainer}
-                                projectionResult={projectionResult}
-                                update={this.overdraftUpdate}
-                                 />
+                                    style={styles.overdraftTextContainer}
+                                    projectionResult={projectionResult}
+                                    update={this.overdraftUpdate}
+                                />
                             </View>
 
                         </View>
