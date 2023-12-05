@@ -124,21 +124,12 @@ const CreditCardComponent = ({names, name, balance, amountDue, dueDate, transact
                 end={{x: 1, y: 1}}
             />
             <View style={styles.creditCardBottom}>
-                <Text style={styles.cardDataTitleText}></Text>
-                <View style={{alignItems: 'center'}}>
-                    <Text style={styles.cardDataTitleText}>Payment Date</Text>
-                    <Text style={styles.cardDataText}>{dueDate}</Text>
-                </View>
-
+            
                 <View style={{alignItems: 'center'}}>
                     <Text style={styles.cardDataTitleText}>Card Balance</Text>
                     <Text style={styles.cardDataText}>${balance}</Text>
                 </View>
-
-                <View style={{alignItems: 'center'}}>
-                    <Text style={styles.cardDataTitleText}>Amount Due</Text>
-                    <Text style={styles.cardDataText}>${amountDue}</Text>
-                </View>
+               
             </View>
         </RNLinearGradient>
     </TouchableOpacity>
