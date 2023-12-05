@@ -1,7 +1,7 @@
 # BillBuzz
 A financial management tool that consolidates all accounts for ease of monitoring.
 
-## Server Setup: <br>
+## Setup: <br>
 1) Make sure that Node and NPM are installed. <br>
 2) Navigate to /server directory of the project in terminal. <br>
 3) Run npm install command in terminal. <br>
@@ -21,8 +21,19 @@ A financial management tool that consolidates all accounts for ease of monitorin
 17) Set the server .env file variable QUEUE_COLLECTION to "queuecollection". <br>
 18) Create an account on Plaid.
 19) Request a developer account on Plaid.
-20) 
-OneSignal REST API Overview: https://documentation.onesignal.com/docs/onesignal-api
-***Make sure that port 443 on server is open to outbound traffic so that the api requests for push notifications can get out. ***
-Setup tunnel to port 3000 to allow server to accept incoming traffic.
-Setup Redis for Kue functionality: https://redis.io/docs/install/install-redis/
+20) Copy the plaid client ID to the server .env file variable PLAID_CLIENT_ID.
+21) Copy the plaid secret for the devlopment environment to the server .env file variable PLAID_SECRET.
+22) Copy the plaid secret for the sandbox environment to the server .env file variable PLAID_SECRET_SANDBOX.
+23) Create a Firebase account.
+24) Create a OneSignal account and link it to the firebase account you just created.
+25) Copy the OneSignal API key to the server .env file variable ONESIGNAL_API_KEY.
+26) Copy the OneSignal App ID to the server .env file variable ONESIGNAL_APP_ID.
+27) Setup a tunnel to port 3000 and copy the address into the server .env file variable WEBHOOK_URL.
+28) Run npm start command in the terminal from the /server directory. (You should see a message stating that the server is started on port 3000)
+29) Open a new terminal.
+30) Navigate to the /billBuzzApp/Project directory of the project.
+31) Run npm install from the terminal.
+32) Create a .env file in the /billBuzzApp/Project directory.
+33) Copy the tunnel address into the /billBuzzApp/Project/.env file variable SERVER_ENDPOINT.
+34) Create an firewall exception to allow all outgoing traffic on port 443.
+35) Run npm start command from the billBuzzApp/Project directory.
