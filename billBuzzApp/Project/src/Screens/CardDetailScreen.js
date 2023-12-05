@@ -92,32 +92,23 @@ class CardDetailScreen extends React.Component {
     }
 
     saveDate = () => {
-        const {cardName} = this.state;
+        const { cardName } = this.state;
         const user = this.props.userStore;
         if (cardName !== this.cardData?.name) {
-            let accountList = [...user.accountList];
-
-            let newUser = {
-                firstName: user.firstName,
-                lastName: user.lastName,
-                email: user.email,
-                phoneNumber: user.phoneNumber,
-                password: user.password,
-                birthday: user.birthday,
-                bankBalance: user.bankBalance,
-                availableCredit: user.availableCredit,
-                accountList: [],
-                overdraftThreshold: user.overdraftThreshold
-            };
-
-            accountList.forEach(item => {
+            let accountList = user.accountList.map(item => {
                 if (item.name === this.cardData?.name) {
-                    item.name = cardName;
+                    return { ...item, name: cardName }; // Create a new object with updated name
                 }
+                return item; // Return the item as is if the name doesn't match
             });
 
-            newUser.accountList = accountList;
+            // Create a newUser object with all the user details and the updated account list
+            let newUser = {
+                ...user, // Spread the existing user properties
+                accountList: accountList // Set the updated accountList
+            };
 
+            // Send the newUser object to the server
             fetch(SERVER_ENDPOINT + '/register/updateUser', {
                 method: 'POST',
                 headers: {
@@ -131,15 +122,16 @@ class CardDetailScreen extends React.Component {
             })
                 .then(result => result.json())
                 .then(data => {
-                    this.props.userStore.updateUser(data);
+                    this.props.userStore.updateUser(data); // Update the user store with the response
                     this.showSuccess("Updated profile!");
-                    this.setState({editor: false});
+                    this.setState({ editor: false });
                 })
-                .catch(console.error)
-        }else {
-            this.setState({editor: false});
+                .catch(console.error);
+        } else {
+            this.setState({ editor: false });
         }
     }
+
 
     showSuccess = (message) => {
         Toast.show({
