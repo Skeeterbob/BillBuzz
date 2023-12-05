@@ -123,7 +123,7 @@ class CardDetailScreen extends React.Component {
                 .then(result => result.json())
                 .then(data => {
                     this.props.userStore.updateUser(data); // Update the user store with the response
-                    this.showSuccess("Updated profile!");
+                    this.showSuccess("Updated Bank Name!");
                     this.setState({ editor: false });
                 })
                 .catch(console.error);
