@@ -184,19 +184,21 @@ class TransactionScreen extends React.Component {
                     >
                         <View style={styles.centeredView}>
                             <View style={styles.modalView}>
-                                <View style={styles.inputButtonWrapper}>
-                                    <TouchableOpacity onPress={this.setOpen}>
-                                        <Text >Close</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={this.clearDates}>
-                                        <Text>Clear</Text>
-                                    </TouchableOpacity>
-                                </View>
+                               
                                 <Calendar
                                     markingType={'period'}
                                     markedDates={this.state.selected}
                                     onDayPress={this.onDayPress}
                                 />
+                                 <View style={styles.inputButtonWrapper}>
+                                    <TouchableOpacity style={styles.closeButton} onPress={this.setOpen}>
+                                        <Text >Close</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity style={styles.clearButton} onPress={this.clearDates}>
+                                        <Text>Clear</Text>
+                                    </TouchableOpacity>
+                                    
+                                </View>
                             </View>
                         </View>
                     </Modal>
@@ -247,6 +249,19 @@ function formatDate(dateString) {
 }
 
 const styles = StyleSheet.create({
+    inputButtonWrapper: {
+        flexDirection: 'row',
+        
+        justifyContent: 'space-between',
+    },
+    closeButton: {
+        marginRight: 150, // Add space to the right of the Close button
+        // other styles...
+    },
+    clearButton: {
+        // You can also add marginLeft here if needed
+        // other styles...
+    },
     calendarStyles: {
         
         alignItems: 'left',

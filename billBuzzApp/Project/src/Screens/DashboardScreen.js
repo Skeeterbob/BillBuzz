@@ -413,6 +413,7 @@ class DashboardScreen extends React.Component {
                                 <Icon name={'arrow-forward'} size={32} color={'#FFFFFF'} />
                             </TouchableOpacity>
                         </View>
+                        
                         <LineChart
                             data={this.state.chartData}
                             width={Dimensions.get('window').width - 50}
