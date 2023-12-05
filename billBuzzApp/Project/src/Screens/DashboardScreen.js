@@ -380,8 +380,10 @@ class DashboardScreen extends React.Component {
                         value={selectedAccount}
                         items={accounts}
                         setOpen={item => this.setState({ dropdownOpen: item })}
-                        setValue={(callback) => this.setState(state => ({ selectedAccount: callback(state.selectedAccount) }))}
-                        onChangeItem={item => this.setState({ selectedAccount: item.value })}
+                        setValue={(callback) => this.setState(state => ({ selectedAccount: callback(state.selectedAccount) }), () => this.initialize())}
+                        onChangeItem={item => {
+                            this.setState({ selectedAccount: item.value }, () => this.initialize());
+                        }}
                         defaultValue={selectedAccount}
                         style={styles.accountSelector}
                         textStyle={{ color: '#FFFFFF' }}
