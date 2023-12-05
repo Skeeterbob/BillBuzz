@@ -11,7 +11,7 @@ A financial management tool that consolidates all accounts for ease of monitorin
 7) Copy the Twilio account SID to the server .env file variable TWILIO_ACCT_SID. <br>
 8) Add your phone number to the server .env file variable TEST_PHONE. <br>
 9) Create an account with MongoDB. <br>
-10) Replace <account> and <password> in the string, "mongodb+srv://<account>:<password>@wsucluster0.3qpwigj.mongodb.net/?retryWrites=true&w=majority" with your new MongoDB login and password respectively, and copy the new string to the server.env file variable MONGO_CONNECTION. <br>
+10) Replace \<account\> and \<password\> in the string, "mongodb+srv://\<account\>:\<password\>@wsucluster0.3qpwigj.mongodb.net/?retryWrites=true&w=majority" with your new MongoDB login and password respectively, and copy the new string to the server.env file variable MONGO_CONNECTION. <br>
 11)
 OneSignal REST API Overview: https://documentation.onesignal.com/docs/onesignal-api
 ***Make sure that port 443 on server is open to outbound traffic so that the api requests for push notifications can get out. ***
