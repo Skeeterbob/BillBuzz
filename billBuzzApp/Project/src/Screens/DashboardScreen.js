@@ -276,6 +276,13 @@ class DashboardScreen extends React.Component {
     }
 
     componentDidMount() {
+        this.initialize();
+        this.props.navigation.addListener('focus', () => {
+            this.initialize();
+        });
+    }
+
+    initialize() {
         const user = this.props.userStore;
         const {selectedAccount, sortBy} = this.state;
         this.compileChart();
