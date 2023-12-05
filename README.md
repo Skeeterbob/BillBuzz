@@ -12,7 +12,16 @@ A financial management tool that consolidates all accounts for ease of monitorin
 8) Add your phone number to the server .env file variable TEST_PHONE. <br>
 9) Create an account with MongoDB. <br>
 10) Replace \<account\> and \<password\> in the string, "mongodb+srv://\<account\>:\<password\>@wsucluster0.3qpwigj.mongodb.net/?retryWrites=true&w=majority" with your new MongoDB login and password respectively, and copy the new string to the server.env file variable MONGO_CONNECTION. <br>
-11)
+11) Copy the MongoDB master key to the server .env file variable MONGO_MASTER_KEY. <br>
+12) Copy this string, "AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic" to the server.env file variable ENCRYPTION_ALGORITHM. <br>
+13) Set the server .env file variable DATABASE_NAME to "billbuzz". <br>
+14) Set the server .env file variable KEY_VAULT_DATABASE to "encryption". <br>
+15) Set the server .env file variable USERS_COLLECTION to "userscollection". <br>
+16) Set the server .env file variable KEY_VAULT_COLLECTION to "keyVault". <br>
+17) Set the server .env file variable QUEUE_COLLECTION to "queuecollection". <br>
+18) Create an account on Plaid.
+19) Request a developer account on Plaid.
+20) 
 OneSignal REST API Overview: https://documentation.onesignal.com/docs/onesignal-api
 ***Make sure that port 443 on server is open to outbound traffic so that the api requests for push notifications can get out. ***
 Setup tunnel to port 3000 to allow server to accept incoming traffic.
