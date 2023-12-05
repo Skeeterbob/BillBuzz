@@ -5,7 +5,7 @@
   "description": "financial app to consolidate and monitor accounts",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --maxworkers=50%",
     "start": "node app.js"
   },
   "repository": {
