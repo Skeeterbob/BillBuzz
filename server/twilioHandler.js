@@ -29,6 +29,7 @@ class TwilioHandler {
                 .verifications
                 .create({to: phNum, channel: 'sms'})
                 .then(async verification => {
+                    console.log(verification);
                     resolve(verification);
                 });     
         })             

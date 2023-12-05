@@ -523,8 +523,6 @@ const truncateText = (text) => {
 };
 
 const TransactionComponent = (transaction) => {
-    console.log(JSON.stringify(transaction));
-
     return (
         <View style={styles.transaction}>
 
