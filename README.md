@@ -34,6 +34,6 @@ A financial management tool that consolidates all accounts for ease of monitorin
 30) Navigate to the /billBuzzApp/Project directory of the project.
 31) Run npm install from the terminal.
 32) Create a .env file in the /billBuzzApp/Project directory.
-33) Copy the tunnel address into the /billBuzzApp/Project/.env file variable SERVER_ENDPOINT.
+33) Copy the tunnel address from step 27 into the /billBuzzApp/Project/.env file variable SERVER_ENDPOINT.
 34) Create an firewall exception to allow all outgoing traffic on port 443.
 35) Run npm start command from the billBuzzApp/Project directory.
